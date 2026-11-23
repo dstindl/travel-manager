@@ -469,9 +469,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_39';
+const APP_VERSION='0.80_40';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_40',d:'23.11.2026',items:['Alle Suchen bevorzugen jetzt immer eure Reiseländer (Einstellungen › Länder der Reise): Treffer dort stehen oben, Orte außerhalb rutschen nach unten','Google und OpenStreetMap suchen ohne Bezugspunkt in der Region eurer Reiseländer statt rund um den eigenen Standort','Gilt überall: Neuer Spot, Ausflug, Etappe, Transfer, Unterkunft, Abfahrtsort und geteilte Orte']},
  {v:'0.80_39',d:'23.11.2026',items:['Geteilter Ort: Google sucht zuerst nur in eurer Reiseregion – „Ella“ findet jetzt Ella in Sri Lanka statt Treffer in Deutschland','Treffer werden nach Nähe zu euren Etappen sortiert, weit entfernte Orte fallen weg','Google-Suche ohne Bezugspunkt (z. B. Neuer Spot › Weltweit) bevorzugt ebenfalls die Reiseregion statt des eigenen Standorts']},
  {v:'0.80_38',d:'23.11.2026',items:['Google-Tageslimit in der App (Einstellungen › Suche, Standard 100): danach sucht die App bis morgen nur über OpenStreetMap','Bei jedem Start mit erreichtem Limit ein Hinweisfenster, bei 80 % eine kurze Meldung','Google-Bewertungen (mit Option „mit Bewertungen“) werden überall angezeigt – mit Anzahl, z. B. ★ 4,0 (54) – und beim Speichern als Spot übernommen']},
  {v:'0.80_37',d:'23.11.2026',items:['Alle Suchfelder sehen gleich aus: rundes Feld mit Lupe und Löschen-Knopf – auch Atlas und Land hinzufügen','Vorschlagslisten unter Eingabefeldern (Unterkunft Name/Adresse, Abfahrtsort beim Ausflugs-Transport) im gleichen Zeilenstil wie die Suchmasken, mit Google-Markierung und Entfernung','Neu: Abfahrtsort beim Ausflugs-Transport mit Live-Vorschlägen (Google, OpenStreetMap, Bahnhöfe, Häfen, Google-Maps-Link, Koordinaten)','Alte Vorschlagsansicht entfernt: „Vorschläge“ öffnet überall dieselbe Maske „Ausflug hinzufügen“']},
@@ -958,7 +959,7 @@ function borderCheck(from,to,mode){if(from===to)return null;const nm=c=>country(
 async function liveFind(q,c,km){q=(q||'').trim();
  if(gmIs(q)){const g=await gmFind(q,c);if(g.err)throw new Error(g.err);return g}
  if(!q){if(!c)throw new Error('Ohne Suchbegriff bitte einen Umkreis wählen');const r=await wdNear(c,km);return srchCut(srchRank(r,'',c),40)}
- const jobs=[photon(q,c).catch(()=>[]),nomSearch(q,c?[c.lon-1.5,c.lat+1.5,c.lon+1.5,c.lat-1.5]:null).then(r=>r.map(x=>{const t=nomTags(x);const parts=x.display_name.split(',').map(z=>z.trim());return{name:x.name||parts[0],type:[parts[1],parts[parts.length-1]].filter(Boolean).join(', '),lat:+x.lat,lon:+x.lon,cats:catFromTags(t),osm:(x.osm_type||'')+'/'+x.osm_id,qid:t.wikidata,wikiRaw:t.wikipedia,region:x.address?.state||x.address?.province||x.address?.county||'',cc:x.address?.country_code?.toUpperCase()}})).catch(()=>[])];
+ const jobs=[photon(q,c||tripCenter()).catch(()=>[]),nomSearch(q,c?[c.lon-1.5,c.lat+1.5,c.lon+1.5,c.lat-1.5]:null).then(r=>r.map(x=>{const t=nomTags(x);const parts=x.display_name.split(',').map(z=>z.trim());return{name:x.name||parts[0],type:[parts[1],parts[parts.length-1]].filter(Boolean).join(', '),lat:+x.lat,lon:+x.lon,cats:catFromTags(t),osm:(x.osm_type||'')+'/'+x.osm_id,qid:t.wikidata,wikiRaw:t.wikipedia,region:x.address?.state||x.address?.province||x.address?.county||'',cc:x.address?.country_code?.toUpperCase()}})).catch(()=>[])];
  if(c)jobs.push(wdNear(c,km).then(r=>r.filter(x=>fuzzyScore(x.name,q)>=35)).catch(()=>[]));
  if(gplKey())jobs.push(gplFind(q,c).catch(()=>[]));
  const all=airportFind(q).concat(hubFind(q),srchKindNear(q,c),(await Promise.all(jobs)).flat());const out=[];
@@ -3035,7 +3036,7 @@ const SRCH_SORT=[['rel','Relevanz'],['mix','Ausgewogen'],['dist','Entfernung']];
 function srchMode(){return S.settings.srchSort||'mix'}
 function srchKm(km){return km==null?'':(km<10?String(Math.round(km*10)/10).replace('.',','):Math.round(km).toLocaleString('de-DE'))+' km'}
 function srchRel(x,q){let r;if(!q)r=(typeof x.links==='number'?x.links:0)/2;else{r=Math.max(fuzzyScore(x.name||'',q),Math.max(fuzzyScore(noDia(x.name||''),noDia(q)),0));if(x.code)r=Math.max(r,(x._s||0)/2+50);if(x._ls)r=Math.max(r,x._ls)}
- return r+(typeof x.links==='number'?Math.min(15,x.links/4):0)+(x.saved?8:0)+(x.gm?40:0)}
+ const it=q?inTrip(x):null;return r+(typeof x.links==='number'?Math.min(15,x.links/4):0)+(x.saved?8:0)+(x.gm?40:0)+(it===true?22:it===false?-35:0)}
 function srchRank(list,q,c){q=(q||'').trim();const m=srchMode();const arr=(Array.isArray(list)?list:[]).map(x=>{const km=c&&x.lat!=null&&c.lat!=null?hav(c,x):null;const t0=x.type0!=null?x.type0:(x.type||'');return {...x,type0:t0,km,type:t0+(km!=null?(t0?' · ':'')+srchKm(km):''),_rel:srchRel(x,q)}});
  arr.forEach(x=>x._s2=m==='rel'||x.km==null?x._rel:m==='mix'?x._rel-Math.min(70,8*Math.log2(1+x.km/10)):-x.km);
  arr.sort((a,b)=>m==='dist'&&a.km!=null&&b.km!=null?(a.km-b.km)||(b._rel-a._rel):(b._s2-a._s2));
@@ -3324,7 +3325,12 @@ function gplUse(){try{const u=JSON.parse(localStorage.getItem(GPL_USE)||'{}');co
 function gplCount(){try{const u=JSON.parse(localStorage.getItem(GPL_USE)||'{}');const d=iso(new Date()),m=d.slice(0,7);const o={d,n:(u.d===d?u.n:0)+1,m,mn:(u.m===m?u.mn:0)+1};localStorage.setItem(GPL_USE,JSON.stringify(o))}catch(e){}}
 const GPL_CACHE=new Map();let GPL_TOK=0;
 function gplCats(t){t=t||[];const c=new Set();if(t.some(x=>/museum|temple|church|mosque|place_of_worship|historical|monument|cultural|art_gallery|tourist_attraction/.test(x)))c.add('Kultur');if(t.some(x=>/park|natural_feature|hiking|national_park|garden|waterfall|mountain/.test(x)))c.add('Natur');if(t.includes('beach'))c.add('Strand');if(t.some(x=>/restaurant|cafe|food|bar|bakery/.test(x)))c.add('Food');if(t.some(x=>/market|shopping|city_hall|neighborhood|locality/.test(x)))c.add('Stadt');return c.size?[...c]:['Sonstiges']}
-function tripBox(m=1.5){const pts=S.stages.map(st=>byId(st.placeId)).filter(p=>p&&p.lat!=null);if(!pts.length)return null;const la=pts.map(p=>p.lat),lo=pts.map(p=>p.lon);return {low:{latitude:Math.max(-89,Math.min(...la)-m),longitude:Math.max(-179,Math.min(...lo)-m)},high:{latitude:Math.min(89,Math.max(...la)+m),longitude:Math.min(179,Math.max(...lo)+m)}}}
+const COUNTRY_BOX={VN:[8.2,102.1,23.4,109.5],KH:[10.4,102.3,14.7,107.7],TH:[5.6,97.3,20.5,105.7],LK:[5.9,79.5,9.9,81.9],MY:[0.8,99.6,7.4,119.3],PH:[4.6,116.9,21.2,126.6],ID:[-11,95,6.1,141],LA:[13.9,100,22.5,107.7],SG:[1.15,103.6,1.48,104.1],MM:[9.6,92.2,28.6,101.2],IN:[6.7,68.1,35.5,97.4],NP:[26.3,80,30.5,88.2],BD:[20.6,88,26.7,92.7],MV:[-0.7,72.6,7.1,73.8],BN:[4,114,5.1,115.4],TL:[-9.5,124,-8.1,127.4],TW:[21.9,119.3,25.3,122.1],HK:[22.15,113.8,22.56,114.4],JP:[24,123,45.6,146],KR:[33,124.6,38.7,131],CN:[18,73,53.6,135],AU:[-44,112,-10,154],NZ:[-47.5,166,-34,179],AE:[22.6,51.5,26.1,56.4],QA:[24.4,50.7,26.2,51.7]};
+function tripCC(){return new Set(S.countries.map(c=>c.id))}
+function tripBox(m=1.5){let la=[],lo=[];S.countries.forEach(c=>{const b=COUNTRY_BOX[c.id];if(b){la.push(b[0],b[2]);lo.push(b[1],b[3])}});S.stages.forEach(st=>{const p=byId(st.placeId);if(p&&p.lat!=null){la.push(p.lat);lo.push(p.lon)}});if(!la.length)return null;
+ return {low:{latitude:Math.max(-89,Math.min(...la)-m),longitude:Math.max(-179,Math.min(...lo)-m)},high:{latitude:Math.min(89,Math.max(...la)+m),longitude:Math.min(179,Math.max(...lo)+m)}}}
+function tripCenter(){const b=tripBox(0);return b?{lat:(b.low.latitude+b.high.latitude)/2,lon:(b.low.longitude+b.high.longitude)/2}:null}
+function inTrip(x){const cc=(x.cc||'').toUpperCase();if(cc)return tripCC().has(cc);if(x.lat==null)return null;return S.countries.some(c=>{const b=COUNTRY_BOX[c.id];return b&&x.lat>=b[0]&&x.lat<=b[2]&&x.lon>=b[1]&&x.lon<=b[3]})||null}
 function tripNearKm(x){let bd=1e9;S.stages.forEach(st=>{const p=byId(st.placeId);if(p&&x.lat!=null){const d=hav(p,x);if(d<bd)bd=d}});return bd}
 async function gplFind(q,c,opt={}){const key=gplKey();q=(q||'').trim();if(!key||q.length<3)return [];
  const ck=q.toLowerCase()+'|'+(opt.type||'')+'|'+(opt.strict?'S':'')+'|'+(c?c.lat.toFixed(1)+','+c.lon.toFixed(1):'');if(GPL_CACHE.has(ck))return GPL_CACHE.get(ck);
@@ -3360,7 +3366,7 @@ async function shareOpen(raw){raw=String(raw||'').trim();if(!raw)return;const tx
  if(gplKey()&&nm){try{res=await gplFind(nm,null,{now:true,strict:true})}catch(e){}if(!res.length){try{res=await gplFind(nm,null,{now:true})}catch(e){}}}
  if(!res.length){try{const g=await gmResolve(raw,null);res=[g]}catch(e){UI.share.err=e.message}}
  if(!res.length&&nm){try{const r=await liveFind(nm,null,50);if(Array.isArray(r))res=r.slice(0,12)}catch(e){}}
- if(res.length>1){res.forEach(x=>x._tk=tripNearKm(x));const near=res.filter(x=>x._tk<=400);if(near.length)res=near.concat(res.filter(x=>x._tk>400&&x._tk<1500));res.sort((a,b)=>(a._tk>400)-(b._tk>400)||a._tk-b._tk);res=res.slice(0,8)}
+ if(res.length>1){res.forEach(x=>x._tk=tripNearKm(x));const ok=x=>x._tk<=400||inTrip(x)===true;const near=res.filter(ok);if(near.length)res=near.concat(res.filter(x=>!ok(x)&&x._tk<1500));res.sort((a,b)=>(!ok(a))-(!ok(b))||a._tk-b._tk);res=res.slice(0,8)}
  UI.share.res=res;if(res[0]){const n=shNearest(res[0]);UI.share.stage=n.i}shareSheet()}
 function shareSheet(){const H=UI.share;if(!H)return;UI.reSheet=shareSheet;
  let h=smHead('Geteilter Ort',esc(H.name||'aus Google Maps'));
