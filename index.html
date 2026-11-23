@@ -479,6 +479,14 @@ body.cmp .K{padding:14px 12px 10px}
 .f4cn{font:600 17px Poppins,sans-serif;color:#e6e7e8}
 .f4arr{background:#1f2223;border-color:#2e3134}
 .f4gap{border-style:dashed;background:repeating-linear-gradient(135deg,#1f2123 0 10px,#232527 10px 20px)}
+
+.f4card .f4r+.f4r{border-top:1px solid #2e3134}
+.f4card .f4r.f4ft{border-top:1px solid #2e3134}
+.f4ic{width:34px;height:34px;border-radius:10px;background:#2c2f33;display:flex;align-items:center;justify-content:center}
+.f4dh{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#a9adb1;margin:18px 2px 8px}
+.f4dh .mu{font-weight:400;letter-spacing:0;text-transform:none}
+.f4dh .h5lnk{text-transform:none;letter-spacing:0}
+.f4free{border:1px dashed #33363a;border-radius:14px;padding:12px 14px;font-size:12.5px;color:#6f7378}
 </style>
 </head>
 <body>
@@ -498,9 +506,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_43';
+const APP_VERSION='0.80_44';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_44',d:'23.11.2026',items:['Etappe (Ebene 3) im neuen Raster: Anreise oben, Etappen-Karte mit Unterkunft, Nächten, Ausflügen, Kosten, Hinweisen und Notiz als Zeilen, Weiterreise unten – verbunden durch die Linie','Ausflüge (Ebene 4) chronologisch nach Tagen: jeder Ausflug als Karte mit Nummer, im Kartenfuß der Transport oder „Transport hinzufügen“; freie Tage als „frei“','Transfer-Seite: Teilstrecken als verbundene Karten mit T-Nummer und Verkehrsmittel, am Ende „Teilstrecke hinzufügen“']},
  {v:'0.80_43',d:'23.11.2026',items:['Route mit Umschalter Zeitverlauf | Ablauf: Ablauf zeigt die ganze Reise chronologisch mit Länderköpfen','Neues Raster für Etappen und Transfers: jede Etappe ist eine Karte, die Weiterreise steht im Kartenfuß – Nummer und T-Nummer, Datum und Status jeweils untereinander','Verbindungslinie zwischen den Karten, gestrichelt an Landesgrenzen; Anreise als eigene kleine Karte','Fehlende Weiterreise direkt im Kartenfuß hinzufügen','Gleiches Raster in der Länderansicht']},
  {v:'0.80_42',d:'23.11.2026',items:['Etappe hinzufügen in zwei Schritten: erst den Ort wählen, dann die Position in der chronologischen Etappenliste des Landes','Die Position mit dem kürzesten Umweg ist vorausgewählt und als „empfohlen“ markiert; die neue Etappe zeigt direkt An- und Abreisedatum und die Nächte','Beim geteilten Ort „Neue Etappe“ geht es direkt zur Positionswahl','Pop-ups öffnen immer oben; beim Aktualisieren desselben Fensters bleibt die Scrollposition erhalten']},
  {v:'0.80_41',d:'23.11.2026',items:['Geteilter Ort: Suche mit Name und Land aus Google Maps (z. B. „Mirissa, Sri Lanka“) und gleichzeitig über Google, OpenStreetMap und eure gespeicherten Orte','Der Ort selbst steht jetzt oben: exakte Namenstreffer vor Hotels und Restaurants mit ähnlichem Namen, eure Etappen und gespeicherten Orte zuerst']},
@@ -2933,49 +2942,6 @@ function rhE2(c){const ds=stagesDated();const r=countryRange(c);const list=ds.ma
  return h}
 
 // Ebene 3: Etappe
-function rhE3(i){const S3=stStatus(i);const s={...S3.ds,i};const st=S3.st;const p=S3.p;const no=stageNo()[p.id]||'';const pr=prioOf(p);const nx=S.stages[i+1];
- const right=`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageMenu" data-i="${i}" aria-label="Mehr">${ic('more')}</button>`;
- let h=rhHead(`<span class="h5n lg">${no}</span>${esc(p.name)}`,`${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}`,3,right);
- const busy=new Set(S3.planned.map(x=>x.planned)).size;const hh=st.stay;const ex=S3.planned.length;
- h+=`<div class="h5g2">${rhTile('Tage',`${busy} von ${S3.days.length}`,'verplant · Daten, Nächte',`data-a="stayOpen" data-i="${i}"`,false)}
- ${rhTile('Unterkunft',hh&&hh.name?esc(hh.name):'offen',hh&&hh.name?(hh.status==='gebucht'?'gebucht':'nicht gebucht')+(hh.paid?' · bezahlt':''):'noch keine gewählt',`data-a="hotelOpen" data-i="${i}"`,S3.hs!=='g')}
- ${rhTile('Ausflüge',`${ex} geplant`,S3.un?`${S3.un} ohne Tag`:S3.exAll?'alle eingeplant':'noch keine',`data-a="rh" data-l="ex" data-id="${st.id}"`,S3.un>0)}
- ${rhTile('Kosten',eur(S3.k.c),S3.k.budget?'von '+eur(S3.k.budget):S3.miss?S3.miss+' ohne Betrag':'erfasst',`data-a="rh" data-l="cost" data-id="${st.id}"`,S3.cs!=='g',S3.k.budget?`<div class="h5bar2"><i style="width:${Math.min(100,Math.round(S3.k.c/S3.k.budget*100))}%"></i></div>`:'')}</div>`;
- h+=rhSec('Reise');
- const L=legsOf(st),Ln=nx?legsOf(nx):[];const mn=l=>l.map(x=>(MODES[x.mode]||MODES.car)[1]).filter((v,k,a)=>a.indexOf(v)===k).join(' · ');
- const an=L.length?rhTile(`Anreise · ${trLabel(st,0).replace(/\.\d+$/,'')}`,mn(L),`${fmtD(L[0].date?new Date(L[0].date+'T12:00:00'):s.from)}${L[0].dep?' · '+L[0].dep:''}`,`data-a="rh" data-l="tr" data-id="${st.id}"`,!L.every(l=>l.status==='gebucht'))
-  :i===0?rhTile('Anreise · T0','fehlt','antippen: Flug anlegen','data-a="t1Auto"',true):rhTile('Anreise','fehlt','antippen: automatisch',`data-a="autoTr" data-i="${i}"`,true);
- const ab=nx&&Ln.length?rhTile(`Abreise · ${trLabel(nx,0).replace(/\.\d+$/,'')}`,mn(Ln),`${fmtD(Ln[0].date?new Date(Ln[0].date+'T12:00:00'):s.to)} → ${esc(byId(nx.placeId)?.name||'')}`,`data-a="rh" data-l="tr" data-id="${nx.id}"`,!Ln.every(l=>l.status==='gebucht'))
-  :nx?rhTile('Abreise','fehlt','antippen: automatisch',`data-a="autoTr" data-i="${i+1}"`,nx.placeId!==st.placeId&&!nx.gap):rhTile('Abreise','Ende','letzte Etappe','',false);
- h+=`<div class="h5g2">${an}${ab}</div>`;
- h+=rhSec('Weiteres');
- h+=`<div class="h5g2">${rhTile('Hinweise',S3.A.length?S3.A.length+' offen':'keine',S3.A.length?esc(S3.A[0].t.replace(/<[^>]+>/g,'')).slice(0,40)+'…':'alles stimmig',S3.A.length?`data-a="analyse" data-i="${i}"`:'',S3.A.length>0)}
- ${rhTile('Notiz',p.note?'vorhanden':'keine',p.note?esc(p.note).slice(0,34)+(p.note.length>34?'…':''):'antippen zum Schreiben',`data-a="rh" data-l="note" data-id="${st.id}"`,false)}</div>`;
- h+=`<div class="h5btns"><button class="btn sm gh sp" data-a="suggOpen" data-id="${p.id}">${ic('spark',14)} Vorschläge</button><button class="btn sm gh sp" data-a="mvBefore" data-i="${i}">${ic('route',14)} Verschieben</button></div>`;
- return h}
-
-// Ebene 4: Ausflüge
-function rhE4ex(i){const S3=stStatus(i);const p=S3.p;const st=S3.st;const ex=excursions(p.id).map(x=>x.p);const pl=ex.filter(x=>x.planned),un=ex.filter(x=>!x.planned);
- UI.rhDay=UI.rhDay||{};const td=iso(nowD());let day=UI.rhDay[st.id];if(!S3.days.includes(day))day=S3.days.includes(td)?td:(S3.days.find(d=>pl.some(x=>x.planned===d))||S3.days[0]);
- let h=rhHead('Ausflüge',`${pl.length} geplant · ${un.length} ohne Tag`,4,`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button>`);
- const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
- h+=rhSec('Tage');
- h+=`<div class="h5days">${S3.days.map((d,k)=>{const n=pl.filter(x=>x.planned===d).length;const dd=new Date(d+'T12:00:00');return `<div class="h5day click ${d===day?'on':''}" data-a="rhDay" data-id="${st.id}" data-k="${d}"><div class="k">${WD[dd.getDay()]} ${fmtD(dd)}</div><div class="v">${n||'–'}</div><div class="s">${k===0?'Anreise':n?'geplant':'frei'}</div></div>`}).join('')}</div>`;
- const dd=new Date(day+'T12:00:00');const WL=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
- h+=rhSec(`${WL[dd.getDay()]}, ${fmtD(dd)}`,`<span class="h5lnk click" data-a="rhAddEx" data-id="${p.id}" data-k="${day}">+ Ausflug</span>`);
- const row=x=>{const t=travel(x,p);const tt=x.tt;const M=tt?(TOUR_MODES[tt.mode]||TOUR_MODES.car):null;
-  return `<div class="h5row click" data-a="stTour" data-id="${x.id}"><span class="h5time">${tt&&tt.dep?tt.dep:'–'}</span><div class="sp" style="min-width:0"><div class="t">${esc(x.name)}</div><div class="s">${excNo(x)||''}${M?' · '+M[1]:''}${t&&t.min!=null?' · '+fmtMin(t.min):''}</div></div>${rhDot(tt&&tt.status!=='gebucht')}${ic('chev',14,'#5d6166')}</div>`};
- const dl=pl.filter(x=>x.planned===day);
- h+=`<div class="h5list">${dl.length?dl.map(row).join(''):`<div class="h5row"><div class="sp s">Noch nichts geplant. Freier Tag.</div></div>`}</div>`;
- if(un.length){h+=rhSec('Ohne Tag');h+=`<div class="h5list">${un.map(x=>{const t=travel(x,p);return `<div class="h5row click" data-a="stTour" data-id="${x.id}"><span class="h5dot"></span><div class="sp" style="min-width:0"><div class="t">${esc(x.name)}</div><div class="s">${excNo(x)||''} · ${esc(x.cats.join(', '))}${t&&t.min!=null?' · '+fmtMin(t.min):''}</div></div><span class="h5lnk">Einplanen</span></div>`}).join('')}</div>`}
- const sg=(S.sugg[p.id]||[]).slice(0,8);
- h+=rhSec('Vorschläge',`<span class="h5lnk click" data-a="suggOpen" data-id="${p.id}">Alle</span>`);
- h+=sg.length?`<div class="h5car">${sg.map(x=>{const km=x.lat!=null?hav(p,x):null;return `<div class="h5k click" data-a="suggOpen" data-id="${p.id}"><div class="k">${km!=null?(km<10?km.toFixed(1).replace('.',','):Math.round(km))+' km':esc((x.cats||[])[0]||'')}</div><div class="v sm">${esc(x.name)}</div></div>`}).join('')}</div>`
-  :`<div class="h5list"><div class="h5row click" data-a="suggOpen" data-id="${p.id}">${ic('spark',15,'#8c9196')}<div class="sp t">Vorschläge in der Nähe suchen</div>${ic('chev',14,'#5d6166')}</div></div>`;
- h+=`<button class="h5add" data-a="attachOpen" data-id="${p.id}">${ic('plus',15)} Ausflug hinzufügen</button>`;
- return h}
-
-// Ebene 4: Kosten der Etappe
 function rhE4cost(i){const S3=stStatus(i);const ci=costItems().filter(x=>x.key==='h'+i||x.key.startsWith('l'+i+'_')||(x.key.startsWith('t')&&S3.days.includes(x.date)));const ex=(S.expenses||[]).map((e,k)=>({e,k})).filter(o=>S3.days.includes(o.e.date));
  let h=rhHead('Kosten',`${eur(S3.k.c)}${S3.k.budget?' von '+eur(S3.k.budget):''} · ${S3.miss?S3.miss+' ohne Betrag':'alle Beträge erfasst'}`,4);
  const paid=ci.filter(x=>x.amt!=null&&x.paid).reduce((a,x)=>a+x.amt,0);
@@ -3001,8 +2967,8 @@ function rhTr(i){const st=S.stages[i];const s={...stagesDated()[i],i};const L=le
  if(!pc)tiles+=rhTile('Abfahrt',L[0].dep||'offen',L[L.length-1].arr?'Ankunft '+L[L.length-1].arr:'Zeit eintragen',`data-a="trEdit" data-i="${i}" data-j="0"`,!L[0].dep);
  if(!pc&&i>0)tiles+=rhTile('Strecke',km?km.toLocaleString('de-DE')+' km':'–',dur||'Dauer offen','',false);
  h+=`<div class="h5g2">${tiles}</div>`;
- h+=rhSec('Teilstrecken',`<span class="h5lnk click" data-a="legAdd" data-i="${i}">+ Teilstrecke</span>`);
- h+=`<div class="h5list">${L.map((l,j)=>{const M=MODES[l.mode]||MODES.car;return `<div class="h5row click" data-a="trEdit" data-i="${i}" data-j="${j}"><span class="h5time">${l.dep||'–'}</span><div class="sp" style="min-width:0"><div class="t">${esc(I[j].from)} → ${esc(I[j].to)}</div><div class="s">${trLabel(st,j)} · ${M[1]}${l.op?' · '+esc(l.op):''} · ${l.status==='gebucht'?'gebucht':'offen'}${eurOf(l)!=null?' · '+eur(eurOf(l)):''}</div></div>${rhDot(l.status!=='gebucht')}${ic('chev',14,'#5d6166')}</div>`}).join('')}</div>`;
+ h+=rhSec('Teilstrecken');
+ h+='<div class="f4">'+L.map((l,j)=>{const M=MODES[l.mode]||MODES.car;const d=l.date?new Date(l.date+'T12:00:00'):s.from;return `<div class="f4card">`+f4row({col:`<span class="f4tb">${trLabel(st,j)}</span>${ic(M[0],14,'#9fd0d5')}`,title:`${esc(I[j].from)} → ${esc(I[j].to)}`,sub:[M[1]+(l.op?' · '+esc(l.op):''),fmtDL(d).slice(0,9)+(l.dep?' · '+l.dep+(l.arr?'–'+l.arr:''):''),l.status==='gebucht'?'gebucht':'offen',eurOf(l)!=null?eur(eurOf(l)):''].filter(Boolean).join(' · '),act:`data-a="trEdit" data-i="${i}" data-j="${j}"`,dot:l.status!=='gebucht',big:true})+`</div>`}).join('<div class="f4ln"></div>')+`<div class="f4ln"></div><div class="f4card f4arr">${f4row({cls:'f4solo f4add',col:`<span class="f4tb" style="border-style:dashed;color:#7cc3ca">+</span>`,title:'<span style="color:#7cc3ca">Teilstrecke hinzufügen</span>',sub:'z. B. Taxi zum Flughafen, Fähre',act:`data-a="legAdd" data-i="${i}"`})}</div></div>`;
  const adv=trAdvice(i);
  h+=rhSec('Prüfung');
  h+=`<div class="h5list">${adv.length?adv.map(a=>`<div class="h5row click" data-a="legAddAsk" data-i="${i}"><span class="h5dot ${a.lvl==='r'?'r':''}"></span><div class="sp" style="min-width:0"><div class="t" style="white-space:normal">${a.t}</div>${a.fix?`<div class="s" style="color:var(--pet2)">Vorschlag: ${esc(a.fix)}</div>`:''}</div>${ic('chev',14,'#5d6166')}</div>`).join(''):`<div class="h5row click" data-a="legAddAsk" data-i="${i}">${ic('check',16,'#8c9196')}<div class="sp"><div class="t">Passt so</div><div class="s">Kette, Strecken und Unterkünfte geprüft</div></div>${ic('chev',14,'#5d6166')}</div>`}</div>`;
@@ -3519,6 +3485,45 @@ function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div
    h+='</div>'}
   const nk=idx[k+1];if(nk!=null&&ds[nk].country===s.country)h+='<div class="f4ln"></div>'});
  return h+'</div>'}
+
+// ---------- 0.80_44: Ebenen 3–5 im gleichen Raster ----------
+function f4row(o){const dot=o.dot==='r'?'<span class="h5dot r"></span>':o.dot?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>';
+ return `<div class="f4r ${o.cls||''} ${o.act?'click':''}" ${o.act||''}><div class="f4c">${o.col||''}</div><div class="sp" style="min-width:0"><div class="${o.big?'f4nm':'f4tt'}">${o.title}</div>${o.sub?`<div class="f4s">${o.sub}</div>`:''}</div>${o.right||''}<div class="f4rt">${dot}${o.act?ic('chev',14,'#5d6166'):''}</div></div>`}
+function f4ico(n){return `<span class="f4ic">${ic(n,16,'#a9adb1')}</span>`}
+function rhE3(i){const S3=stStatus(i);const s={...S3.ds,i};const st=S3.st;const p=S3.p;const no=stageNo()[p.id]||'';const pr=prioOf(p);const nx=S.stages[i+1];const pv=S.stages[i-1];
+ const right=`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageMenu" data-i="${i}" aria-label="Mehr">${ic('more')}</button>`;
+ let h=rhHead(`<span class="h5n lg">${no}</span>${esc(p.name)}`,`${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}`,3,right);
+ h+='<div class="f4" style="margin-top:14px">';
+ {const txt=i===0?'Anreise Frankfurt → '+p.name:'Anreise aus '+(pv.country!==st.country?country(pv.country).name+', ':'')+(byId(pv.placeId)?.name||'');const t=f4tr(i,txt);
+  h+=`<div class="f4card f4arr">${t?f4trRow(t,'f4solo'):i===0?f4missing(i,'Anreise anlegen','data-a="t1Auto"','f4solo'):pv&&pv.placeId!==st.placeId?f4missing(i,'Anreise hinzufügen',`data-a="autoTr" data-i="${i}"`,'f4solo'):''}</div><div class="f4ln"></div>`}
+ const busy=new Set(S3.planned.map(x=>x.planned)).size;const hh=st.stay;
+ h+=`<div class="f4card">`;
+ h+=f4row({col:f4ico('bed'),title:hh&&hh.name?esc(hh.name):'Unterkunft eintragen',sub:hh&&hh.name?[(hh.status==='gebucht'?'gebucht':'nicht gebucht'),hh.paid?'bezahlt':'',hh.addr?esc(hh.addr):''].filter(Boolean).join(' · '):'Name, Adresse, Kosten, Buchung',act:`data-a="hotelOpen" data-i="${i}"`,dot:S3.hs!=='g'});
+ h+=f4row({col:f4ico('cal'),title:`${s.nights} ${s.nights===1?'Nacht':'Nächte'} · ${fmtD(s.from)}–${fmtD(s.to)}`,sub:`${busy} von ${S3.days.length} Tagen verplant · Daten und Nächte ändern`,act:`data-a="stayOpen" data-i="${i}"`});
+ h+=f4row({col:f4ico('route'),title:`Ausflüge · ${S3.planned.length} geplant`,sub:S3.un?`${S3.un} ohne Tag`:S3.exAll?'alle eingeplant':'noch keine',act:`data-a="rh" data-l="ex" data-id="${st.id}"`,dot:S3.un>0});
+ h+=f4row({col:f4ico('wallet'),title:`Kosten · ${eur(S3.k.c)}${S3.k.budget?' von '+eur(S3.k.budget):''}`,sub:S3.miss?`${S3.miss} ${S3.miss===1?'Posten':'Posten'} ohne Betrag`:'alle Beträge erfasst',act:`data-a="rh" data-l="cost" data-id="${st.id}"`,dot:S3.cs!=='g'});
+ h+=f4row({col:f4ico('alert'),title:S3.A.length?`Hinweise · ${S3.A.length}`:'Keine Hinweise',sub:S3.A.length?esc(S3.A[0].t.replace(/<[^>]+>/g,'')):'alles stimmig',act:S3.A.length?`data-a="analyse" data-i="${i}"`:'',dot:S3.A.some(x=>x.lvl==='err')?'r':S3.A.length>0});
+ h+=f4row({col:f4ico('book'),title:p.note?'Notiz':'Notiz schreiben',sub:p.note?esc(p.note).slice(0,60):'',act:`data-a="rh" data-l="note" data-id="${st.id}"`});
+ h+=`</div><div class="f4ln"></div>`;
+ if(nx&&!nx.gap){const np=byId(nx.placeId);const t=f4tr(i+1,'weiter nach '+(np?.name||'')+(nx.country!==st.country?' · Grenze':''));h+=`<div class="f4card f4arr">${t?f4trRow(t,'f4solo'):f4missing(i+1,'Weiterreise nach '+(np?.name||'')+' hinzufügen',`data-a="autoTr" data-i="${i+1}"`,'f4solo')}</div>`}
+ else h+=`<div class="f4card f4arr">${f4row({col:f4ico('home'),title:nx?'Danach: Lücke':'Letzte Etappe der Reise',sub:nx?'freie Nächte':'Rückreise in der Route ergänzen',cls:'f4solo'})}</div>`;
+ h+=`</div><div class="h5btns"><button class="btn sm gh sp" data-a="suggOpen" data-id="${p.id}">${ic('spark',14)} Vorschläge</button><button class="btn sm gh sp" data-a="mvBefore" data-i="${i}">${ic('route',14)} Verschieben</button></div>`;
+ return h}
+function rhE4ex(i){const S3=stStatus(i);const p=S3.p;const st=S3.st;const ex=excursions(p.id).map(x=>x.p);const pl=ex.filter(x=>x.planned),un=ex.filter(x=>!x.planned);
+ let h=rhHead('Ausflüge',`${esc(p.name)} · ${pl.length} geplant · ${un.length} ohne Tag`,4,`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="attachOpen" data-id="${p.id}" aria-label="Ausflug hinzufügen">${ic('plus')}</button>`);
+ const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+ const exCard=x=>{const t=travel(x,p);const tt=x.tt;const M=tt?(TOUR_MODES[tt.mode]||TOUR_MODES.car):null;const n=excNo(x)||'';
+  let c=`<div class="f4card">`+f4row({col:`<span class="f4tb" style="border-color:#5a4c33;color:#d9c79e">${n}</span>${ic(CAT_IC[x.cats[0]]||'pin',14,'#d9c79e')}`,title:esc(x.name),sub:[x.cats.join(', '),t&&t.min!=null?(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min)+' ab '+esc(p.name):'',gRateTxt(x)].filter(Boolean).join(' · '),act:`data-a="stTour" data-id="${x.id}"`,big:true});
+  if(tt)c+=f4row({cls:'f4ft',col:`<span class="f4tb">${n}</span>${ic(M[0],14,'#9fd0d5')}`,title:`${M[1]}${tt.dep?' ab '+tt.dep:''}${tt.ret&&tt.dir!=='there'?' · zurück '+tt.ret:''}`,sub:[tt.status==='gebucht'?'gebucht':'offen',eurOf(tt)!=null?eur(eurOf(tt)):'',tt.op?esc(tt.op):''].filter(Boolean).join(' · '),act:`data-a="ttEdit" data-id="${x.id}"`,dot:tt.status!=='gebucht'});
+  else c+=f4row({cls:'f4ft f4add',col:`<span class="f4tb" style="border-style:dashed;color:#7cc3ca">${n}</span>${ic('plus',14,'#7cc3ca')}`,title:'<span style="color:#7cc3ca">Transport hinzufügen</span>',sub:'Taxi, Roller, Boot, Tour …',act:`data-a="ttEdit" data-id="${x.id}"`});
+  return c+`</div>`};
+ h+='<div class="f4" style="margin-top:8px">';
+ S3.days.forEach((d,k)=>{const dd=new Date(d+'T12:00:00');const list=pl.filter(x=>x.planned===d);
+  h+=`<div class="f4dh"><span>${WD[dd.getDay()]} ${fmtD(dd)}</span><span class="mu">${k===0?'Anreisetag':'Tag '+(k+1)}</span><span class="sp"></span><span class="h5lnk click" data-a="rhAddEx" data-id="${p.id}" data-k="${d}">+ Ausflug</span></div>`;
+  h+=list.length?list.map(exCard).join('<div class="f4ln"></div>'):`<div class="f4free">frei</div>`});
+ if(un.length){h+=`<div class="f4dh"><span>Ohne Tag</span><span class="mu">${un.length}</span></div>`;h+=un.map(exCard).join('<div class="f4ln"></div>')}
+ h+=`</div><div class="h5btns"><button class="btn sm gh sp" data-a="suggOpen" data-id="${p.id}">${ic('spark',14)} Vorschläge</button><button class="btn sm pri sp" data-a="attachOpen" data-id="${p.id}">${ic('plus',14)} Ausflug hinzufügen</button></div>`;
+ return h}
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
