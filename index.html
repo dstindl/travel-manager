@@ -506,9 +506,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_44';
+const APP_VERSION='0.80_45';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_45',d:'23.11.2026',items:['Klassische Routenansicht entfernt – wer sie eingeschaltet hatte, landet automatisch wieder in der neuen Route']},
  {v:'0.80_44',d:'23.11.2026',items:['Etappe (Ebene 3) im neuen Raster: Anreise oben, Etappen-Karte mit Unterkunft, Nächten, Ausflügen, Kosten, Hinweisen und Notiz als Zeilen, Weiterreise unten – verbunden durch die Linie','Ausflüge (Ebene 4) chronologisch nach Tagen: jeder Ausflug als Karte mit Nummer, im Kartenfuß der Transport oder „Transport hinzufügen“; freie Tage als „frei“','Transfer-Seite: Teilstrecken als verbundene Karten mit T-Nummer und Verkehrsmittel, am Ende „Teilstrecke hinzufügen“']},
  {v:'0.80_43',d:'23.11.2026',items:['Route mit Umschalter Zeitverlauf | Ablauf: Ablauf zeigt die ganze Reise chronologisch mit Länderköpfen','Neues Raster für Etappen und Transfers: jede Etappe ist eine Karte, die Weiterreise steht im Kartenfuß – Nummer und T-Nummer, Datum und Status jeweils untereinander','Verbindungslinie zwischen den Karten, gestrichelt an Landesgrenzen; Anreise als eigene kleine Karte','Fehlende Weiterreise direkt im Kartenfuß hinzufügen','Gleiches Raster in der Länderansicht']},
  {v:'0.80_42',d:'23.11.2026',items:['Etappe hinzufügen in zwei Schritten: erst den Ort wählen, dann die Position in der chronologischen Etappenliste des Landes','Die Position mit dem kürzesten Umweg ist vorausgewählt und als „empfohlen“ markiert; die neue Etappe zeigt direkt An- und Abreisedatum und die Nächte','Beim geteilten Ort „Neue Etappe“ geht es direkt zur Positionswahl','Pop-ups öffnen immer oben; beim Aktualisieren desselben Fensters bleibt die Scrollposition erhalten']},
@@ -1402,7 +1403,7 @@ async function importCsv(text,cid){
  save();toast(`${ok} Orte importiert.${miss.length?' Ohne Koordinaten: '+esc(miss.join(', ')):''}`,7000);
 }
 // ---------- Route ----------
-function renderRoute(){ensureCountries();if(!S.settings.routeClassic){renderRouteH();return}$('#v-route').classList.remove('h5');
+function renderRoute(){ensureCountries();if(S.settings.routeClassic){S.settings.routeClassic=false;save()}{renderRouteH();return}$('#v-route').classList.remove('h5');
  const c=UI.routeC;const ds=stagesDated();
  const multi=Array.isArray(c);
  let h=head('Route',c==='all'?'Überblick':c==='alle'?'Alle Etappen':multi?(c.length?c.map(x=>country(x).name).join(' + '):'Länder wählen'):country(c).name,`<button class="ib" data-a="stageAddHdr" data-k="${c==='all'||c==='alle'||multi?'':c}" aria-label="Etappe hinzufügen" style="margin-right:6px">${ic('plus')}</button><button class="ib" data-a="help" aria-label="Hilfe zur Route" style="margin-right:6px;font-weight:bold;font-size:16px;color:#c4c7ca">?</button><button class="ib" data-a="mapScope" data-k="${c==='alle'?'all':multi?(c.join(',')||'all'):c}" aria-label="Auf Karte">${ic('map')}</button>`,false);
@@ -2977,7 +2978,6 @@ function rhTr(i){const st=S.stages[i];const s={...stagesDated()[i],i};const L=le
 
 function rhMoreSheet(){openSheet(`<div class="h" style="font-size:18px;color:var(--tx2)">Route</div><div class="t12 mu" style="margin:3px 0 12px">Weitere Ansichten und Hilfe</div><div class="h5list">
  <div class="h5row click" data-a="openPage">${ic('check',16,'#8c9196')}<div class="sp t">Alles, was offen ist</div>${ic('chev',14,'#5d6166')}</div>
- <div class="h5row click" data-a="rhClassic">${ic('layers',16,'#8c9196')}<div class="sp"><div class="t">Klassische Ansicht</div><div class="s">Etappenkarten, Liste und Gliederung</div></div>${ic('chev',14,'#5d6166')}</div>
  <div class="h5row click" data-a="help">${ic('info',16,'#8c9196')}<div class="sp t">Hilfe zur Route</div>${ic('chev',14,'#5d6166')}</div></div>`)}
 
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,d=el.dataset;
