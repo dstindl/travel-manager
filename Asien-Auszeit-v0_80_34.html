@@ -469,9 +469,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_33';
+const APP_VERSION='0.80_34';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_34',d:'23.11.2026',items:['Teilen aus Google Maps: Die App sucht sofort und zeigt den Ort (mit Google-Schlüssel über Google, sonst über Link und OpenStreetMap)','Danach Auswahl: als Unterkunft für eine Etappe (nächste Etappe vorausgewählt, Name, Adresse, Position und Google-Link vorbefüllt), als Spot/Ausflug oder als neue Etappe','Bei mehreren Treffern den richtigen auswählen; ohne Treffer: selbst suchen oder auf der Karte wählen']},
  {v:'0.80_33',d:'22.11.2026',items:['Neu: Google-Suche mit eigenem Schlüssel (Einstellungen › Google-Suche) – zusätzliche Quelle in allen Suchmasken, bei Unterkünften zuerst','Geteilte Google-Maps-Orte werden mit Schlüssel über den Namen bei Google gefunden, auch wenn der Kurzlink nicht auflösbar ist','Schlüssel bleibt nur auf dem Gerät, nicht im Export; Zähler für Anfragen heute und im Monat','Google-Treffer werden kurz zwischengespeichert und erst nach einer Tipppause abgefragt, um das Gratiskontingent zu schonen']},
  {v:'0.80_32',d:'21.11.2026',items:['Neu: Position auf der Karte setzen – bei der Unterkunft („Auf Karte setzen“), bei Transfer Start/Ziel und bei Neuer Spot. Funktioniert für jeden Ort, auch wenn ihn keine Datenbank kennt','Unterkunft zeigt, ob eine Position gesetzt ist','App ist bereit für den Betrieb im Netz: installierbar, offline nutzbar, Hinweis bei neuer Version','Teilen aus Google Maps direkt an die App (wenn sie aus dem Netz installiert ist)']},
  {v:'0.80_31',d:'15.11.2026',items:['Google-Maps-Kurzlinks: zusätzlicher Auflösedienst (Jina Reader) als erster Versuch','Koordinaten in jedes Suchfeld einfügen, z. B. 21.0640, 105.8330 oder in Grad/Minuten/Sekunden – funktioniert immer, auch wenn kein Dienst den Link auflöst','Unterkunft: Wird nur der Name erkannt, wird er eingetragen; Koordinaten oder Link dann ins Feld Adresse einfügen']},
@@ -3181,7 +3182,7 @@ function smRow(o){const k=o.key;const open=k&&(UI.infoOpen||{})[k];
 function smList(rows){return rows.length?`<div class="smlist">${rows.join('')}</div>`:''}
 function smLinks(x,mode,i){const q=encodeURIComponent(x.name+(x.region?' '+x.region:''));const w=(typeof x.links==='number'?x.links:wCount(x));
  return `${mode?`<span class="chip sm" data-a="pvMap" data-k="${mode}" data-i="${i}">${ic('map',13)} Karte</span>`:''}<a class="chip sm" href="${x.gUri||'https://www.google.com/maps/search/?api=1&query='+q}" target="_blank" rel="noopener">${ic('pin',13)} Google Maps${x.gRating!=null?' ★ '+String(x.gRating).replace('.',','):''}</a>${w?`<a class="chip sm" href="https://de.wikipedia.org/wiki/${encodeURIComponent(x.wikiTitle||x.name)}" target="_blank" rel="noopener">Wikipedia · ${w} Sprachen</a>`:''}`}
-function smIcon(x){return x.hub?HUB_IC[x.hub]:x.code?'plane':x.gm?'link':(CAT_IC[(x.cats||[])[0]]||'pin')}
+function smIcon(x){return x.lodging?'bed':x.hub?HUB_IC[x.hub]:x.code?'plane':x.gm?'link':(CAT_IC[(x.cats||[])[0]]||'pin')}
 function smRate(x){const a=[];if(x.gRating!=null)a.push('★ '+String(x.gRating).replace('.',','));const w=(typeof x.links==='number'?x.links:wCount(x));if(w)a.push('W '+w);return a.join(' · ')}
 function smT(x){const t=x.type0!=null?x.type0:(x.type||'');return (x.google?'Google · ':'')+t+(x.google&&x.gRating!=null?' · ★ '+String(x.gRating).replace('.',','):'')}
 function srchSortSet(k){S.settings.srchSort=k;save();const re=l=>Array.isArray(l)?srchRank(l,l._q,l._c):l;
@@ -3338,7 +3339,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  const chk=async()=>{try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.version&&j.version!==APP_VERSION)toast(`Neue Version ${esc(j.version)} ist da. <span class="click b" style="color:#7cc3ca" data-a="appUpdate">Jetzt laden</span>`,60000)}catch(e){}};
  setTimeout(chk,3000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});
  const q=new URLSearchParams(location.search);const sh=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n').trim();
- if(sh){history.replaceState(null,'',location.pathname);setTimeout(()=>{UI.searchRes=null;UI.searchQ='';push({t:'search'});bindSearch();const i=document.getElementById('sQ');if(i){i._raw=sh;i.value=sh.replace(/\s+/g,' ');i.dispatchEvent(new Event('input',{bubbles:true}))}},600)}})();
+ if(sh){history.replaceState(null,'',location.pathname);setTimeout(()=>shareOpen(sh),500)}})();
 
 // ---------- 0.80_33: Google-Suche (Places API New, eigener Schlüssel) ----------
 const GPL_LS='auszeit27_gkey',GPL_RATE='auszeit27_grate',GPL_USE='auszeit27_guse';
@@ -3356,7 +3357,7 @@ async function gplFind(q,c,opt={}){const key=gplKey();q=(q||'').trim();if(!key||
  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),12000);let j;
  try{const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':fm},body:JSON.stringify(body)});gplCount();j=await r.json();if(!r.ok)throw new Error(j?.error?.message||('HTTP '+r.status))}finally{clearTimeout(tm)}
  const out=(j.places||[]).map(p=>{const cc=(p.addressComponents||[]).find(a=>(a.types||[]).includes('country'))?.shortText||'';const reg=(p.addressComponents||[]).find(a=>(a.types||[]).includes('administrative_area_level_1'))?.longText||'';
-  return {name:p.displayName?.text||'',type:[p.primaryTypeDisplayName?.text,p.shortFormattedAddress||p.formattedAddress].filter(Boolean).join(', '),addr:p.formattedAddress||'',lat:p.location?.latitude,lon:p.location?.longitude,cats:gplCats(p.types),osm:'gpl:'+p.id,region:reg,cc:cc.toUpperCase(),gRating:p.rating??null,gCount:p.userRatingCount??null,gUri:p.googleMapsUri,google:true,_ls:72}}).filter(x=>x.name&&x.lat!=null);
+  return {name:p.displayName?.text||'',type:[p.primaryTypeDisplayName?.text,p.shortFormattedAddress||p.formattedAddress].filter(Boolean).join(', '),addr:p.formattedAddress||'',lat:p.location?.latitude,lon:p.location?.longitude,cats:gplCats(p.types),osm:'gpl:'+p.id,region:reg,cc:cc.toUpperCase(),gRating:p.rating??null,gCount:p.userRatingCount??null,gUri:p.googleMapsUri,google:true,lodging:(p.types||[]).includes('lodging'),_ls:72}}).filter(x=>x.name&&x.lat!=null);
  GPL_CACHE.set(ck,out);return out}
 function gplCard(){const k=gplKey();const u=gplUse();return `<div class="sec"><h3>Google-Suche</h3><span>${k?'aktiv':'aus'}</span></div>
  <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">Mit eigenem Schlüssel sucht die App zusätzlich bei Google: Hotels, Restaurants, Spots und Adressen wie in Google Maps. Der Schlüssel bleibt nur auf diesem Gerät und kommt nicht in den Export.</div>
@@ -3371,6 +3372,44 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   gkRate:()=>{try{localStorage.setItem(GPL_RATE,gplRate()?'0':'1')}catch(x){}GPL_CACHE.clear();rerenderPage();bindSettings()},
   gkTest:async()=>{const o=document.getElementById('gkOut');if(o)o.innerHTML='<span class="spin"></span> Teste …';try{const r=await gplFind('Pegasy Apartments Hanoi',{lat:21.03,lon:105.85},{now:true});GPL_CACHE.clear();if(o)o.innerHTML=r.length?`<span style="color:#9cc7a4">Funktioniert.</span> Erster Treffer: <b>${esc(r[0].name)}</b>, ${esc(r[0].addr)}`:'Verbindung klappt, aber kein Treffer.'}catch(err){if(o)o.innerHTML=`<span style="color:#e59c96">Fehler:</span> ${esc(err.message)}. Prüfen: Places API (New) aktiviert? Website-Beschränkung auf dstindl.github.io/* gesetzt?`}}
  };if(H[a]){e.preventDefault();H[a]()}});
+
+// ---------- 0.80_34: Geteilter Ort aus Google Maps ----------
+function shNearest(x){const ds=stagesDated();let best=-1,bd=1e9;S.stages.forEach((st,i)=>{if(st.gap)return;const p=byId(st.placeId);if(!p)return;const d=hav(p,x);if(d<bd){bd=d;best=i}});return {i:best,km:bd,ds}}
+async function shareOpen(raw){raw=String(raw||'').trim();if(!raw)return;const tx=gmText(raw);const nm=tx.name||'';
+ UI.share={raw,name:nm,res:'load',sel:0,stage:null};shareSheet();
+ let res=[];const ctr=(()=>{const st=S.stages.find(s=>!s.gap);const p=st&&byId(st.placeId);return null})();
+ try{if(gplKey()&&nm)res=await gplFind(nm,null,{now:true})}catch(e){}
+ if(!res.length){try{const g=await gmResolve(raw,null);res=[g]}catch(e){UI.share.err=e.message}}
+ if(!res.length&&nm){try{const r=await liveFind(nm,null,50);if(Array.isArray(r))res=r.slice(0,8)}catch(e){}}
+ UI.share.res=res;if(res[0]){const n=shNearest(res[0]);UI.share.stage=n.i}shareSheet()}
+function shareSheet(){const H=UI.share;if(!H)return;UI.reSheet=shareSheet;
+ let h=smHead('Geteilter Ort',esc(H.name||'aus Google Maps'));
+ if(H.res==='load'){h+=smEmpty(`<span class="spin" style="display:inline-block"></span><div style="margin-top:8px">Suche „${esc(H.name||'Ort')}“ …</div>`);openSheet(h);return}
+ if(!H.res.length){h+=smEmpty(esc(H.err||'Nichts gefunden.'))+`<div class="row" style="gap:8px"><button class="smmore sp" data-a="shSearch">${ic('search',14)} Selbst suchen</button><button class="smmore sp" data-a="spotMap">${ic('map',14)} Auf Karte wählen</button></div>`;openSheet(h);return}
+ const x=H.res[H.sel]||H.res[0];const n=shNearest(x);
+ h+=smCnt(H.res.length>1?`${H.res.length} Treffer · bitte den richtigen wählen`:'Gefunden');
+ h+=smList(H.res.slice(0,6).map((r,k)=>{const nn=shNearest(r);const sp=byId(S.stages[nn.i]?.placeId);return smRow({icon:smIcon(r),name:r.name,meta:[r.addr||smT(r),sp?srchKm(nn.km)+' von '+sp.name:''],right:'radio',on:k===H.sel,rowAct:`data-a="shSel" data-k="${k}"`})}));
+ const ds=stagesDated();const si=H.stage!=null&&H.stage>=0?H.stage:n.i;const sp=byId(S.stages[si]?.placeId);const no=stageNo();
+ const opts=S.stages.map((st,i)=>st.gap?'':`<option value="${i}" ${i===si?'selected':''}>${no[st.placeId]||''} ${esc(byId(st.placeId)?.name||'')} (${fmtD(ds[i].from)}–${fmtD(ds[i].to)})</option>`).join('');
+ h+=smCnt('Übernehmen als');
+ h+=`<div class="smlist">
+  <div class="smr click" data-a="shStay">${'<span class="smi">'+ic('bed',17,'#a9adb1')+'</span>'}<div class="smb"><div class="smn"><span>Unterkunft</span></div><div class="smm">für die gewählte Etappe, Daten danach ergänzen</div></div>${ic('chev',14,'#5d6166')}</div>
+  <div style="padding:0 0 10px 48px"><select class="fld" id="shStage" style="width:100%;padding:7px">${opts}</select>${sp&&n.km>80&&si===n.i?'':''}</div>
+  <div class="smr click" data-a="shSpot"><span class="smi">${ic('pin',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Spot / Ausflug</span></div><div class="smm">wird automatisch der nächsten Etappe zugeordnet${n.i>=0?' ('+esc(byId(S.stages[n.i].placeId)?.name||'')+', '+srchKm(n.km)+')':''}</div></div>${ic('chev',14,'#5d6166')}</div>
+  <div class="smr click" data-a="shStage"><span class="smi">${ic('route',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Neue Etappe</span></div><div class="smm">eigene Übernachtung, Position und Nächte danach wählen</div></div>${ic('chev',14,'#5d6166')}</div></div>`;
+ h+=`<div class="row sheetfoot"><button class="btn gh sp" data-a="closeSheet">Abbrechen</button></div>`;
+ openSheet(h);const s=document.getElementById('shStage');if(s)s.onchange=e=>{H.stage=+e.target.value}}
+function shPick(){const H=UI.share;return H&&Array.isArray(H.res)?(H.res[H.sel]||H.res[0]):null}
+function shPlace(x){let p=findExisting(x);if(p)return p;const cc=(x.cc||'').toUpperCase();const as=assign({...x,role:'wei',cats:x.cats||['Sonstiges']});const c=cc&&S.countries.some(k=>k.id===cc)?cc:(as?as.a.country:(S.countries[0]?.id));
+ p={id:uid(),name:x.name,region:x.region||'',country:c,lat:x.lat,lon:x.lon,role:'wei',cats:x.cats&&x.cats.length?x.cats:['Sonstiges'],note:'',links:x.gUri?{'Google Maps':x.gUri}:{},osm:x.osm,added:Date.now()};S.places.push(p);save();return p}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,d=el.dataset;
+ const A={
+  shSel:()=>{UI.share.sel=+d.k;const n=shNearest(shPick());UI.share.stage=n.i;shareSheet()},
+  shStay:()=>{const x=shPick();const i=+(document.getElementById('shStage')?.value??UI.share.stage);if(!x||!(i>=0))return;const st=S.stages[i];closeSheet();UI.hDraft=Object.assign({status:'gebucht',paid:true},st.stay||{},{name:x.name,addr:x.addr||smT(x),ll:{lat:x.lat,lon:x.lon}});if(x.gUri)UI.hDraft.link=UI.hDraft.link||x.gUri;show('route');hotelSheet(i);toast('Unterkunft vorbefüllt. Daten prüfen und speichern.')},
+  shSpot:()=>{const x=shPick();if(!x)return;closeSheet();show('atlas');addSheet({...x,cats:x.cats||['Sonstiges'],type:smT(x)})},
+  shStage:()=>{const x=shPick();if(!x)return;const p=shPlace(x);closeSheet();show('route');stagePick(p.country);UI.sp.sel=p.id;stagePickSheet();toast(`${esc(p.name)} ist ausgewählt. Position und Nächte wählen, dann „Als Etappe einfügen“.`,6000)},
+  shSearch:()=>{const H=UI.share;closeSheet();UI.searchRes=null;UI.searchQ='';push({t:'search'});bindSearch();const i=document.getElementById('sQ');if(i){i._raw=H.raw;i.value=H.raw.replace(/\s+/g,' ');i.dispatchEvent(new Event('input',{bubbles:true}))}}
+ };if(A[a]){e.preventDefault();A[a]()}});
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
