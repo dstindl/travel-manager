@@ -469,9 +469,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_35';
+const APP_VERSION='0.80_36';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_36',d:'23.11.2026',items:['Versionsanzeige auf dem Startbildschirm öffnet dasselbe Fenster wie nach einem Update: aktueller Stand und letzte Änderungen, mit Link zu allen Versionen','Nach dem Speichern einer Unterkunft oder dem Einfügen einer Etappe: „Etappe öffnen“ direkt in der Meldung','Geteilter Ort: Hinweis, wenn er schon als Spot, Ausflug, Etappe oder Unterkunft existiert – mit direktem Öffnen des bestehenden Eintrags; Warnung, wenn die gewählte Etappe schon eine andere Unterkunft hat','Meldungen mit „Öffnen“ werden nicht mehr von anderen Hinweisen überdeckt']},
  {v:'0.80_35',d:'23.11.2026',items:['Neue Versionen laden automatisch – sobald gerade nichts bearbeitet wird','Versionsstand oben auf dem Startbildschirm, antippen öffnet die Versionshinweise','Nach jedem Update erscheint einmal ein Fenster „Neu in Version …“ mit allen Änderungen seit dem letzten Öffnen']},
  {v:'0.80_34',d:'23.11.2026',items:['Teilen aus Google Maps: Die App sucht sofort und zeigt den Ort (mit Google-Schlüssel über Google, sonst über Link und OpenStreetMap)','Danach Auswahl: als Unterkunft für eine Etappe (nächste Etappe vorausgewählt, Name, Adresse, Position und Google-Link vorbefüllt), als Spot/Ausflug oder als neue Etappe','Bei mehreren Treffern den richtigen auswählen; ohne Treffer: selbst suchen oder auf der Karte wählen']},
  {v:'0.80_33',d:'22.11.2026',items:['Neu: Google-Suche mit eigenem Schlüssel (Einstellungen › Google-Suche) – zusätzliche Quelle in allen Suchmasken, bei Unterkünften zuerst','Geteilte Google-Maps-Orte werden mit Schlüssel über den Namen bei Google gefunden, auch wenn der Kurzlink nicht auflösbar ist','Schlüssel bleibt nur auf dem Gerät, nicht im Export; Zähler für Anfragen heute und im Monat','Google-Treffer werden kurz zwischengespeichert und erst nach einer Tipppause abgefragt, um das Gratiskontingent zu schonen']},
@@ -990,7 +991,7 @@ function tileH(k,v,sub,col,act,extra){return `<div class="tile ${act?'click':''}
 // ---------- UI-Grundgerüst ----------
 const UI={tab:'reise',atlas:'anker',atlasC:'all',atlasCat:null,atlasRole:'all',atlasQ:'',pages:[],mapScope:'all',mapFocus:null,routeC:'VN',day:null,anchorCat:null,searchScope:null,searchRes:null};
 const $=s=>document.querySelector(s);
-function toast(t,ms=3200){const e=$('#toast');e.innerHTML=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',ms)}
+function toast(t,ms=3200){const e=$('#toast');const act=/data-a=/.test(t);if(!act&&toast.hold&&Date.now()<toast.hold&&e.style.display!=='none')return;toast.hold=act?Date.now()+Math.min(ms,8000):0;e.innerHTML=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',ms)}
 function openSheet(html){{const sh=document.getElementById('sheet');if(sh)sh.classList.toggle('fixh',/data-a="(stTab|wxTab|attTab|spTab|trPickTab)"/.test(html))}if(UI.stPopI!=null&&!UI._stPopOpen){const p=byId(S.stages[UI.stPopI]?.placeId);if(p)html=`<div class="row click" data-a="stBack" style="gap:6px;color:#7cc3ca;font-size:13px;font-weight:bold;margin:-2px 0 8px">${ic('back',14,'#7cc3ca')} Zurück zu ${esc(p.name)}</div>`+html}if(UI.partialOnly&&$('#sheet').classList.contains('open')){const t=document.createElement('div');t.innerHTML=html;const nr=t.querySelector('#tRes'),cr=$('#sheet #tRes');if(nr&&cr){cr.innerHTML=nr.innerHTML;return}}$('#sheet').innerHTML='<div class="grab"></div>'+html;$('#sheetBack').style.display='block';requestAnimationFrame(()=>$('#sheet').classList.add('open'))}
 function closeSheet(){UI.stPopI=null;$('#sheet').classList.remove('open');$('#sheetBack').style.display='none'}
 $('#sheetBack').onclick=closeSheet;
@@ -1023,7 +1024,7 @@ function renderReise(){
  P.filter(p=>p.noteCheck).forEach(p=>hints.push({id:p.id,i:'alert',t:`${p.name}: Notiz prüfen`,s:'Text passt evtl. nicht zum Ort'}));
  P.filter(p=>p.role==='inbox').slice(0,3).forEach(p=>hints.push({id:p.id,i:'pin',t:`${p.name} liegt in der Inbox`,s:'Rolle und Kategorie festlegen'}));
  const recent=P.filter(p=>p.added).sort((a,b)=>b.added-a.added).slice(0,3);
- $('#v-reise').innerHTML=`${head('Reise','Asien-Auszeit 2027',`<span class="click" data-a="settings" data-k="dev" style="font-size:11px;color:#8c9196;border:1px solid #33363a;border-radius:10px;padding:2px 8px;margin-right:8px;white-space:nowrap">v${APP_VERSION}</span><button class="ib" data-a="settings" aria-label="Einstellungen">${ic('gear')}</button>`,false)}
+ $('#v-reise').innerHTML=`${head('Reise','Asien-Auszeit 2027',`<span class="click" data-a="verShow" style="font-size:11px;color:#8c9196;border:1px solid #33363a;border-radius:10px;padding:2px 8px;margin-right:8px;white-space:nowrap">v${APP_VERSION}</span><button class="ib" data-a="settings" aria-label="Einstellungen">${ic('gear')}</button>`,false)}
  <div class="card" style="padding:16px"><div class="row" style="align-items:flex-end"><div class="sp"><div class="t12 mu">Reisedauer</div><div style="font:600 34px Poppins,sans-serif;color:#e6e7e8;line-height:1.1">${N+1} Tage</div><div class="t13" style="color:#c4c7ca;margin-top:2px">${fmtDL(start).slice(0,9)} bis ${fmtDL(end)}, ${N} Nächte</div></div><div style="text-align:right"><div class="t12 mu">${dd>0?'Abflug in':now<end?'Unterwegs':'Reise'}</div><div style="font:600 19px Poppins,sans-serif;color:#7cc3ca">${dd>0?dd+(dd===1?' Tag':' Tagen'):now<end?'Tag '+(Math.floor((now-start)/864e5)+1)+' von '+(N+1):'beendet'}</div></div></div>
  <div style="display:flex;gap:2px;border-radius:5px;overflow:hidden;margin:14px 0 8px">${band}</div><div class="row wrap" style="gap:4px 12px">${cs.map(({c,r})=>`<span class="t12" style="display:flex;gap:5px;align-items:center;color:#c4c7ca"><span style="width:8px;height:8px;border-radius:2px;background:${ccol(c.id)}"></span>${esc(c.name)} <span class="mu">${r.nights}</span></span>`).join('')}</div></div>
  <div class="tgrid">${tileH('Länder',visCountries().length,`${visCountries().filter(c=>c.status==='geplant').length} geplant, ${visCountries().filter(c=>c.status!=='geplant').length} in Planung`,'','data-a="settings" data-k="reise"')}${tileH('Etappen',S.stages.length,`${S.places.filter(p=>p.role!=='anchor'&&excNo(p)).length} Ausflüge zugeordnet`,'','data-a="atlasGo" data-k="etappen"')}</div>
@@ -1826,7 +1827,7 @@ function spOk(force){const P=UI.sp;let p=null;
  return spOkReal()}
 function spOkReal(){const P=UI.sp;let p=null;
  if(P.sel)p=byId(P.sel);else if(Array.isArray(P.live)&&P.lsel!=null){const x=P.live[P.lsel];p=findExisting(x);if(!p){p={id:uid(),name:x.name,region:x.region,country:P.c,lat:x.lat,lon:x.lon,role:'wei',cats:x.cats,note:'',links:{},osm:x.osm,qid:x.qid,added:Date.now()};S.places.push(p)}}
- if(!p)return;if(addStageAt(p.id,P.after,P.nights)){closeSheet();render();toast(`${esc(p.name)} ist jetzt Etappe mit ${P.nights} ${P.nights===1?'Nacht':'Nächten'}.`);setTimeout(()=>{LIVE_FAIL=false;autoLive()},300)}}
+ if(!p)return;if(addStageAt(p.id,P.after,P.nights)){closeSheet();render();{const ns=S.stages.filter(x=>x.placeId===p.id).pop();toast(`${esc(p.name)} ist jetzt Etappe mit ${P.nights} ${P.nights===1?'Nacht':'Nächten'}. ${ns?`<span class="click b" style="color:#7cc3ca" data-a="rhOpenSt" data-id="${ns.id}">Öffnen</span>`:''}`,7000)}setTimeout(()=>{LIVE_FAIL=false;autoLive()},300)}}
 
 // ---------- Transport für Tagesausflüge ----------
 function ttSheet(id){const x=byId(id);const t=UI.ttDraft||(UI.ttDraft=Object.assign({mode:'car',dir:'both',status:'gebucht'},x.tt||{}));const a=x.planned?dayAnchor(x.planned):null;const tr=dayTravel(x);
@@ -3395,9 +3396,9 @@ function shareSheet(){const H=UI.share;if(!H)return;UI.reSheet=shareSheet;
  h+=smCnt('Übernehmen als');
  h+=`<div class="smlist">
   <div class="smr click" data-a="shStay">${'<span class="smi">'+ic('bed',17,'#a9adb1')+'</span>'}<div class="smb"><div class="smn"><span>Unterkunft</span></div><div class="smm">für die gewählte Etappe, Daten danach ergänzen</div></div>${ic('chev',14,'#5d6166')}</div>
-  <div style="padding:0 0 10px 48px"><select class="fld" id="shStage" style="width:100%;padding:7px">${opts}</select>${sp&&n.km>80&&si===n.i?'':''}</div>
-  <div class="smr click" data-a="shSpot"><span class="smi">${ic('pin',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Spot / Ausflug</span></div><div class="smm">wird automatisch der nächsten Etappe zugeordnet${n.i>=0?' ('+esc(byId(S.stages[n.i].placeId)?.name||'')+', '+srchKm(n.km)+')':''}</div></div>${ic('chev',14,'#5d6166')}</div>
-  <div class="smr click" data-a="shStage"><span class="smi">${ic('route',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Neue Etappe</span></div><div class="smm">eigene Übernachtung, Position und Nächte danach wählen</div></div>${ic('chev',14,'#5d6166')}</div></div>`;
+  <div style="padding:0 0 10px 48px"><select class="fld" id="shStage" style="width:100%;padding:7px">${opts}</select>${(()=>{const t=shStayInfo(x,si);return t?`<div class="smh w" style="margin-top:6px">${esc(t)}</div>`:''})()}</div>
+  ${(()=>{const ex=shExisting(x);return ex?`<div class="smr click" data-a="plOpen" data-id="${ex.p.id}"><span class="smi">${ic('pin',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Spot / Ausflug</span></div><div class="smh w">${esc(ex.txt)}</div><div class="smm">antippen öffnet den bestehenden Eintrag</div></div>${ic('chev',14,'#5d6166')}</div>`:`<div class="smr click" data-a="shSpot"><span class="smi">${ic('pin',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Spot / Ausflug</span></div><div class="smm">wird automatisch der nächsten Etappe zugeordnet${n.i>=0?' ('+esc(byId(S.stages[n.i].placeId)?.name||'')+', '+srchKm(n.km)+')':''}</div></div>${ic('chev',14,'#5d6166')}</div>`})()}
+  ${(()=>{const ex=shExisting(x);const isSt=ex&&stageNo()[ex.p.id];const st=isSt?S.stages.find(o=>o.placeId===ex.p.id):null;return `<div class="smr click" data-a="shStage"><span class="smi">${ic('route',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Neue Etappe</span></div>${isSt?`<div class="smh w">${esc(ex.txt)} – eine zweite Etappe ist möglich</div>`:''}<div class="smm">eigene Übernachtung, Position und Nächte danach wählen</div></div>${ic('chev',14,'#5d6166')}</div>${st?`<div class="smr click" data-a="rhOpenSt" data-id="${st.id}"><span class="smi">${ic('chev',17,'#a9adb1')}</span><div class="smb"><div class="smn"><span>Bestehende Etappe öffnen</span></div></div>${ic('chev',14,'#5d6166')}</div>`:''}`})()}</div>`;
  h+=`<div class="row sheetfoot"><button class="btn gh sp" data-a="closeSheet">Abbrechen</button></div>`;
  openSheet(h);const s=document.getElementById('shStage');if(s)s.onchange=e=>{H.stage=+e.target.value}}
 function shPick(){const H=UI.share;return H&&Array.isArray(H.res)?(H.res[H.sel]||H.res[0]):null}
@@ -3416,9 +3417,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
 const VER_SEEN='auszeit27_seen';
 function verNews(){let seen=null;try{seen=localStorage.getItem(VER_SEEN)}catch(e){}if(seen===APP_VERSION)return;
  const k=seen?CHANGELOG.findIndex(c=>c.v===seen):-1;const list=(k>0?CHANGELOG.slice(0,k):CHANGELOG.slice(0,1)).slice(0,5);if(!list.length){try{localStorage.setItem(VER_SEEN,APP_VERSION)}catch(e){}return}
- setTimeout(()=>{if(document.getElementById('sheet').classList.contains('open'))return;openSheet(`<div class="smt">Neu in Version ${esc(APP_VERSION)}</div><div class="smsub">Die App aktualisiert sich ab jetzt automatisch.</div>
-  ${list.map(c=>`<div class="smcnt"><span>Version ${esc(c.v)} · ${esc(c.d)}</span></div><div class="smlist" style="padding:6px 14px">${c.items.map(i=>`<div class="row" style="gap:10px;align-items:flex-start;padding:7px 0">${ic('check',14,'#7cc3ca')}<div class="t13" style="color:#d4d6d8;line-height:1.45">${esc(i)}</div></div>`).join('')}</div>`).join('')}
-  <div class="row sheetfoot"><button class="btn pri sp" data-a="verOk">Alles klar</button></div>`)},900)}
+ setTimeout(()=>{if(document.getElementById('sheet').classList.contains('open'))return;verSheet(list,true)},900)}
 let VER_PENDING=null;
 function verBusy(){const sh=document.getElementById('sheet');const a=document.activeElement;return (sh&&sh.classList.contains('open'))||(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
 function verReload(v){let tried=null;try{tried=sessionStorage.getItem('auszeit27_reload')}catch(e){}if(tried===v){toast(`Neue Version ${esc(v)} ist da. <span class="click b" style="color:#7cc3ca" data-a="appUpdate">Jetzt laden</span>`,60000);return}
@@ -3427,6 +3426,23 @@ function verReload(v){let tried=null;try{tried=sessionStorage.getItem('auszeit27
 setInterval(()=>{if(VER_PENDING&&!verBusy()){const v=VER_PENDING;VER_PENDING=null;verReload(v)}},4000);
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&el.dataset.a==='verOk'){try{localStorage.setItem(VER_SEEN,APP_VERSION)}catch(x){}closeSheet()}});
 setTimeout(verNews,400);
+
+// ---------- 0.80_36: Versionsfenster, Öffnen nach dem Hinzufügen, Hinweise auf bestehende Einträge ----------
+function verSheet(list,isNew){const show=(list&&list.length?list:CHANGELOG.slice(0,3));
+ openSheet(`<div class="smt">${isNew?'Neu in Version ':'Version '}${esc(APP_VERSION)}</div><div class="smsub">${isNew?'Die App hat sich automatisch aktualisiert.':'Aktueller Stand, neue Versionen laden automatisch.'}</div>
+  ${show.map(c=>`<div class="smcnt"><span>Version ${esc(c.v)} · ${esc(c.d)}</span>${c.v===APP_VERSION?'<span style="text-transform:none;letter-spacing:0;color:#7cc3ca;font-weight:500">aktuell</span>':''}</div><div class="smlist" style="padding:6px 14px">${c.items.map(i=>`<div class="row" style="gap:10px;align-items:flex-start;padding:7px 0">${ic('check',14,'#7cc3ca')}<div class="t13" style="color:#d4d6d8;line-height:1.45">${esc(i)}</div></div>`).join('')}</div>`).join('')}
+  <button class="smmore" data-a="verAll">${ic('book',14)} Alle Versionen ansehen</button>
+  <div class="row sheetfoot"><button class="btn pri sp" data-a="verOk">${isNew?'Alles klar':'Schließen'}</button></div>`)}
+function rhOpenStage(id){const st=S.stages.find(x=>x.id===id);if(!st)return;closeSheet();UI.pages=[];renderPages();if(S.settings.routeClassic){show('route');stPop(S.stages.indexOf(st))}else{UI.rh=[{l:'c',c:st.country},{l:'s',id:st.id}];show('route');if(typeof rhScroll==='function')rhScroll()}}
+function shExisting(x){const ex=findExisting(x);if(!ex)return null;const no=stageNo()[ex.id];const ds=stagesDated().find(s=>s.placeId===ex.id);
+ return {p:ex,txt:no?`Ist bereits Etappe ${no}${ds?' ('+fmtD(ds.from)+'–'+fmtD(ds.to)+')':''}`:excNo(ex)?`Bereits Ausflug ${excNo(ex)} (${ROLES[ex.role]})`:`Bereits gespeichert als ${ROLES[ex.role]}`}}
+function shStayInfo(x,i){const st=S.stages[i];if(!st)return '';const out=[];if(st.stay&&st.stay.name&&norm(st.stay.name)!==norm(x.name))out.push(`Diese Etappe hat schon „${st.stay.name}“, sie wird beim Speichern ersetzt.`);
+ if(st.stay&&st.stay.name&&norm(st.stay.name)===norm(x.name))out.push('Ist bereits als Unterkunft dieser Etappe eingetragen.');
+ S.stages.forEach((o,k)=>{if(k!==i&&o.stay&&o.stay.name&&norm(o.stay.name)===norm(x.name))out.push(`Ist schon Unterkunft bei Etappe ${stageNo()[o.placeId]||''} ${byId(o.placeId)?.name||''}.`)});return out.join(' ')}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,d=el.dataset;
+ const H={verShow:()=>verSheet(null,false),verAll:()=>{closeSheet();push({t:'settings',tab:'dev'});bindSettings()},rhOpenSt:()=>{$('#toast').style.display='none';rhOpenStage(d.id)},
+  plOpen:()=>{$('#toast').style.display='none';closeSheet();push({t:'place',id:d.id});bindPlace(d.id)}};
+ if(H[a]){e.preventDefault();H[a]()}});
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
@@ -3533,7 +3549,7 @@ document.addEventListener('click',e=>{
   hotelOpen:()=>{UI.hDraft=null;hotelSheet(+d.i)},
   hotelStat:()=>{hotelCollect();UI.hDraft.status=d.k;hotelSheet(+d.i)},
   hotelCancel:()=>{UI.hDraft=null;closeSheet()},
-  hotelSave:()=>{hotelCollect();const h=UI.hDraft;Object.keys(h).forEach(k=>{if(h[k]==null||h[k]==='')delete h[k]});fixRate(h);S.stages[+d.i].stay=h;UI.hDraft=null;save();if(h.ll)setTimeout(()=>{try{LIVE_FAIL=false;autoLive()}catch(e){}},600);closeSheet();render();if(UI.pages.length)rerenderPage();toast('Unterkunft gespeichert.')},
+  hotelSave:()=>{hotelCollect();const h=UI.hDraft;Object.keys(h).forEach(k=>{if(h[k]==null||h[k]==='')delete h[k]});fixRate(h);S.stages[+d.i].stay=h;UI.hDraft=null;save();if(h.ll)setTimeout(()=>{try{LIVE_FAIL=false;autoLive()}catch(e){}},600);closeSheet();render();if(UI.pages.length)rerenderPage();toast(`Unterkunft gespeichert. <span class="click b" style="color:#7cc3ca" data-a="rhOpenSt" data-id="${S.stages[+d.i].id}">Etappe öffnen</span>`,7000)},
   hotelDel:()=>{if(!confirm('Unterkunft entfernen?'))return;delete S.stages[+d.i].stay;UI.hDraft=null;save();closeSheet();render();if(UI.pages.length)rerenderPage()},
   costOpen:()=>costSheet(+d.i),
   openPage:()=>push({t:'open'}),
