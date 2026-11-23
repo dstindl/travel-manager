@@ -450,6 +450,14 @@ body.cmp .K{padding:14px 12px 10px}
 .smctx .k{font-size:11.5px;color:#8c9196;margin-bottom:5px}.smctx select{padding:7px;width:100%}
 .sug3{background:#232527;border:1px solid #2c2f32;border-radius:14px;padding:0 10px;margin-top:6px}.sug3:empty{display:none}
 .sr3{padding:10px 2px;border-radius:0;border-bottom:0;border-top:1px solid #2e3134}.sr3:first-child{border-top:0}
+
+.sppos{padding:4px 12px}
+.spst{display:flex;align-items:center;gap:12px;padding:8px 0}
+.spslot{display:flex;align-items:center;gap:8px;margin:2px 0;padding:6px 10px;border:1px dashed #3a3d41;border-radius:12px;color:#7d8186;font-size:12px;cursor:pointer}
+.spslot .spplus{display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;border:1px solid #3d6a6e;color:#9fd6dc}
+.spslot.on{border:1px solid #3d6a6e;background:#1f3436;padding:10px}
+.spnew{display:flex;align-items:center;gap:12px;width:100%}
+.spctx{font-size:11.5px;color:#6f7378;padding:8px 2px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -469,9 +477,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_41';
+const APP_VERSION='0.80_42';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_42',d:'23.11.2026',items:['Etappe hinzufügen in zwei Schritten: erst den Ort wählen, dann die Position in der chronologischen Etappenliste des Landes','Die Position mit dem kürzesten Umweg ist vorausgewählt und als „empfohlen“ markiert; die neue Etappe zeigt direkt An- und Abreisedatum und die Nächte','Beim geteilten Ort „Neue Etappe“ geht es direkt zur Positionswahl','Pop-ups öffnen immer oben; beim Aktualisieren desselben Fensters bleibt die Scrollposition erhalten']},
  {v:'0.80_41',d:'23.11.2026',items:['Geteilter Ort: Suche mit Name und Land aus Google Maps (z. B. „Mirissa, Sri Lanka“) und gleichzeitig über Google, OpenStreetMap und eure gespeicherten Orte','Der Ort selbst steht jetzt oben: exakte Namenstreffer vor Hotels und Restaurants mit ähnlichem Namen, eure Etappen und gespeicherten Orte zuerst']},
  {v:'0.80_40',d:'23.11.2026',items:['Alle Suchen bevorzugen jetzt immer eure Reiseländer (Einstellungen › Länder der Reise): Treffer dort stehen oben, Orte außerhalb rutschen nach unten','Google und OpenStreetMap suchen ohne Bezugspunkt in der Region eurer Reiseländer statt rund um den eigenen Standort','Gilt überall: Neuer Spot, Ausflug, Etappe, Transfer, Unterkunft, Abfahrtsort und geteilte Orte']},
  {v:'0.80_39',d:'23.11.2026',items:['Geteilter Ort: Google sucht zuerst nur in eurer Reiseregion – „Ella“ findet jetzt Ella in Sri Lanka statt Treffer in Deutschland','Treffer werden nach Nähe zu euren Etappen sortiert, weit entfernte Orte fallen weg','Google-Suche ohne Bezugspunkt (z. B. Neuer Spot › Weltweit) bevorzugt ebenfalls die Reiseregion statt des eigenen Standorts']},
@@ -997,8 +1006,8 @@ function tileH(k,v,sub,col,act,extra){return `<div class="tile ${act?'click':''}
 const UI={tab:'reise',atlas:'anker',atlasC:'all',atlasCat:null,atlasRole:'all',atlasQ:'',pages:[],mapScope:'all',mapFocus:null,routeC:'VN',day:null,anchorCat:null,searchScope:null,searchRes:null};
 const $=s=>document.querySelector(s);
 function toast(t,ms=3200){const e=$('#toast');const act=/data-a=/.test(t);if(!act&&toast.hold&&Date.now()<toast.hold&&e.style.display!=='none')return;toast.hold=act?Date.now()+Math.min(ms,8000):0;e.innerHTML=t;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',ms)}
-function openSheet(html){{const sh=document.getElementById('sheet');if(sh)sh.classList.toggle('fixh',/data-a="(stTab|wxTab|attTab|spTab|trPickTab)"/.test(html))}if(UI.stPopI!=null&&!UI._stPopOpen){const p=byId(S.stages[UI.stPopI]?.placeId);if(p)html=`<div class="row click" data-a="stBack" style="gap:6px;color:#7cc3ca;font-size:13px;font-weight:bold;margin:-2px 0 8px">${ic('back',14,'#7cc3ca')} Zurück zu ${esc(p.name)}</div>`+html}if(UI.partialOnly&&$('#sheet').classList.contains('open')){const t=document.createElement('div');t.innerHTML=html;const nr=t.querySelector('#tRes'),cr=$('#sheet #tRes');if(nr&&cr){cr.innerHTML=nr.innerHTML;return}}$('#sheet').innerHTML='<div class="grab"></div>'+html;$('#sheetBack').style.display='block';requestAnimationFrame(()=>$('#sheet').classList.add('open'))}
-function closeSheet(){UI.stPopI=null;$('#sheet').classList.remove('open');$('#sheetBack').style.display='none'}
+function openSheet(html){{const sh=document.getElementById('sheet');if(sh)sh.classList.toggle('fixh',/data-a="(stTab|wxTab|attTab|spTab|trPickTab)"/.test(html))}if(UI.stPopI!=null&&!UI._stPopOpen){const p=byId(S.stages[UI.stPopI]?.placeId);if(p)html=`<div class="row click" data-a="stBack" style="gap:6px;color:#7cc3ca;font-size:13px;font-weight:bold;margin:-2px 0 8px">${ic('back',14,'#7cc3ca')} Zurück zu ${esc(p.name)}</div>`+html}if(UI.partialOnly&&$('#sheet').classList.contains('open')){const t=document.createElement('div');t.innerHTML=html;const nr=t.querySelector('#tRes'),cr=$('#sheet #tRes');if(nr&&cr){cr.innerHTML=nr.innerHTML;return}}{const sh=$('#sheet');const key=(html.match(/class="(?:smt|h)"[^>]*>([^<]{0,60})/)||[])[1]||html.slice(0,60);const same=sh.classList.contains('open')&&UI._shKey===key;const st=same?sh.scrollTop:0;UI._shKey=key;sh.innerHTML='<div class="grab"></div>'+html;sh.scrollTop=st}$('#sheetBack').style.display='block';requestAnimationFrame(()=>$('#sheet').classList.add('open'))}
+function closeSheet(){UI.stPopI=null;UI._shKey=null;$('#sheet').classList.remove('open');$('#sheetBack').style.display='none'}
 $('#sheetBack').onclick=closeSheet;
 const TABS=[['reise','home','Reise'],['atlas','layers','Atlas'],['karte','map','Karte'],['route','route','Route'],['unterwegs','nav','Unterwegs']];
 function renderNav(){$('#nav').innerHTML=TABS.map(([k,i,l])=>`<button data-a="tab" data-k="${k}" class="${UI.tab===k?'on':''}" aria-label="${l}"><span class="nic">${ic(i,20)}</span><span>${l}</span></button>`).join('')}
@@ -3211,9 +3220,10 @@ function exSheet(){const A=UI.att;const a=byId(A.aid);if(!a)return;if(!A.s1&&S.s
 // --- Etappe hinzufügen ---
 function stagePickSheet(){const P=UI.sp;UI.reSheet=stagePickSheet;const ds=stagesDated();const cen=spCenter();const ix=S.stages.map((x,k)=>x.country===P.c?k:-1).filter(k=>k>=0);const no=stageNo();
  let h=smHead('Etappe hinzufügen',`${esc(country(P.c).name)} · der Ort bekommt eine eigene Übernachtung`);
- h+=`<div class="smctx"><div class="sp" style="min-width:0"><div class="k">Einfügen</div><select class="fld" id="spAfter">${ix.length?`<option value="${ix[0]-1}" ${ix[0]-1===P.after?'selected':''}>am Anfang (vor ${esc(byId(S.stages[ix[0]].placeId)?.name||'')})</option>`:''}${ix.map(k=>`<option value="${k}" ${k===P.after?'selected':''}>nach ${no[S.stages[k].placeId]&&S.stages[k].country===P.c?(ix.indexOf(k)+1)+'. ':''}${esc(byId(S.stages[k].placeId)?.name||'')} (bis ${fmtD(ds[k].to)})</option>`).join('')}${!ix.length?`<option value="${S.stages.length-1}">am Ende</option>`:''}</select></div>
-  <div style="flex:none"><div class="k">Nächte</div><div class="step"><button data-a="spN" data-d="-1" aria-label="Eine Nacht weniger">${ic('minus',13)}</button><b>${P.nights} N</b><button data-a="spN" data-d="1" aria-label="Eine Nacht mehr">${ic('plus',13)}</button></div></div></div>`;
- h+=smSeg([['saved','Gespeichert'],['live','Suche'],['map','Karte']],P.tab,'spTab');
+ if(P.step===2){const x=spPlace();h+=`<div class="smlist" style="padding:2px 12px;margin-bottom:4px"><div class="smr" style="min-height:52px"><span class="smi">${ic(x&&x.cats?(CAT_IC[x.cats[0]]||'pin'):'pin',17,'#a9adb1')}</span><div class="smb" style="cursor:default"><div class="smn"><span>${esc(x?.name||'')}</span></div><div class="smm">${esc(x&&x.cats?x.cats.join(', '):'')}</div></div>${P.fixed?'':`<button class="btn sm gh" data-a="spStep" data-k="1">Ändern</button>`}</div></div>`;
+  h+=spSummary();h+=smCnt('Etappen in '+esc(country(P.c).name)+' · chronologisch');h+=spPosHtml();
+  h+=`<div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="${P.fixed?'closeSheet':'spStep'}" data-k="1">${P.fixed?'Abbrechen':'Zurück'}</button><button class="btn pri sp" data-a="spOk">${ic('bed',16)} Als Etappe einfügen</button></div>`;openSheet(h);return}
+h+=smSeg([['saved','Gespeichert'],['live','Suche'],['map','Karte']],P.tab,'spTab');
  const infoFor=p=>{const st=ds.filter(x=>x.placeId===p.id);if(st.length)return['Bereits in der Route am '+fmtD(st[0].from)+', doppelt möglich',false];
   const n=excNo(p);if(n)return['Ist Ausflug '+n+' von '+(byId(p.anchorId)?.name||assign(p)?.a.name||'')+', wird zur Etappe',false];
   const as=assign(p);if(as&&as.min<=S.settings.bands[0]+15)return['Liegt nur ca. '+fmtMin(as.min)+' von Anker '+as.a.name+'. Eigene Übernachtung nötig?',true];return['',false]};
@@ -3232,10 +3242,9 @@ function stagePickSheet(){const P=UI.sp;UI.reSheet=stagePickSheet;const ds=stage
   h+=`</div>`}
  else h+=smEmpty(`Die Karte öffnet sich um ${esc(cen.name||country(P.c).name)}. Tippt auf einen Ort, er wird als Etappe eingefügt.`)+`<button class="btn pri" style="width:100%" data-a="spMap">${ic('map',16)} Karte öffnen</button>`;
  const has=P.sel||P.lsel!=null;
- h+=`<div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Abbrechen</button><button class="btn pri sp" data-a="spOk" ${has&&P.tab!=='map'?'':'disabled'}>${ic('bed',16)} Als Etappe einfügen</button></div>`;
+ h+=`<div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Abbrechen</button><button class="btn pri sp" data-a="spStep" data-k="2" ${has&&P.tab!=='map'?'':'disabled'}>Weiter: Position wählen ${ic('chev',15)}</button></div>`;
  openSheet(h);
  liveFilter($('#spQ'),'#sheet .smr',v=>{P.q=v});
- const af=$('#spAfter');if(af)af.onchange=e=>{P.after=+e.target.value;if(P.tab==='live')P.live=null;stagePickSheet()};
  const run=async()=>{P.live='load';P.lsel=null;stagePickSheet();try{P.live=await liveFind(P.lq||'',spCenter(),Math.max(40,bandKm(2)))}catch(err){P.live={err:'Suche nicht möglich ('+errTxt(err)+')'}}stagePickSheet()};
  const f=$('#spLQF');if(f)f.onsubmit=e=>{e.preventDefault();P.lq=$('#spLQ').value;run()};
  typeahead($('#spLQ'),()=>P,v=>{P.live=v;P.lsel=null},stagePickSheet,spCenter,Math.max(40,bandKm(2)));
@@ -3398,7 +3407,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   shSel:()=>{UI.share.sel=+d.k;const n=shNearest(shPick());UI.share.stage=n.i;shareSheet()},
   shStay:()=>{const x=shPick();const i=+(document.getElementById('shStage')?.value??UI.share.stage);if(!x||!(i>=0))return;const st=S.stages[i];closeSheet();UI.hDraft=Object.assign({status:'gebucht',paid:true},st.stay||{},{name:x.name,addr:x.addr||smT(x),ll:{lat:x.lat,lon:x.lon}});if(x.gUri)UI.hDraft.link=UI.hDraft.link||x.gUri;show('route');hotelSheet(i);toast('Unterkunft vorbefüllt. Daten prüfen und speichern.')},
   shSpot:()=>{const x=shPick();if(!x)return;closeSheet();show('atlas');addSheet({...x,cats:x.cats||['Sonstiges'],type:smT(x)})},
-  shStage:()=>{const x=shPick();if(!x)return;const p=shPlace(x);closeSheet();show('route');stagePick(p.country);UI.sp.sel=p.id;stagePickSheet();toast(`${esc(p.name)} ist ausgewählt. Position und Nächte wählen, dann „Als Etappe einfügen“.`,6000)},
+  shStage:()=>{const x=shPick();if(!x)return;const p=shPlace(x);closeSheet();show('route');stagePick(p.country);UI.sp.sel=p.id;UI.sp.step=2;UI.sp.fixed=true;stagePickSheet()},
   shSearch:()=>{const H=UI.share;closeSheet();UI.searchRes=null;UI.searchQ='';push({t:'search'});bindSearch();const i=document.getElementById('sQ');if(i){i._raw=H.raw;i.value=H.raw.replace(/\s+/g,' ');i.dispatchEvent(new Event('input',{bubbles:true}))}}
  };if(A[a]){e.preventDefault();A[a]()}});
 
@@ -3456,6 +3465,24 @@ function gplStartCheck(){if(!gplKey()||!gplBlocked())return;try{if(sessionStorag
   <div class="row sheetfoot" style="gap:8px"><button class="btn gh sp" data-a="settings" data-k="suche">Limit ändern</button><button class="btn pri sp" data-a="closeSheet">Verstanden</button></div>`)},1600)}
 setTimeout(gplStartCheck,500);
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='gkMax'){const v=Math.max(1,Math.min(5000,Math.round(+e.target.value||0)));try{localStorage.setItem(GPL_MAX,String(v))}catch(x){}UI._gplNote=0;rerenderPage();bindSettings();toast(`Google-Tageslimit: ${v} Abfragen.`)}});
+
+// ---------- 0.80_42: Etappe einfügen – Position chronologisch wählen ----------
+function spPlace(){const P=UI.sp;if(P.sel)return byId(P.sel);if(Array.isArray(P.live)&&P.lsel!=null)return P.live[P.lsel];return null}
+function spBest(x){const P=UI.sp;const ix=S.stages.map((s,k)=>s.country===P.c&&!s.gap?k:-1).filter(k=>k>=0);if(!x||x.lat==null)return ix.length?ix[ix.length-1]:S.stages.length-1;
+ const pt=k=>{const s=S.stages[k];return s&&s.country===P.c?byId(s.placeId):null};const cand=ix.length?[ix[0]-1,...ix]:[S.stages.length-1];let best=cand[cand.length-1],bd=1e12;
+ cand.forEach(a=>{const A=pt(a),B=pt(a+1);let d;if(A&&B)d=hav(A,x)+hav(x,B)-hav(A,B);else if(A)d=hav(A,x);else if(B)d=hav(x,B);else d=1e9;if(d<bd){bd=d;best=a}});return best}
+function spSummary(){const P=UI.sp;const x=spPlace();const ds=stagesDated();const best=spBest(x);if(!P.afterSet)P.after=best;const from=P.after>=0&&ds[P.after]?ds[P.after].to:D0();const to=addDays(from,P.nights);const prev=S.stages[P.after];const nx=S.stages[P.after+1];
+ const where=prev&&prev.country===P.c?'nach '+(byId(prev.placeId)?.name||''):nx?'vor '+(byId(nx.placeId)?.name||''):'am Ende';
+ return `<div class="smlist" style="padding:10px 12px;margin-bottom:4px;background:#1f3436;border-color:#3d6a6e"><div class="row" style="gap:12px"><div class="sp" style="min-width:0"><div class="t14 b" style="color:#e6e7e8">Einfügen ${esc(where)}</div><div class="t12" style="color:#9fd6dc">${fmtDL(from).slice(0,9)} – ${fmtDL(to).slice(0,9)}${P.after===best?' · empfohlen':''}</div></div><div class="step"><button data-a="spN" data-d="-1" aria-label="Eine Nacht weniger">${ic('minus',13)}</button><b>${P.nights} N</b><button data-a="spN" data-d="1" aria-label="Eine Nacht mehr">${ic('plus',13)}</button></div></div><div class="t12 mu" style="margin-top:6px">Andere Position in der Liste antippen</div></div>`}
+function spPosHtml(){const P=UI.sp;const x=spPlace();const ds=stagesDated();const no=stageNo();const ix=S.stages.map((s,k)=>s.country===P.c?k:-1).filter(k=>k>=0);
+ const best=spBest(x);if(!P.afterSet)P.after=best;const from=P.after>=0&&ds[P.after]?ds[P.after].to:D0();const to=addDays(from,P.nights);
+ const slot=a=>{const on=P.after===a;return `<div class="spslot ${on?'on':''} click" data-a="spAt" data-k="${a}">${on?`<div class="spnew"><span class="h5n" style="background:#13808a;color:#fff">${ic('plus',14)}</span><div class="sp" style="min-width:0"><div class="t14 b" style="color:#e6e7e8">${esc(x?.name||'Neue Etappe')}</div><div class="t12" style="color:#9fd6dc">${fmtDL(from).slice(0,9)} – ${fmtDL(to).slice(0,9)}${a===best?' · empfohlen, kürzester Umweg':''}</div></div><b class="t13" style="color:#e3e4e5;flex:none">${P.nights} N</b></div>`:`<span class="spplus">${ic('plus',12)}</span><span>hier einfügen${a===best?' · empfohlen':''}</span>`}</div>`};
+ const row=k=>{const s=S.stages[k],d=ds[k],p=byId(s.placeId);return `<div class="spst"><span class="h5n">${no[s.placeId]||'–'}</span><div class="sp" style="min-width:0"><div class="t14" style="color:#e3e4e5">${esc(p?.name||'Lücke')}</div><div class="t12 mu">${fmtD(d.from)}–${fmtD(d.to)} · ${d.nights} N</div></div></div>`};
+ let h='';const prev=ix.length?S.stages[ix[0]-1]:null,next=ix.length?S.stages[ix[ix.length-1]+1]:null;
+ if(prev)h+=`<div class="spctx">${ic('back',12,'#6f7378')} davor ${esc(country(prev.country).name)}: ${esc(byId(prev.placeId)?.name||'')} bis ${fmtD(ds[ix[0]-1].to)}</div>`;
+ if(!ix.length)h+=slot(S.stages.length-1);else{h+=slot(ix[0]-1);ix.forEach(k=>{h+=row(k)+slot(k)})}
+ if(next)h+=`<div class="spctx">danach ${esc(country(next.country).name)}: ${esc(byId(next.placeId)?.name||'')} ab ${fmtD(ds[ix[ix.length-1]+1].from)} ${ic('chev',12,'#6f7378')}</div>`;
+ return `<div class="smlist sppos">${h}</div>`}
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
@@ -3736,7 +3763,7 @@ document.addEventListener('click',e=>{
   mode:()=>{const s=S.stages[+d.i];const k=Object.keys(MODES);s.mode=k[(k.indexOf(s.mode)+1)%k.length];save();renderRoute()},
   stageAdd:()=>stagePick(d.k),
   spTab:()=>{UI.sp.tab=d.k;stagePickSheet()},spSel:()=>{UI.sp.sel=UI.sp.sel===d.id?null:d.id;UI.sp.lsel=null;stagePickSheet()},spSelL:()=>{const i=+d.i;UI.sp.lsel=UI.sp.lsel===i?null:i;UI.sp.sel=null;stagePickSheet()},
-  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spOk:()=>spOk(),
+  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spAt:()=>{UI.sp.after=+d.k;UI.sp.afterSet=true;stagePickSheet()},spStep:()=>{UI.sp.step=+d.k;if(+d.k===2)UI.sp.afterSet=false;stagePickSheet()},spOk:()=>spOk(),
   spMap:()=>{const cen=spCenter();UI.spMap={...UI.sp};closeSheet();UI.mapFocus=null;UI.mapScope=UI.sp.c;show('karte');setTimeout(()=>MAP&&cen.lat&&MAP.setView([cen.lat,cen.lon],9),150)},stagePick:()=>{addStageFor(d.id);closeSheet();renderRoute()},
   togCountry:()=>{const c=country(d.k);c.status=c.status==='geplant'?'Entwurf':'geplant';save();if(UI.pages.length){rerenderPage();bindSettings()}else render()},
   dayShift:()=>{UI.day=iso(addDays(new Date(UI.day+'T12:00:00'),+d.d));renderUnterwegs()},dayToday:()=>{UI.day=iso(nowD());renderUnterwegs()},
