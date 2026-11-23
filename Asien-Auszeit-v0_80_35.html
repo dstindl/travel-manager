@@ -469,9 +469,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_34';
+const APP_VERSION='0.80_35';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_35',d:'23.11.2026',items:['Neue Versionen laden automatisch – sobald gerade nichts bearbeitet wird','Versionsstand oben auf dem Startbildschirm, antippen öffnet die Versionshinweise','Nach jedem Update erscheint einmal ein Fenster „Neu in Version …“ mit allen Änderungen seit dem letzten Öffnen']},
  {v:'0.80_34',d:'23.11.2026',items:['Teilen aus Google Maps: Die App sucht sofort und zeigt den Ort (mit Google-Schlüssel über Google, sonst über Link und OpenStreetMap)','Danach Auswahl: als Unterkunft für eine Etappe (nächste Etappe vorausgewählt, Name, Adresse, Position und Google-Link vorbefüllt), als Spot/Ausflug oder als neue Etappe','Bei mehreren Treffern den richtigen auswählen; ohne Treffer: selbst suchen oder auf der Karte wählen']},
  {v:'0.80_33',d:'22.11.2026',items:['Neu: Google-Suche mit eigenem Schlüssel (Einstellungen › Google-Suche) – zusätzliche Quelle in allen Suchmasken, bei Unterkünften zuerst','Geteilte Google-Maps-Orte werden mit Schlüssel über den Namen bei Google gefunden, auch wenn der Kurzlink nicht auflösbar ist','Schlüssel bleibt nur auf dem Gerät, nicht im Export; Zähler für Anfragen heute und im Monat','Google-Treffer werden kurz zwischengespeichert und erst nach einer Tipppause abgefragt, um das Gratiskontingent zu schonen']},
  {v:'0.80_32',d:'21.11.2026',items:['Neu: Position auf der Karte setzen – bei der Unterkunft („Auf Karte setzen“), bei Transfer Start/Ziel und bei Neuer Spot. Funktioniert für jeden Ort, auch wenn ihn keine Datenbank kennt','Unterkunft zeigt, ob eine Position gesetzt ist','App ist bereit für den Betrieb im Netz: installierbar, offline nutzbar, Hinweis bei neuer Version','Teilen aus Google Maps direkt an die App (wenn sie aus dem Netz installiert ist)']},
@@ -1022,7 +1023,7 @@ function renderReise(){
  P.filter(p=>p.noteCheck).forEach(p=>hints.push({id:p.id,i:'alert',t:`${p.name}: Notiz prüfen`,s:'Text passt evtl. nicht zum Ort'}));
  P.filter(p=>p.role==='inbox').slice(0,3).forEach(p=>hints.push({id:p.id,i:'pin',t:`${p.name} liegt in der Inbox`,s:'Rolle und Kategorie festlegen'}));
  const recent=P.filter(p=>p.added).sort((a,b)=>b.added-a.added).slice(0,3);
- $('#v-reise').innerHTML=`${head('Reise','Asien-Auszeit 2027',`<button class="ib" data-a="settings" aria-label="Einstellungen">${ic('gear')}</button>`,false)}
+ $('#v-reise').innerHTML=`${head('Reise','Asien-Auszeit 2027',`<span class="click" data-a="settings" data-k="dev" style="font-size:11px;color:#8c9196;border:1px solid #33363a;border-radius:10px;padding:2px 8px;margin-right:8px;white-space:nowrap">v${APP_VERSION}</span><button class="ib" data-a="settings" aria-label="Einstellungen">${ic('gear')}</button>`,false)}
  <div class="card" style="padding:16px"><div class="row" style="align-items:flex-end"><div class="sp"><div class="t12 mu">Reisedauer</div><div style="font:600 34px Poppins,sans-serif;color:#e6e7e8;line-height:1.1">${N+1} Tage</div><div class="t13" style="color:#c4c7ca;margin-top:2px">${fmtDL(start).slice(0,9)} bis ${fmtDL(end)}, ${N} Nächte</div></div><div style="text-align:right"><div class="t12 mu">${dd>0?'Abflug in':now<end?'Unterwegs':'Reise'}</div><div style="font:600 19px Poppins,sans-serif;color:#7cc3ca">${dd>0?dd+(dd===1?' Tag':' Tagen'):now<end?'Tag '+(Math.floor((now-start)/864e5)+1)+' von '+(N+1):'beendet'}</div></div></div>
  <div style="display:flex;gap:2px;border-radius:5px;overflow:hidden;margin:14px 0 8px">${band}</div><div class="row wrap" style="gap:4px 12px">${cs.map(({c,r})=>`<span class="t12" style="display:flex;gap:5px;align-items:center;color:#c4c7ca"><span style="width:8px;height:8px;border-radius:2px;background:${ccol(c.id)}"></span>${esc(c.name)} <span class="mu">${r.nights}</span></span>`).join('')}</div></div>
  <div class="tgrid">${tileH('Länder',visCountries().length,`${visCountries().filter(c=>c.status==='geplant').length} geplant, ${visCountries().filter(c=>c.status!=='geplant').length} in Planung`,'','data-a="settings" data-k="reise"')}${tileH('Etappen',S.stages.length,`${S.places.filter(p=>p.role!=='anchor'&&excNo(p)).length} Ausflüge zugeordnet`,'','data-a="atlasGo" data-k="etappen"')}</div>
@@ -3336,7 +3337,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
 // PWA: Service Worker, Update-Hinweis, Teilen-Ziel
 (function(){if(!/^https?:/.test(location.protocol))return;
  if('serviceWorker' in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});
- const chk=async()=>{try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.version&&j.version!==APP_VERSION)toast(`Neue Version ${esc(j.version)} ist da. <span class="click b" style="color:#7cc3ca" data-a="appUpdate">Jetzt laden</span>`,60000)}catch(e){}};
+ const chk=async()=>{try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.version&&j.version!==APP_VERSION)verReload(j.version)}catch(e){}};
  setTimeout(chk,3000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});
  const q=new URLSearchParams(location.search);const sh=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n').trim();
  if(sh){history.replaceState(null,'',location.pathname);setTimeout(()=>shareOpen(sh),500)}})();
@@ -3410,6 +3411,22 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   shStage:()=>{const x=shPick();if(!x)return;const p=shPlace(x);closeSheet();show('route');stagePick(p.country);UI.sp.sel=p.id;stagePickSheet();toast(`${esc(p.name)} ist ausgewählt. Position und Nächte wählen, dann „Als Etappe einfügen“.`,6000)},
   shSearch:()=>{const H=UI.share;closeSheet();UI.searchRes=null;UI.searchQ='';push({t:'search'});bindSearch();const i=document.getElementById('sQ');if(i){i._raw=H.raw;i.value=H.raw.replace(/\s+/g,' ');i.dispatchEvent(new Event('input',{bubbles:true}))}}
  };if(A[a]){e.preventDefault();A[a]()}});
+
+// ---------- 0.80_35: Automatisches Update und „Neu in dieser Version“ ----------
+const VER_SEEN='auszeit27_seen';
+function verNews(){let seen=null;try{seen=localStorage.getItem(VER_SEEN)}catch(e){}if(seen===APP_VERSION)return;
+ const k=seen?CHANGELOG.findIndex(c=>c.v===seen):-1;const list=(k>0?CHANGELOG.slice(0,k):CHANGELOG.slice(0,1)).slice(0,5);if(!list.length){try{localStorage.setItem(VER_SEEN,APP_VERSION)}catch(e){}return}
+ setTimeout(()=>{if(document.getElementById('sheet').classList.contains('open'))return;openSheet(`<div class="smt">Neu in Version ${esc(APP_VERSION)}</div><div class="smsub">Die App aktualisiert sich ab jetzt automatisch.</div>
+  ${list.map(c=>`<div class="smcnt"><span>Version ${esc(c.v)} · ${esc(c.d)}</span></div><div class="smlist" style="padding:6px 14px">${c.items.map(i=>`<div class="row" style="gap:10px;align-items:flex-start;padding:7px 0">${ic('check',14,'#7cc3ca')}<div class="t13" style="color:#d4d6d8;line-height:1.45">${esc(i)}</div></div>`).join('')}</div>`).join('')}
+  <div class="row sheetfoot"><button class="btn pri sp" data-a="verOk">Alles klar</button></div>`)},900)}
+let VER_PENDING=null;
+function verBusy(){const sh=document.getElementById('sheet');const a=document.activeElement;return (sh&&sh.classList.contains('open'))||(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))}
+function verReload(v){let tried=null;try{tried=sessionStorage.getItem('auszeit27_reload')}catch(e){}if(tried===v){toast(`Neue Version ${esc(v)} ist da. <span class="click b" style="color:#7cc3ca" data-a="appUpdate">Jetzt laden</span>`,60000);return}
+ if(verBusy()){VER_PENDING=v;return}try{sessionStorage.setItem('auszeit27_reload',v)}catch(e){}
+ const go=()=>location.reload();if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(r=>r?r.update().catch(()=>{}).then(go):go()).catch(go);else go()}
+setInterval(()=>{if(VER_PENDING&&!verBusy()){const v=VER_PENDING;VER_PENDING=null;verReload(v)}},4000);
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&el.dataset.a==='verOk'){try{localStorage.setItem(VER_SEEN,APP_VERSION)}catch(x){}closeSheet()}});
+setTimeout(verNews,400);
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
