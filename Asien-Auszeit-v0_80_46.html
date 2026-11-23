@@ -487,6 +487,29 @@ body.cmp .K{padding:14px 12px 10px}
 .f4dh .mu{font-weight:400;letter-spacing:0;text-transform:none}
 .f4dh .h5lnk{text-transform:none;letter-spacing:0}
 .f4free{border:1px dashed #33363a;border-radius:14px;padding:12px 14px;font-size:12.5px;color:#6f7378}
+/* 0.80_46 Landesfarben + Zeitleiste */
+.f4card.f4st{position:relative}.f4st::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cc);z-index:1}
+.f4st .f4nr{background:var(--cca);color:var(--cc);border:1px solid var(--ccb)}
+.f4ch.cc{background:var(--cct);border:1px solid var(--ccr);border-radius:12px;padding:10px 12px;margin:14px 0 8px}
+.f4card .f4ft:not(.f4add){background:#1b1c1e}.f4card .f4ft:not(.f4solo):not(.f4add){border-top:1px dashed #34373b}
+.f4ft .f4tb{border-color:#4a4e53;color:#b7bbbf}
+.f4g{padding-left:46px}.f4w{position:relative}
+.f4gut{position:absolute;left:-46px;top:0;bottom:0;width:38px;text-align:center;padding-top:11px}
+.f4gut .d{font:600 17px/1 Poppins,"Segoe UI",sans-serif;color:#e6e7e8}.f4gut .m{font-size:10px;color:#8c9196;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}.f4gut .w{font-size:10px;color:#6f7479}
+.f4gut .rl{position:absolute;left:18px;width:2px;top:60px;bottom:-14px;border-radius:1px;background:var(--ccb)}
+.rhs{position:sticky;top:0;z-index:5;margin:10px -14px 4px;background:#202224;border-top:1px solid #2c2f32;border-bottom:1px solid #2c2f32;height:64px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.rhs::-webkit-scrollbar{display:none}
+.rhsi{position:relative;height:100%}
+.rhsg{position:absolute;top:22px;height:22px;border-radius:5px;font-size:10.5px;font-weight:600;color:#141516;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.rhsg.gap{background:repeating-linear-gradient(135deg,#34373b 0 4px,#202224 4px 8px)!important;color:#8c9196}
+.rhsm{position:absolute;top:49px;font-size:9.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#8c9196;pointer-events:none}
+.rhst{position:absolute;top:44px;width:1px;height:20px;background:#3a3d41;pointer-events:none}
+.rhsd{position:absolute;top:18px;bottom:0;background:rgba(18,19,20,.6);pointer-events:none}
+.rhsw{position:absolute;top:17px;height:30px;border:1.5px solid #e9eaeb;border-radius:8px;box-shadow:0 0 0 3px rgba(233,234,235,.08);pointer-events:none}
+.rhsl{position:absolute;top:1px;transform:translateX(-50%);background:#e9eaeb;color:#17181a;font-size:10.5px;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap;pointer-events:none}
+.ccsw{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px}
+.ccsw button{height:40px;border-radius:10px;border:2px solid transparent}.ccsw button.on{border-color:#e9eaeb}
+
 </style>
 </head>
 <body>
@@ -506,9 +529,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_45';
+const APP_VERSION='0.80_46';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_46',d:'23.11.2026',items:['Jedes Land hat jetzt eine eigene Farbe: Länderkopf, Streifen an jeder Etappe, Etappen-Nummer, Ebene-Markierung und Zeitverlauf. Antippen des Farbbalkens im Land ändert die Farbe','Transfers sind bewusst grau und gestrichelt abgesetzt – klar „zwischen“ den Etappen','Ablauf mit Zeitleiste: Sie bleibt beim Scrollen oben stehen, der helle Rahmen zeigt den sichtbaren Zeitraum und wandert mit. Antippen eines Abschnitts springt zur Etappe','Links neben jeder Etappe steht das Anreisedatum wie auf einem Zeitstrahl']},
  {v:'0.80_45',d:'23.11.2026',items:['Klassische Routenansicht entfernt – wer sie eingeschaltet hatte, landet automatisch wieder in der neuen Route']},
  {v:'0.80_44',d:'23.11.2026',items:['Etappe (Ebene 3) im neuen Raster: Anreise oben, Etappen-Karte mit Unterkunft, Nächten, Ausflügen, Kosten, Hinweisen und Notiz als Zeilen, Weiterreise unten – verbunden durch die Linie','Ausflüge (Ebene 4) chronologisch nach Tagen: jeder Ausflug als Karte mit Nummer, im Kartenfuß der Transport oder „Transport hinzufügen“; freie Tage als „frei“','Transfer-Seite: Teilstrecken als verbundene Karten mit T-Nummer und Verkehrsmittel, am Ende „Teilstrecke hinzufügen“']},
  {v:'0.80_43',d:'23.11.2026',items:['Route mit Umschalter Zeitverlauf | Ablauf: Ablauf zeigt die ganze Reise chronologisch mit Länderköpfen','Neues Raster für Etappen und Transfers: jede Etappe ist eine Karte, die Weiterreise steht im Kartenfuß – Nummer und T-Nummer, Datum und Status jeweils untereinander','Verbindungslinie zwischen den Karten, gestrichelt an Landesgrenzen; Anreise als eigene kleine Karte','Fehlende Weiterreise direkt im Kartenfuß hinzufügen','Gleiches Raster in der Länderansicht']},
@@ -2886,8 +2910,8 @@ function rhDot(on,c){return on?`<span class="h5dot ${c||''}"></span>`:''}
 function rhName(o){if(o.l==='c')return country(o.c).name;const i=rhSI(o.id);const st=S.stages[i];
  if(o.l==='s')return byId(st?.placeId)?.name||'Etappe';if(o.l==='ex')return 'Ausflüge';if(o.l==='cost')return 'Kosten';if(o.l==='note')return 'Notiz';
  if(o.l==='tr'){const lab=st?trLabel(st,0).replace(/\.\d+$/,''):'';return (i===0?'Anreise ':'Transfer ')+lab}return ''}
-function rhHead(title,sub,lvl,right){const st=UI.rh;const crumbs=[{n:0,t:'Route'}].concat(st.map((o,k)=>({n:k+1,t:rhName(o)})));const show=crumbs.slice(-3);
- return `<div class="h5top">${st.length?`<button class="ib" data-a="rhBack" aria-label="Zurück">${ic('back')}</button>`:''}<span class="sp"></span>${right||''}<span class="h5lvl">Ebene ${lvl}</span></div>
+function rhHead(title,sub,lvl,right,col){const st=UI.rh;const crumbs=[{n:0,t:'Route'}].concat(st.map((o,k)=>({n:k+1,t:rhName(o)})));const show=crumbs.slice(-3);
+ return `<div class="h5top">${st.length?`<button class="ib" data-a="rhBack" aria-label="Zurück">${ic('back')}</button>`:''}<span class="sp"></span>${right||''}<span class="h5lvl" ${col?`style="border-color:${hexA(col,.6)};color:${col}"`:''}>Ebene ${lvl}</span></div>
  ${st.length?`<div class="h5bc">${show.map((c,k)=>k===show.length-1?`<b>${esc(c.t)}</b>`:`<span class="click" data-a="rhTo" data-n="${c.n}">${esc(c.t)}</span>${ic('chev',11,'#5d6166')}`).join('')}</div>`:''}
  <div class="h5t">${title}</div>${sub?`<div class="h5s">${sub}</div>`:''}`}
 function rhTile(k,v,s,act,dot,extra){return `<div class="h5k ${act?'click':''}" ${act||''}>${dot?'<span class="h5dot"></span>':''}<div class="k">${k}</div><div class="v">${v}</div>${s?`<div class="s">${s}</div>`:''}${extra||''}</div>`}
@@ -2897,7 +2921,7 @@ function rhCountryTodo(cid){return openItems().filter(x=>!x.booked&&x.c===cid).l
 function renderRouteH(){ensureCountries();const top=rhTop();let h='';
  if(top){const i=top.id!=null?rhSI(top.id):0;if(i<0||(top.l==='c'&&!countryRange(top.c))){UI.rh=[];return renderRouteH()}}
  if(!top)h=rhE1();else if(top.l==='c')h=rhE2(top.c);else{const i=rhSI(top.id);h=top.l==='s'?rhE3(i):top.l==='ex'?rhE4ex(i):top.l==='cost'?rhE4cost(i):top.l==='note'?rhE4note(i):rhTr(i)}
- const v=$('#v-route');v.classList.add('h5');v.innerHTML=h;
+ const v=$('#v-route');v.classList.add('h5');v.innerHTML=h;setTimeout(rhsSync,0);
  const n=document.getElementById('rhNote');if(n&&top){const p=byId(S.stages[rhSI(top.id)]?.placeId);n.oninput=e=>{p.note=e.target.value;save()}}}
 
 // Ebene 1: Route im Zeitverlauf
@@ -2907,7 +2931,7 @@ function rhE1(){const ds=stagesDated();const cs=visCountries().filter(c=>country
  const t0=D0(),t1=ds[ds.length-1].to;const span=Math.max(1,(t1-t0)/864e5);const pc=d=>Math.max(0,Math.min(100,(d-t0)/864e5/span*100));
  let h=rhHead('Route',`${fmtD(t0)} – ${fmtD(t1)}${t1.getFullYear()} · ${totalNights()} Nächte · ${cs.length} ${cs.length===1?'Land':'Länder'}`,1,right);
  h+=`<div class="seg" style="margin:14px 0 2px">${[['zeit','Zeitverlauf'],['ablauf','Ablauf']].map(([k,l])=>`<button data-a="rhView" data-k="${k}" class="${rhView()===k?'on':''}">${l}</button>`).join('')}</div>`;
- if(rhView()==='ablauf'){h+=rhFlow(cs.map(c=>c.id),'route');h+=`<button class="h5add" data-a="stageAddHdr" data-k="">${ic('plus',15)} Etappe hinzufügen</button>`;return h}
+ if(rhView()==='ablauf'){h+=rhStrip(cs.map(c=>c.id),'route');h+=rhFlow(cs.map(c=>c.id),'route');h+=`<button class="h5add" data-a="stageAddHdr" data-k="">${ic('plus',15)} Etappe hinzufügen</button>`;return h}
  const today=nowD();const tIn=today>=t0&&today<=t1;
  const months=[];{const m=new Date(t0.getFullYear(),t0.getMonth()+1,1,12);for(let d=m;d<t1;d=new Date(d.getFullYear(),d.getMonth()+1,1,12))months.push(d)}
  const MN=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
@@ -2916,8 +2940,8 @@ function rhE1(){const ds=stagesDated();const cs=visCountries().filter(c=>country
  h+=`<div class="h5gantt"><div class="h5grow h5mon"><div class="h5glab"></div><div class="h5trk">${months.map(d=>`<span style="left:${pc(d)}%">${MN[d.getMonth()]}</span>`).join('')}${!months.length||pc(months[0])>12?`<span style="left:0;transform:none">${MN[t0.getMonth()]}</span>`:''}</div></div>`;
  cs.forEach(c=>{const r=countryRange(c.id);const st=ds.map((s,i)=>({...s,i})).filter(s=>s.country===c.id&&!s.gap);const n=rhCountryTodo(c.id);
   const ticks=st.slice(1).map(s=>`<i style="left:${(s.from-r.from)/(r.to-r.from)*100}%"></i>`).join('');
-  h+=`<div class="h5grow click" data-a="rh" data-l="c" data-k="${c.id}"><div class="h5glab"><div class="t">${esc(c.name)}</div><div class="s">${r.nights} N · ${st.length} ${st.length===1?'Etappe':'Etappen'}</div></div><div class="h5trk">${grid}<span class="h5bar ${c.status==='geplant'?'':'d'}" style="left:${pc(r.from)}%;width:${Math.max(1.5,pc(r.to)-pc(r.from))}%">${ticks}</span>${n?`<span class="h5dot" style="position:absolute;left:calc(${pc(r.to)}% + 4px);top:50%;margin-top:-3px"></span>`:''}</div></div>`});
- h+=`</div><div class="h5leg"><span><i class="h5bar"></i>geplant</span><span><i class="h5bar d"></i>Entwurf</span><span><i class="h5dot"></i>offen</span></div>`;
+  h+=`<div class="h5grow click" data-a="rh" data-l="c" data-k="${c.id}"><div class="h5glab"><div class="t">${esc(c.name)}</div><div class="s">${r.nights} N · ${st.length} ${st.length===1?'Etappe':'Etappen'}</div></div><div class="h5trk">${grid}<span class="h5bar" style="background:${ccol(c.id)};opacity:${c.status==='geplant'?1:.45};left:${pc(r.from)}%;width:${Math.max(1.5,pc(r.to)-pc(r.from))}%">${ticks}</span>${n?`<span class="h5dot" style="position:absolute;left:calc(${pc(r.to)}% + 4px);top:50%;margin-top:-3px"></span>`:''}</div></div>`});
+ h+=`</div><div class="h5leg"><span><i class="h5bar" style="background:#8c9196"></i>geplant</span><span><i class="h5bar" style="background:#8c9196;opacity:.45"></i>Entwurf</span><span><i class="h5dot"></i>offen</span></div>`;
  const open=openItems().filter(x=>!x.booked).sort((a,b)=>a.date-b.date);
  h+=rhSec('Zu erledigen',`<span class="h5cnt">${open.length}</span>`);
  h+=open.length?`<div class="h5list">${open.slice(0,4).map(it=>{const [dt,col]=dueTxt(it);return `<div class="h5row click" ${it.a}><span class="h5dot ${col==='#d9645a'?'r':''}"></span><div class="sp" style="min-width:0"><div class="t">${esc(it.t)}</div><div class="s">${esc(it.grp||'')}${it.grp?' · ':''}${dt}</div></div>${ic('chev',14,'#5d6166')}</div>`}).join('')}${open.length>4?`<div class="h5row click" data-a="openPage"><div class="sp t" style="color:var(--pet2)">Alle ${open.length} anzeigen</div>${ic('chev',14,'#5d6166')}</div>`:''}</div>`:`<div class="h5list"><div class="h5row"><div class="sp s">Alles gebucht.</div></div></div>`;
@@ -2930,7 +2954,7 @@ function rhE2(c){const ds=stagesDated();const r=countryRange(c);const list=ds.ma
  const kc=idx.reduce((a,k)=>{const x=stageCost(k);return {c:a.c+(x.c||0),b:a.b+(x.budget||0)}},{c:0,b:0});
  const noStay=list.filter(s=>!s.gap&&S.stages[s.i].stay?.status!=='gebucht').length;
  const right=`<button class="ib" data-a="mapScope" data-k="${c}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageAdd" data-k="${c}" aria-label="Etappe hinzufügen">${ic('plus')}</button>`;
- let h=rhHead(esc(country(c).name),`${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} Nächte${v&&vd?` · Visum ${vd} von ${v[0]} Tagen`:''}`,2,right);
+ let h=rhHead(`<span class="f4bar click" data-a="ccPick" data-k="${c}" title="Landesfarbe ändern" style="background:${ccol(c)};height:30px"></span>${esc(country(c).name)}`,`${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} Nächte${v&&vd?` · Visum ${vd} von ${v[0]} Tagen`:''}`,2,right,ccol(c));
  const vc=v&&vd?(vd>v[0]?'r':vd/v[0]>=.9?'y':''):'';
  h+=`<div class="h5g2">${rhTile('Etappen',list.filter(s=>!s.gap).length,noStay?`${noStay} ohne gebuchte Unterkunft`:'alle Unterkünfte gebucht','',noStay>0)}
  ${rhTile('Kosten',eur(kc.c),kc.b?'von '+eur(kc.b):(tr||ho?`Transfers ${eur(tr)}`:'erfasst'),'',kc.b&&kc.c>kc.b,kc.b?`<div class="h5bar2"><i style="width:${Math.min(100,Math.round(kc.c/kc.b*100))}%"></i></div>`:'')}
@@ -2938,7 +2962,7 @@ function rhE2(c){const ds=stagesDated();const r=countryRange(c);const list=ds.ma
  ${rhTile('Status',pl?'geplant':'Entwurf',v&&vd?`Visum ${vd}/${v[0]} (${v[1]})`:'antippen zum Wechseln',`data-a="togCountry" data-k="${c}"`,!!vc)}</div>`;
  {const na=noAnchor().filter(x=>x.p.country===c&&!x.stage);if(na.length){const op=(UI.openPts||{})[c];
   h+=`<div class="h5list" style="margin-top:12px"><div class="h5row click" data-a="openPts" data-k="${c}"><span class="h5dot"></span><div class="sp"><div class="t">${na.length} ${na.length===1?'offener Punkt':'offene Punkte'} ohne Etappe</div></div>${ic(op?'up':'down',14,'#5d6166')}</div>${op?na.map(x=>`<div class="h5row"><div class="sp" style="min-width:0"><div class="t">${esc(x.p.name)}</div><div class="s">${ROLES[x.p.role]} · nächste Etappe ${esc(x.as.a.name)} ca. ${fmtMin(x.as.min)}</div></div><button class="btn sm" data-a="umh" data-id="${x.p.id}" data-m="replace">Zuordnen</button><button class="btn sm pri" data-a="addStage" data-id="${x.p.id}">Etappe</button></div>`).join(''):''}</div>`}}
- h+=rhSec('Ablauf');h+=rhFlow([c],'land');
+ h+=rhSec('Ablauf');h+=rhStrip([c],'land');h+=rhFlow([c],'land');
  h+=`<button class="h5add" data-a="stageAdd" data-k="${c}">${ic('plus',15)} Etappe hinzufügen</button>`;
  return h}
 
@@ -3466,23 +3490,24 @@ function rhView(){try{return localStorage.getItem('auszeit27_rview')||'zeit'}cat
 function f4tr(i,txt){const st=S.stages[i];if(!st)return null;const L=legsOf(st);if(!L.length)return null;const s=stagesDated()[i];const md=MODES[L[0].mode]||MODES.car;const d=L[0].date?new Date(L[0].date+'T12:00:00'):s.from;
  return {lab:trLabel(st,0).replace(/\.\d+$/,''),icn:L.length>1?'route':md[0],mode:L.map(l=>(MODES[l.mode]||MODES.car)[1]).filter((v,k,a)=>a.indexOf(v)===k).join(' + '),nL:L.length,date:fmtDL(d).slice(0,9),dep:L[0].dep,bk:L.every(l=>l.status==='gebucht'),id:st.id,txt}}
 function f4trRow(t,cls){const dot=t.bk?'<span style="width:7px;flex:none"></span>':'<span class="h5dot"></span>';
- return `<div class="f4r f4ft ${cls||''} click" data-a="rh" data-l="tr" data-id="${t.id}"><div class="f4c"><span class="f4tb">${t.lab}</span>${ic(t.icn,14,'#9fd0d5')}</div><div class="sp" style="min-width:0"><div class="f4tt">${esc(t.txt)}</div><div class="f4s">${t.mode}${t.nL>1?' · '+t.nL+' Teilstrecken':''} · ${t.date}${t.dep?' · '+t.dep:''}</div></div><div class="f4rt">${dot}${ic('chev',14,'#5d6166')}</div></div>`}
+ return `<div class="f4r f4ft ${cls||''} click" data-a="rh" data-l="tr" data-id="${t.id}"><div class="f4c"><span class="f4tb">${t.lab}</span>${ic(t.icn,14,'#9aa0a6')}</div><div class="sp" style="min-width:0"><div class="f4tt">${esc(t.txt)}</div><div class="f4s">${t.mode}${t.nL>1?' · '+t.nL+' Teilstrecken':''} · ${t.date}${t.dep?' · '+t.dep:''}</div></div><div class="f4rt">${dot}${ic('chev',14,'#5d6166')}</div></div>`}
 function f4missing(j,txt,act,cls){return `<div class="f4r f4ft f4add ${cls||''} click" ${act}><div class="f4c"><span class="f4tb" style="border-style:dashed;color:#7cc3ca">T?</span>${ic('plus',14,'#7cc3ca')}</div><div class="sp" style="min-width:0"><div class="f4tt" style="color:#7cc3ca;font-weight:600">${esc(txt)}</div><div class="f4s">antippen: automatisch vorschlagen</div></div><div class="f4rt"><span class="h5dot r"></span>${ic('chev',14,'#5d6166')}</div></div>`}
 function f4chead(cid,click){const c=country(cid);const r=countryRange(cid);const ds=stagesDated();const n=ds.filter(s=>s.country===cid&&!s.gap).length;const v=visaOf(cid),vd=stayDaysOf(cid);const todo=rhCountryTodo(cid);
- return `<div class="f4ch ${click?'click':''}" ${click?`data-a="rh" data-l="c" data-k="${cid}"`:''}><span class="f4bar" style="background:${c.status==='geplant'?'#3f6c71':'#3a3d41'}"></span><div class="sp" style="min-width:0"><div class="f4cn">${esc(c.name)}</div><div class="t12 mu">${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} N · ${n} ${n===1?'Etappe':'Etappen'}${v&&vd?' · Visum '+vd+'/'+v[0]:''}</div></div>${todo?'<span class="h5dot"></span>':''}${click?ic('chev',14,'#5d6166'):''}</div>`}
-function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div class="f4">';const idx=ds.map((s,i)=>i).filter(i=>cids.includes(ds[i].country));if(!idx.length)return h+smEmpty('Noch keine Etappen.')+'</div>';
+ return `<div class="f4ch cc ${click?'click':''}" style="${ccVars(cid)}" ${click?`data-a="rh" data-l="c" data-k="${cid}"`:''}><span class="f4bar" style="background:var(--cc);opacity:${c.status==='geplant'?1:.55}"></span><div class="sp" style="min-width:0"><div class="f4cn">${esc(c.name)}</div><div class="t12 mu">${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} N · ${n} ${n===1?'Etappe':'Etappen'}${v&&vd?' · Visum '+vd+'/'+v[0]:''}</div></div>${todo?'<span class="h5dot"></span>':''}${click?ic('chev',14,'#5d6166'):''}</div>`}
+function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div class="f4 f4g">';const idx=ds.map((s,i)=>i).filter(i=>cids.includes(ds[i].country));if(!idx.length)return h+smEmpty('Noch keine Etappen.')+'</div>';
  let prevC=null;
  idx.forEach((i,k)=>{const s=ds[i],st=S.stages[i],p=byId(st.placeId);const first=k===0||s.country!==prevC;
   if(first){if(mode==='route'){if(k>0)h+='<div class="f4ln b"></div>';h+=f4chead(s.country,true)}
    if(mode==='land'||k===0){const pv=S.stages[i-1];const txt=i===0?'Anreise Frankfurt → '+(p?.name||''):'Anreise aus '+(country(pv.country)?.name||'')+' → '+(p?.name||'');const t=f4tr(i,txt);
     h+=`<div class="f4card f4arr">${t?f4trRow(t,'f4solo'):i===0?f4missing(i,'Anreise anlegen','data-a="t1Auto"','f4solo'):f4missing(i,'Anreise anlegen',`data-a="autoTr" data-i="${i}"`,'f4solo')}</div><div class="f4ln"></div>`}}
   prevC=s.country;
-  if(st.gap){h+=`<div class="f4card f4gap"><div class="f4r"><div class="f4c"><span class="f4nr" style="background:#2c2f33;color:#8c9196">–</span></div><div class="sp"><div class="f4nm">Lücke · ${st.nights} ${st.nights===1?'freie Nacht':'freie Nächte'}</div><div class="f4s">${fmtD(s.from)}–${fmtD(s.to)}</div></div><button class="btn sm pri" data-a="gapFill" data-i="${i}">${ic('plus',12)} Etappe</button></div></div>`}
+  h+=`<div class="f4w" data-i="${i}" data-f="${+s.from}" data-t="${+s.to}" style="${ccVars(s.country)}">${f4gut(s.from,s.country)}`;
+  if(st.gap){h+=`<div class="f4card f4gap"><div class="f4r"><div class="f4c"><span class="f4nr" style="background:#2c2f33;color:#8c9196">–</span></div><div class="sp"><div class="f4nm">Lücke · ${st.nights} ${st.nights===1?'freie Nacht':'freie Nächte'}</div><div class="f4s">${fmtD(s.from)}–${fmtD(s.to)}</div></div><button class="btn sm pri" data-a="gapFill" data-i="${i}">${ic('plus',12)} Etappe</button></div></div></div>`}
   else{const todo=st.stay?.status!=='gebucht'||analyse(i).some(x=>x.lvl==='err');
-   h+=`<div class="f4card"><div class="f4r click" data-a="rh" data-l="s" data-id="${st.id}"><div class="f4c"><span class="f4nr">${no[p.id]||''}</span></div><div class="sp" style="min-width:0"><div class="f4nm">${esc(p.name)}</div><div class="f4s">${dRange(s,st,1)} · ${s.nights} N · ${esc(st.stay?.name||'Unterkunft offen')}</div></div><div class="f4rt">${todo?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>'}${ic('chev',14,'#5d6166')}</div></div>`;
+   h+=`<div class="f4card f4st"><div class="f4r click" data-a="rh" data-l="s" data-id="${st.id}"><div class="f4c"><span class="f4nr">${no[p.id]||''}</span></div><div class="sp" style="min-width:0"><div class="f4nm">${esc(p.name)}</div><div class="f4s">${s.nights} N · ${esc(st.stay?.name||'Unterkunft offen')}</div></div><div class="f4rt">${todo?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>'}${ic('chev',14,'#5d6166')}</div></div>`;
    const j=i+1,nx=S.stages[j];if(nx&&!nx.gap){const np=byId(nx.placeId);const border=nx.country!==st.country;const t=f4tr(j,'weiter nach '+(np?.name||'')+(border?' · Grenze':''));
     if(t)h+=f4trRow(t);else if(nx.placeId!==st.placeId)h+=f4missing(j,'Weiterreise nach '+(np?.name||'')+' hinzufügen',`data-a="autoTr" data-i="${j}"`)}
-   h+='</div>'}
+   h+='</div></div>'}
   const nk=idx[k+1];if(nk!=null&&ds[nk].country===s.country)h+='<div class="f4ln"></div>'});
  return h+'</div>'}
 
@@ -3492,7 +3517,7 @@ function f4row(o){const dot=o.dot==='r'?'<span class="h5dot r"></span>':o.dot?'<
 function f4ico(n){return `<span class="f4ic">${ic(n,16,'#a9adb1')}</span>`}
 function rhE3(i){const S3=stStatus(i);const s={...S3.ds,i};const st=S3.st;const p=S3.p;const no=stageNo()[p.id]||'';const pr=prioOf(p);const nx=S.stages[i+1];const pv=S.stages[i-1];
  const right=`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageMenu" data-i="${i}" aria-label="Mehr">${ic('more')}</button>`;
- let h=rhHead(`<span class="h5n lg">${no}</span>${esc(p.name)}`,`${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}`,3,right);
+ const cc3=ccol(st.country);let h=rhHead(`<span class="h5n lg" style="background:${hexA(cc3,.2)};color:${cc3};border:1px solid ${hexA(cc3,.5)}">${no}</span>${esc(p.name)}`,`${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}`,3,right,cc3);
  h+='<div class="f4" style="margin-top:14px">';
  {const txt=i===0?'Anreise Frankfurt → '+p.name:'Anreise aus '+(pv.country!==st.country?country(pv.country).name+', ':'')+(byId(pv.placeId)?.name||'');const t=f4tr(i,txt);
   h+=`<div class="f4card f4arr">${t?f4trRow(t,'f4solo'):i===0?f4missing(i,'Anreise anlegen','data-a="t1Auto"','f4solo'):pv&&pv.placeId!==st.placeId?f4missing(i,'Anreise hinzufügen',`data-a="autoTr" data-i="${i}"`,'f4solo'):''}</div><div class="f4ln"></div>`}
@@ -3524,6 +3549,41 @@ function rhE4ex(i){const S3=stStatus(i);const p=S3.p;const st=S3.st;const ex=exc
  if(un.length){h+=`<div class="f4dh"><span>Ohne Tag</span><span class="mu">${un.length}</span></div>`;h+=un.map(exCard).join('<div class="f4ln"></div>')}
  h+=`</div><div class="h5btns"><button class="btn sm gh sp" data-a="suggOpen" data-id="${p.id}">${ic('spark',14)} Vorschläge</button><button class="btn sm pri sp" data-a="attachOpen" data-id="${p.id}">${ic('plus',14)} Ausflug hinzufügen</button></div>`;
  return h}
+
+
+// ---------- 0.80_46: Landesfarben + mitwandernde Zeitleiste im Ablauf ----------
+const CC_PAL=['#4aa6a0','#c77a9a','#8b7fd6','#d27a5c','#5f9fd6','#8fb35f','#6fc1d9','#d08fbf','#a3a35a','#7f9bd6','#cf8f6a','#6fae8f'];
+function ccol(cid){const c=S.countries.find(x=>x.id===cid);if(c&&c.color)return c.color;const k=S.countries.findIndex(x=>x.id===cid);return k<0?'#8c9196':CC_PAL[k%CC_PAL.length]}
+function hexA(h,a){h=String(h).replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`}
+function ccVars(cid){const c=ccol(cid);return `--cc:${c};--cca:${hexA(c,.2)};--ccb:${hexA(c,.5)};--cct:${hexA(c,.09)};--ccr:${hexA(c,.28)}`}
+const WD2=['So','Mo','Di','Mi','Do','Fr','Sa'],MN2=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+function f4gut(d,cid){return `<div class="f4gut"><div class="d">${String(d.getDate()).padStart(2,'0')}</div><div class="m">${MN2[d.getMonth()]}</div><div class="w">${WD2[d.getDay()]}</div><i class="rl"></i></div>`}
+function rhStrip(cids,mode){const ds=stagesDated();const idx=ds.map((s,i)=>i).filter(i=>cids.includes(ds[i].country));if(!idx.length)return '';
+ const t0=ds[idx[0]].from,t1=ds[idx[idx.length-1]].to;const days=Math.max(1,Math.round((t1-t0)/864e5));const W=Math.max(300,(window.innerWidth||400)-28);
+ let P=mode==='route'?9:22;P=Math.max(P,W/days);const X=d=>14+(d-t0)/864e5*P;const tot=Math.round(days*P+28);const no=stageNo();
+ let h='';
+ for(let m=new Date(t0.getFullYear(),t0.getMonth()+1,1,12);m<t1;m=new Date(m.getFullYear(),m.getMonth()+1,1,12)){h+=`<i class="rhst" style="left:${X(m)}px"></i><span class="rhsm" style="left:${X(m)+5}px">${MN2[m.getMonth()]}</span>`}
+ {const m1=new Date(t0.getFullYear(),t0.getMonth()+1,1,12);if(X(m1)>60)h+=`<span class="rhsm" style="left:16px">${MN2[t0.getMonth()]}</span>`}
+ idx.forEach(i=>{const s=ds[i],st=S.stages[i];const l=X(s.from)+1,w=Math.max(3,s.nights*P-2);const n=st.gap?'':(no[st.placeId]||'');
+  h+=`<span class="rhsg ${st.gap?'gap':''}" data-a="rhJump" data-i="${i}" style="left:${l}px;width:${w}px;background:${ccol(s.country)}">${w>=14?n:''}</span>`});
+ h+=`<i class="rhsd" id="rhsD1" style="left:0;width:0"></i><i class="rhsd" id="rhsD2" style="left:${tot}px;width:0"></i><i class="rhsw" id="rhsW" style="left:0;width:0;display:none"></i><span class="rhsl" id="rhsL" style="display:none"></span>`;
+ return `<div class="rhs" id="rhs" data-t0="${+t0}" data-p="${P}" data-w="${tot}"><div class="rhsi" style="width:${tot}px">${h}</div></div>`}
+function rhsSync(){const s=document.getElementById('rhs');const v=document.getElementById('v-route');if(!s||!v||v.hidden)return;
+ const t0=+s.dataset.t0,P=+s.dataset.p,tot=+s.dataset.w;const X=t=>14+(t-t0)/864e5*P;
+ const top=s.getBoundingClientRect().bottom,bot=Math.min(v.getBoundingClientRect().bottom,window.innerHeight)-80;
+ let f=null,t=null;v.querySelectorAll('.f4w[data-f]').forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom>top+24&&r.top<bot-24){const a=+el.dataset.f,b=+el.dataset.t;if(f==null||a<f)f=a;if(t==null||b>t)t=b}});
+ const W=document.getElementById('rhsW'),L=document.getElementById('rhsL'),D1=document.getElementById('rhsD1'),D2=document.getElementById('rhsD2');
+ if(f==null){W.style.display=L.style.display='none';D1.style.width=D2.style.width='0';return}
+ const x1=X(f),x2=X(t);W.style.display=L.style.display='';W.style.left=(x1-3)+'px';W.style.width=(x2-x1+6)+'px';L.style.left=((x1+x2)/2)+'px';
+ L.textContent=fmtD(new Date(f))+' – '+fmtD(new Date(t));const lw=L.offsetWidth/2;L.style.left=Math.max(lw+4,Math.min(tot-lw-4,(x1+x2)/2))+'px';
+ D1.style.width=Math.max(0,x1)+'px';D2.style.left=x2+'px';D2.style.width=Math.max(0,tot-x2)+'px';
+ if(Date.now()-(UI._rhsTouch||0)>1500)s.scrollLeft=Math.max(0,(x1+x2)/2-s.clientWidth/2)}
+{let q=0;const v=document.getElementById('v-route');if(v)v.addEventListener('scroll',()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;rhsSync()})},{passive:true});
+ ['touchstart','pointerdown','wheel'].forEach(ev=>document.addEventListener(ev,e=>{if(e.target&&e.target.closest&&e.target.closest('#rhs'))UI._rhsTouch=Date.now()},{passive:true}));
+ window.addEventListener('resize',()=>{if(document.getElementById('rhs'))renderRouteH()})}
+function rhJump(i){const v=document.getElementById('v-route');const el=v&&v.querySelector(`.f4w[data-i="${i}"]`);const s=document.getElementById('rhs');if(!el)return;
+ const y=v.scrollTop+el.getBoundingClientRect().top-v.getBoundingClientRect().top-(s?s.offsetHeight:0)-10;UI._rhsTouch=0;v.scrollTo({top:Math.max(0,y),behavior:'smooth'})}
+function ccPick(cid){const cur=ccol(cid);openSheet(`<div class="smt">Farbe für ${esc(country(cid).name)}</div><div class="smsub">Gilt in Route, Zeitleiste und allen Ebenen</div><div class="ccsw">${CC_PAL.map(c=>`<button class="${c===cur?'on':''}" style="background:${c}" data-a="ccSet" data-k="${cid}" data-c="${c}" aria-label="Farbe ${c}"></button>`).join('')}</div><div class="row sheetfoot" style="gap:8px"><button class="btn gh sp" data-a="ccSet" data-k="${cid}" data-c="">Automatisch</button><button class="btn pri sp" data-a="closeSheet">Fertig</button></div>`)}
 
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
@@ -3804,7 +3864,7 @@ document.addEventListener('click',e=>{
   mode:()=>{const s=S.stages[+d.i];const k=Object.keys(MODES);s.mode=k[(k.indexOf(s.mode)+1)%k.length];save();renderRoute()},
   stageAdd:()=>stagePick(d.k),
   spTab:()=>{UI.sp.tab=d.k;stagePickSheet()},spSel:()=>{UI.sp.sel=UI.sp.sel===d.id?null:d.id;UI.sp.lsel=null;stagePickSheet()},spSelL:()=>{const i=+d.i;UI.sp.lsel=UI.sp.lsel===i?null:i;UI.sp.sel=null;stagePickSheet()},
-  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spAt:()=>{UI.sp.after=+d.k;UI.sp.afterSet=true;stagePickSheet()},spStep:()=>{UI.sp.step=+d.k;if(+d.k===2)UI.sp.afterSet=false;stagePickSheet()},spOk:()=>spOk(),
+  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spAt:()=>{UI.sp.after=+d.k;UI.sp.afterSet=true;stagePickSheet()},spStep:()=>{UI.sp.step=+d.k;if(+d.k===2)UI.sp.afterSet=false;stagePickSheet()},spOk:()=>spOk(),rhJump:()=>rhJump(+d.i),ccPick:()=>ccPick(d.k),ccSet:()=>{const c=S.countries.find(x=>x.id===d.k);if(c){if(d.c)c.color=d.c;else delete c.color;save()}ccPick(d.k);renderRouteH()},
   spMap:()=>{const cen=spCenter();UI.spMap={...UI.sp};closeSheet();UI.mapFocus=null;UI.mapScope=UI.sp.c;show('karte');setTimeout(()=>MAP&&cen.lat&&MAP.setView([cen.lat,cen.lon],9),150)},stagePick:()=>{addStageFor(d.id);closeSheet();renderRoute()},
   togCountry:()=>{const c=country(d.k);c.status=c.status==='geplant'?'Entwurf':'geplant';save();if(UI.pages.length){rerenderPage();bindSettings()}else render()},
   dayShift:()=>{UI.day=iso(addDays(new Date(UI.day+'T12:00:00'),+d.d));renderUnterwegs()},dayToday:()=>{UI.day=iso(nowD());renderUnterwegs()},
