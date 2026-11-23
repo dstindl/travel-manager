@@ -469,9 +469,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_38';
+const APP_VERSION='0.80_39';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_39',d:'23.11.2026',items:['Geteilter Ort: Google sucht zuerst nur in eurer Reiseregion – „Ella“ findet jetzt Ella in Sri Lanka statt Treffer in Deutschland','Treffer werden nach Nähe zu euren Etappen sortiert, weit entfernte Orte fallen weg','Google-Suche ohne Bezugspunkt (z. B. Neuer Spot › Weltweit) bevorzugt ebenfalls die Reiseregion statt des eigenen Standorts']},
  {v:'0.80_38',d:'23.11.2026',items:['Google-Tageslimit in der App (Einstellungen › Suche, Standard 100): danach sucht die App bis morgen nur über OpenStreetMap','Bei jedem Start mit erreichtem Limit ein Hinweisfenster, bei 80 % eine kurze Meldung','Google-Bewertungen (mit Option „mit Bewertungen“) werden überall angezeigt – mit Anzahl, z. B. ★ 4,0 (54) – und beim Speichern als Spot übernommen']},
  {v:'0.80_37',d:'23.11.2026',items:['Alle Suchfelder sehen gleich aus: rundes Feld mit Lupe und Löschen-Knopf – auch Atlas und Land hinzufügen','Vorschlagslisten unter Eingabefeldern (Unterkunft Name/Adresse, Abfahrtsort beim Ausflugs-Transport) im gleichen Zeilenstil wie die Suchmasken, mit Google-Markierung und Entfernung','Neu: Abfahrtsort beim Ausflugs-Transport mit Live-Vorschlägen (Google, OpenStreetMap, Bahnhöfe, Häfen, Google-Maps-Link, Koordinaten)','Alte Vorschlagsansicht entfernt: „Vorschläge“ öffnet überall dieselbe Maske „Ausflug hinzufügen“']},
  {v:'0.80_36',d:'23.11.2026',items:['Versionsanzeige auf dem Startbildschirm öffnet dasselbe Fenster wie nach einem Update: aktueller Stand und letzte Änderungen, mit Link zu allen Versionen','Nach dem Speichern einer Unterkunft oder dem Einfügen einer Etappe: „Etappe öffnen“ direkt in der Meldung','Geteilter Ort: Hinweis, wenn er schon als Spot, Ausflug, Etappe oder Unterkunft existiert – mit direktem Öffnen des bestehenden Eintrags; Warnung, wenn die gewählte Etappe schon eine andere Unterkunft hat','Meldungen mit „Öffnen“ werden nicht mehr von anderen Hinweisen überdeckt']},
@@ -3323,11 +3324,13 @@ function gplUse(){try{const u=JSON.parse(localStorage.getItem(GPL_USE)||'{}');co
 function gplCount(){try{const u=JSON.parse(localStorage.getItem(GPL_USE)||'{}');const d=iso(new Date()),m=d.slice(0,7);const o={d,n:(u.d===d?u.n:0)+1,m,mn:(u.m===m?u.mn:0)+1};localStorage.setItem(GPL_USE,JSON.stringify(o))}catch(e){}}
 const GPL_CACHE=new Map();let GPL_TOK=0;
 function gplCats(t){t=t||[];const c=new Set();if(t.some(x=>/museum|temple|church|mosque|place_of_worship|historical|monument|cultural|art_gallery|tourist_attraction/.test(x)))c.add('Kultur');if(t.some(x=>/park|natural_feature|hiking|national_park|garden|waterfall|mountain/.test(x)))c.add('Natur');if(t.includes('beach'))c.add('Strand');if(t.some(x=>/restaurant|cafe|food|bar|bakery/.test(x)))c.add('Food');if(t.some(x=>/market|shopping|city_hall|neighborhood|locality/.test(x)))c.add('Stadt');return c.size?[...c]:['Sonstiges']}
+function tripBox(m=1.5){const pts=S.stages.map(st=>byId(st.placeId)).filter(p=>p&&p.lat!=null);if(!pts.length)return null;const la=pts.map(p=>p.lat),lo=pts.map(p=>p.lon);return {low:{latitude:Math.max(-89,Math.min(...la)-m),longitude:Math.max(-179,Math.min(...lo)-m)},high:{latitude:Math.min(89,Math.max(...la)+m),longitude:Math.min(179,Math.max(...lo)+m)}}}
+function tripNearKm(x){let bd=1e9;S.stages.forEach(st=>{const p=byId(st.placeId);if(p&&x.lat!=null){const d=hav(p,x);if(d<bd)bd=d}});return bd}
 async function gplFind(q,c,opt={}){const key=gplKey();q=(q||'').trim();if(!key||q.length<3)return [];
- const ck=q.toLowerCase()+'|'+(opt.type||'')+'|'+(c?c.lat.toFixed(1)+','+c.lon.toFixed(1):'');if(GPL_CACHE.has(ck))return GPL_CACHE.get(ck);
+ const ck=q.toLowerCase()+'|'+(opt.type||'')+'|'+(opt.strict?'S':'')+'|'+(c?c.lat.toFixed(1)+','+c.lon.toFixed(1):'');if(GPL_CACHE.has(ck))return GPL_CACHE.get(ck);
  if(!opt.now){const tok=++GPL_TOK;await new Promise(r=>setTimeout(r,450));if(tok!==GPL_TOK)return []}
  if(gplBlocked()){gplLimitNote();if(opt.now)throw new Error(`Tageslimit erreicht (${gplMax()} Abfragen)`);return []}
- const body={textQuery:q,languageCode:'de',maxResultCount:10};if(c&&c.lat!=null)body.locationBias={circle:{center:{latitude:c.lat,longitude:c.lon},radius:50000}};if(opt.type)body.includedType=opt.type;
+ const body={textQuery:q,languageCode:'de',maxResultCount:10};if(c&&c.lat!=null)body.locationBias={circle:{center:{latitude:c.lat,longitude:c.lon},radius:50000}};else{const tb=tripBox();if(tb){if(opt.strict)body.locationRestriction={rectangle:tb};else body.locationBias={rectangle:tb}}}if(opt.type)body.includedType=opt.type;
  const fm='places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.location,places.types,places.primaryTypeDisplayName,places.googleMapsUri,places.addressComponents'+(gplRate()?',places.rating,places.userRatingCount':'');
  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),12000);let j;
  try{const r=await fetch('https://places.googleapis.com/v1/places:searchText',{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','X-Goog-Api-Key':key,'X-Goog-FieldMask':fm},body:JSON.stringify(body)});gplCount();{const u=gplUse(),m=gplMax();if(u.day===Math.ceil(m*0.8))toast(`Google-Suche: ${u.day} von ${m} Abfragen heute verbraucht.`,5000)}j=await r.json();if(!r.ok)throw new Error(j?.error?.message||('HTTP '+r.status))}finally{clearTimeout(tm)}
@@ -3354,9 +3357,10 @@ function shNearest(x){const ds=stagesDated();let best=-1,bd=1e9;S.stages.forEach
 async function shareOpen(raw){raw=String(raw||'').trim();if(!raw)return;const tx=gmText(raw);const nm=tx.name||'';
  UI.share={raw,name:nm,res:'load',sel:0,stage:null};shareSheet();
  let res=[];const ctr=(()=>{const st=S.stages.find(s=>!s.gap);const p=st&&byId(st.placeId);return null})();
- try{if(gplKey()&&nm)res=await gplFind(nm,null,{now:true})}catch(e){}
+ if(gplKey()&&nm){try{res=await gplFind(nm,null,{now:true,strict:true})}catch(e){}if(!res.length){try{res=await gplFind(nm,null,{now:true})}catch(e){}}}
  if(!res.length){try{const g=await gmResolve(raw,null);res=[g]}catch(e){UI.share.err=e.message}}
- if(!res.length&&nm){try{const r=await liveFind(nm,null,50);if(Array.isArray(r))res=r.slice(0,8)}catch(e){}}
+ if(!res.length&&nm){try{const r=await liveFind(nm,null,50);if(Array.isArray(r))res=r.slice(0,12)}catch(e){}}
+ if(res.length>1){res.forEach(x=>x._tk=tripNearKm(x));const near=res.filter(x=>x._tk<=400);if(near.length)res=near.concat(res.filter(x=>x._tk>400&&x._tk<1500));res.sort((a,b)=>(a._tk>400)-(b._tk>400)||a._tk-b._tk);res=res.slice(0,8)}
  UI.share.res=res;if(res[0]){const n=shNearest(res[0]);UI.share.stage=n.i}shareSheet()}
 function shareSheet(){const H=UI.share;if(!H)return;UI.reSheet=shareSheet;
  let h=smHead('Geteilter Ort',esc(H.name||'aus Google Maps'));
