@@ -534,9 +534,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_51';
+const APP_VERSION='0.80_52';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_52',d:'24.11.2026',items:['Neu: Buchung einlesen – aus Mailtext, PDF oder .eml. Erkennt Hotel, Adresse, Zeitraum, Check-in/-out-Zeiten, Buchungsnummer, Preis, Stornobedingung und Buchungslink (Expedia, Booking.com, Agoda, Airbnb u. a.)','Die passende Etappe wird über Datum und Ort vorgeschlagen, mit Hinweis, wenn die Daten abweichen','Teilen an Auszeit27 nimmt jetzt auch PDFs und Dateien an; Text aus Mails (markieren → Teilen) wird als Buchung erkannt','Die Bestätigung wird offline bei der Unterkunft gespeichert und lässt sich dort öffnen','Zu finden in der Unterkunft („Aus Buchungsmail / PDF einlesen“) und im Routenmenü •••']},
  {v:'0.80_51',d:'24.11.2026',items:['Unterkunft: „Hotel in Google Maps öffnen“ direkt bei Name und Adresse – der Link kommt automatisch beim Teilen oder aus der Suche','„Buchungslink (Bestätigung)“ ist jetzt nur noch für die Buchung, z. B. aus der Booking.com-Mail, mit „Buchung öffnen“ direkt daneben','Google-Maps-Links, die bisher im Buchungsfeld standen, wurden automatisch verschoben']},
  {v:'0.80_50',d:'24.11.2026',items:['Status-Punkte stehen direkt bei Hotel und Transport, alle in einer senkrechten Linie vor dem Pfeil – grün erledigt, gelb offen','Hotelname in gedämpfter Schrift','Transport: Wer „gebucht“ wählt, muss die Abfahrt eintragen – oder bewusst „Abfahrtszeit noch unbekannt“ wählen. Erst dann wird der Punkt grün','Bereits gebuchte Transporte ohne Abfahrt zeigen „Abfahrt fehlt“']},
  {v:'0.80_49',d:'24.11.2026',items:['Etappen-Karte dreizeilig: Ort, dann Kalender-Symbol mit Datum und Nächten, dann Bett-Symbol mit dem Hotel in voller Breite','Grüner Haken hinter dem Hotel, wenn gebucht – sonst bleibt der gelbe Punkt','Ohne Eintrag steht blass „Unterkunft offen“']},
@@ -2101,6 +2102,8 @@ function hotelSheet(i){const ds=stagesDated()[i];const st=S.stages[i];const p=by
  const ci=iso(ds.from),co=iso(ds.to);const bq=encodeURIComponent((p?.name||'')+', '+country(p.country).name);
  openSheet(`<div class="h" style="font-size:18px;color:var(--tx2)">Unterkunft ${esc(p?.name||'')}</div><div class="t12 mu" style="margin:3px 0 12px">${fmtDL(ds.from).slice(0,9)} bis ${fmtDL(ds.to).slice(0,9)}, ${ds.nights} ${ds.nights===1?'Nacht':'Nächte'}</div>
  ${h.name?'':`<div class="row" style="gap:8px;margin-bottom:12px"><a class="btn gh sp" href="https://www.booking.com/searchresults.html?ss=${bq}&checkin=${ci}&checkout=${co}&group_adults=2&no_rooms=1" target="_blank" rel="noopener">${ic('search',15)} Booking.com</a><a class="btn gh sp" href="https://www.google.com/maps/search/hotels+${bq}" target="_blank" rel="noopener">${ic('pin',15)} Google Maps</a></div>`}
+ <button class="btn gh" data-a="bkStart" data-i="${i}" style="width:100%;margin-bottom:12px">${ic('spark',15)} Aus Buchungsmail / PDF einlesen</button>
+ ${h.doc||h.docPend?`<div class="smlist" style="padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px">${ic('book',16,'#a9d6cf')}<div class="sp" style="min-width:0"><div class="t13" style="color:#e3e4e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.doc?esc(h.doc.name):'Bestätigung'}</div><div class="t12 mu">${h.doc?'offline auf diesem Gerät · '+fmtD(new Date(h.doc.ts)):'wird beim Speichern abgelegt'}</div></div>${h.doc?`<button class="btn sm gh" data-a="bkDocOpen" data-i="${i}">Öffnen</button><button class="ib" style="width:32px;height:32px" data-a="bkDocDel" data-i="${i}" aria-label="Bestätigung entfernen">${ic('trash',14)}</button>`:''}</div>`:''}
  <div style="margin-bottom:10px">${fld('hName','Name',h.name,'text','z. B. La Siesta Classic')}</div>
  <div style="margin-bottom:10px">${fld('hAddr','Adresse',h.addr,'text','Straße, Viertel, Link oder Koordinaten')}</div>
  ${h.name?`<div class="row" style="gap:8px;margin:-2px 0 8px"><a class="btn sm gh" href="${esc(hotelMaps(h,p))}" target="_blank" rel="noopener">${ic('pin',14)} Hotel in Google Maps öffnen</a>${h.maps?'':'<span class="t12 mu">sucht nach Name</span>'}</div>`:''}
@@ -3027,6 +3030,7 @@ function rhTr(i){const st=S.stages[i];const s={...stagesDated()[i],i};const L=le
  return h}
 
 function rhMoreSheet(){openSheet(`<div class="h" style="font-size:18px;color:var(--tx2)">Route</div><div class="t12 mu" style="margin:3px 0 12px">Weitere Ansichten und Hilfe</div><div class="h5list">
+ <div class="h5row click" data-a="bkStart">${ic('spark',16,'#8c9196')}<div class="sp t">Buchung einlesen</div>${ic('chev',14,'#5d6166')}</div>
  <div class="h5row click" data-a="openPage">${ic('check',16,'#8c9196')}<div class="sp t">Alles, was offen ist</div>${ic('chev',14,'#5d6166')}</div>
  <div class="h5row click" data-a="help">${ic('info',16,'#8c9196')}<div class="sp t">Hilfe zur Route</div>${ic('chev',14,'#5d6166')}</div></div>`)}
 
@@ -3352,7 +3356,8 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  const chk=async()=>{try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.version&&j.version!==APP_VERSION)verReload(j.version)}catch(e){}};
  setTimeout(chk,3000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});
  const q=new URLSearchParams(location.search);const sh=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n').trim();
- if(sh){history.replaceState(null,'',location.pathname);setTimeout(()=>shareOpen(sh),500)}})();
+ if(q.get('shared')){history.replaceState(null,'',location.pathname);setTimeout(()=>bkShared(),500)}
+ else if(sh){history.replaceState(null,'',location.pathname);setTimeout(()=>{if(bkLooks(sh)){UI.bk={i:null};bkEval(sh,[])}else shareOpen(sh)},500)}})();
 
 // ---------- 0.80_33: Google-Suche (Places API New, eigener Schlüssel) ----------
 const GPL_LS='auszeit27_gkey',GPL_RATE='auszeit27_grate',GPL_USE='auszeit27_guse';
@@ -3613,6 +3618,151 @@ function rhJump(i){const v=document.getElementById('v-route');const el=v&&v.quer
  const y=v.scrollTop+el.getBoundingClientRect().top-v.getBoundingClientRect().top-(s?s.offsetHeight:0)-10;UI._rhsTouch=0;v.scrollTo({top:Math.max(0,y),behavior:'smooth'})}
 function ccPick(cid){const cur=ccol(cid);openSheet(`<div class="smt">Farbe für ${esc(country(cid).name)}</div><div class="smsub">Gilt in Route, Zeitleiste und allen Ebenen</div><div class="ccsw">${CC_PAL.map(c=>`<button class="${c===cur?'on':''}" style="background:${c}" data-a="ccSet" data-k="${cid}" data-c="${c}" aria-label="Farbe ${c}"></button>`).join('')}</div><div class="row sheetfoot" style="gap:8px"><button class="btn gh sp" data-a="ccSet" data-k="${cid}" data-c="">Automatisch</button><button class="btn pri sp" data-a="closeSheet">Fertig</button></div>`)}
 
+
+// ---------- 0.80_52: Buchung einlesen (Mailtext, PDF, .eml) ----------
+const BK_MON={jan:1,januar:1,january:1,feb:2,februar:2,february:2,mär:3,mar:3,mrz:3,märz:3,maerz:3,march:3,apr:4,april:4,mai:5,may:5,jun:6,juni:6,june:6,jul:7,juli:7,july:7,aug:8,august:8,sep:9,sept:9,september:9,okt:10,oct:10,oktober:10,october:10,nov:11,november:11,dez:12,dec:12,dezember:12,december:12};
+const BK_MRE='(januar|january|februar|february|märz|maerz|march|april|mai|may|juni|june|juli|july|august|september|sept|oktober|october|november|dezember|december|jan|feb|mär|mrz|mar|apr|jun|jul|aug|sep|okt|oct|nov|dez|dec)';
+const BK_CTRY=['Vietnam','Viet Nam','Kambodscha','Cambodia','Thailand','Sri Lanka','Malaysia','Philippinen','Philippines','Indonesien','Indonesia','Laos','Myanmar','Singapur','Singapore','Japan','Nepal','Indien','India','Taiwan','Brunei','Malediven','Maldives','Südkorea','South Korea','China','Hongkong','Hong Kong','Deutschland','Germany'];
+const BK_PROV=[['Expedia',/expedia/i],['Booking.com',/booking\.com/i],['Agoda',/agoda/i],['Airbnb',/airbnb/i],['Hotels.com',/hotels\.com/i],['Trip.com',/trip\.com/i],['Traveloka',/traveloka/i],['Hostelworld',/hostelworld/i]];
+function bkYear(m,d){const t0=D0();const ds=stagesDated();const t1=ds.length?ds[ds.length-1].to:addDays(t0,90);let best=null,bd=1e15;[t0.getFullYear()-1,t0.getFullYear(),t0.getFullYear()+1].forEach(y=>{const x=new Date(y,m-1,d,12);const dist=x<t0?t0-x:x>t1?x-t1:0;if(dist<bd){bd=dist;best=x}});return best}
+function bkDates(s){const out=[];let m;
+ const add=(i,len,d,mo,y)=>{d=+d;mo=+mo;if(!(d>=1&&d<=31&&mo>=1&&mo<=12))return;let x;if(y){y=+y;if(y<100)y+=2000;x=new Date(y,mo-1,d,12)}else x=bkYear(mo,d);if(!isNaN(x))out.push({i,len,dt:x})};
+ const r1=new RegExp('(\\d{1,2})\\.?\\s*'+BK_MRE+'\\.?,?\\s*(\\d{4})?','gi');while((m=r1.exec(s)))add(m.index,m[0].length,m[1],BK_MON[m[2].toLowerCase()],m[3]);
+ const r2=new RegExp(BK_MRE+'\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s*(\\d{4})?','gi');while((m=r2.exec(s)))add(m.index,m[0].length,m[2],BK_MON[m[1].toLowerCase()],m[3]);
+ const r3=/(\d{1,2})\.(\d{1,2})\.(\d{2,4})?/g;while((m=r3.exec(s))){if(/\d/.test(s[m.index+m[0].length]||''))continue;add(m.index,m[0].length,m[1],m[2],m[3])}
+ const r4=/(\d{4})-(\d{2})-(\d{2})/g;while((m=r4.exec(s)))add(m.index,m[0].length,m[3],m[2],m[1]);
+ const r5=/(\d{1,2})\/(\d{1,2})\/(\d{4})/g;while((m=r5.exec(s)))add(m.index,m[0].length,m[1],m[2],m[3]);
+ out.sort((a,b)=>a.i-b.i);return out.filter((x,k)=>!out.some((y,j)=>j!==k&&y.i<=x.i&&y.i+y.len>=x.i+x.len&&(y.len>x.len||j<k)))}
+function bkTimes(s){const out=[];let m;const r=/(\d{1,2})[:.](\d{2})\s*(Uhr|h|am|pm|a\.m\.|p\.m\.)?/gi;while((m=r.exec(s))){let h=+m[1];const mi=+m[2];const ap=(m[3]||'').toLowerCase();if(!m[3]&&s[m.index-1]==='.')continue;if(/^p/.test(ap)&&h<12)h+=12;if(/^a/.test(ap)&&h===12)h=0;if(h>23||mi>59)continue;
+  const pre=s.slice(Math.max(0,m.index-12),m.index);if(/\d[.,]$/.test(pre)||/[€$]\s*$/.test(pre))continue;out.push({i:m.index,t:String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0'),h})}return out}
+function bkNorm(t){return String(t||'').replace(/\r/g,'').replace(/\u00a0|\u202f/g,' ').replace(/[ \t]+/g,' ').replace(/\n\s*\n+/g,'\n').trim()}
+function bkEml(raw){let t=String(raw);const hb=t.search(/\r?\n\r?\n/);const head=hb>0?t.slice(0,hb):'';let body=hb>0?t.slice(hb):t;
+ const subj=(head.match(/^Subject:\s*(.+)$/im)||[])[1]||'';
+ if(/quoted-printable/i.test(t))body=body.replace(/=\r?\n/g,'').replace(/=([0-9A-F]{2})/gi,(a,h)=>String.fromCharCode(parseInt(h,16)));
+ try{body=decodeURIComponent(escape(body))}catch(e){}
+ if(/<html|<body|<div|<td/i.test(body)){const d=document.createElement('div');d.innerHTML=body.replace(/<(style|script)[\s\S]*?<\/\1>/gi,'').replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|tr|td|h\d|li)>/gi,'\n');body=d.textContent||''}
+ return (subj?subj+'\n':'')+body}
+function bkHtmlText(h){const d=document.createElement('div');d.innerHTML=String(h).replace(/<(style|script)[\s\S]*?<\/\1>/gi,'').replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|tr|td|h\d|li)>/gi,'\n');const links=[...d.querySelectorAll('a[href]')].map(a=>a.href);return {text:d.textContent||'',links}}
+function parseBooking(raw,links){const t=bkNorm(raw);const L=t.split('\n').map(x=>x.trim()).filter(Boolean);const b={prov:'',name:'',addr:'',cin:null,cout:null,cinT:'',coutT:'',code:'',cost:null,cur:'',cancel:'',room:'',guests:'',link:'',paid:true,pin:'',score:0};
+ for(const [n,re] of BK_PROV)if(re.test(t)){b.prov=n;break}
+ // Buchungsnummer
+ const codeRe=/(?:Reiseplan(?:nummer|nr\.?)|Itinerary(?:\s*(?:number|no\.?|#))?|Buchungs(?:nummer|-?nr\.?|code|referenz)|Bestätigungs(?:nummer|-?nr\.?|code)|Reservierungs(?:nummer|-?nr\.?|code)|Confirmation\s*(?:number|no\.?|code|#)|Booking\s*(?:number|no\.?|ID|reference|code)|Reservation\s*(?:number|no\.?|code|ID)|Buchungs-ID)\s*[:#]?\s*([A-Z0-9][A-Z0-9.\-]{3,}[A-Z0-9])/i;
+ {const m=t.match(codeRe);if(m)b.code=m[1]}
+ {const m=t.match(/PIN(?:-Code)?\s*[:]?\s*(\d{4,6})/i);if(m)b.pin=m[1]}
+ // Daten
+ const lab=(re)=>{const r=[];let m;const g=new RegExp(re.source,'gi');while((m=g.exec(t)))r.push(m.index+m[0].length);return r};
+ const ds=bkDates(t);const inL=lab(/(?:check-?\s?in|anreise|ankunft|arrival|einchecken)/),outL=lab(/(?:check-?\s?out|abreise|departure|auschecken)/);
+ const after=(pos,max=160)=>ds.find(x=>x.i>=pos&&x.i-pos<=max);
+ for(const p of inL){const x=after(p);if(x){b.cin=x.dt;break}}
+ for(const p of outL){let x=after(p);if(x&&b.cin&&x.dt<=b.cin){const nx=ds.find(y=>y.i>x.i&&y.dt>b.cin&&y.i-p<=220);x=nx||null}if(x){b.cout=x.dt;break}}
+ if(!b.cin&&ds.length>=2){const s2=ds.map(x=>x.dt).filter((x,k,a)=>a.findIndex(y=>+y===+x)===k).sort((a,c)=>a-c);b.cin=s2[0];b.cout=s2[1]}
+ if(b.cin&&b.cout&&b.cout<=b.cin)b.cout=null;
+ // Zeiten: Check-in meist ab Mittag, Check-out vormittags
+ {const tm=bkTimes(t);const near=tm.filter(x=>[...inL,...outL].some(p=>x.i>=p-2&&x.i-p<=90));const pool=near.length?near:[];const ci=pool.find(x=>x.h>=12),co=pool.find(x=>x.h<=12&&x!==ci);if(ci)b.cinT=ci.t;if(co)b.coutT=co.t}
+ // Preis
+ {const re=/(Gesamtbetrag|Gesamtpreis|Gesamtsumme|Endpreis|Gesamtkosten|Total(?:\s*(?:price|amount|cost|charged|due))?|Summe|Betrag|Preis|Price|Amount paid|Bezahlt)\s*[:]?\s*([^\n]*\n?[^\n]{0,30})/gi;let m,last=null;while((m=re.exec(t))){const v=bkMoney(m[2]);if(v){last={...v,w:/gesamt|total|endpreis|summe/i.test(m[1])?2:1};if(last.w===2)b._tot=last;}if(!b._any&&v)b._any=v}
+  const pick=b._tot||b._any;if(pick){b.cost=pick.v;b.cur=pick.cur}delete b._tot;delete b._any}
+ // Stornierung
+ {const re=/(kostenlose?|kostenfreie?|gebührenfreie?|free)\s+(stornierung|storno|cancell?ation)|stornierbar bis|cancel (?:for free|free of charge) (?:until|before)|nicht erstattbar|non-refundable/i;const k=L.findIndex(x=>re.test(x));if(k>=0){let s2=L[k].slice(L[k].search(re));let j=k;while(!/[.)]$/.test(s2)&&L[j+1]&&L[j+1].length<70&&!/^https?:/.test(L[j+1])&&j-k<2){j++;s2+=' '+L[j]}s2=s2.replace(/https?:\/\/\S+/g,'').trim();const e=s2.indexOf(')');if(e>0)s2=s2.slice(0,e+1);b.cancel=s2.slice(0,160)}}
+ // Gäste, Zimmer
+ {const m=t.match(/(\d+)\s*(Erwachsene|Erwachsener|adults?|Gäste|guests)/i);if(m)b.guests=m[1]+' '+m[2]}
+ {const r=L.find(x=>x.length<70&&/(zimmer|suite|room|bungalow|villa|studio|apartment|dorm|bett im)/i.test(x)&&!/(zimmer frei|room service|zimmeranzahl|anzahl|nächte|nights|\d+\s*zimmer\b)/i.test(x)&&!/[:]\s*$/.test(x));if(r)b.room=r.replace(/^(Zimmer(?:typ|art)?|Room(?: type)?)\s*[:]\s*/i,'')}
+ // Bezahlt?
+ if(/bezahlung (?:im|in der|vor ort)|zahlung (?:im hotel|vor ort|in der unterkunft)|pay (?:at|in) (?:the )?(?:property|hotel)|bezahlen sie (?:im|in der|vor ort)|zahlbar (?:im|in der|vor ort)|bezahl(?:en|st) (?:sie |du )?(?:im|in der|vor ort)|zahlung in der unterkunft/i.test(t))b.paid=false;
+ // Name
+ const bad=/^(expedia|booking\.com|agoda|airbnb|hotel|unterkunft|check-?in|check-?out|reservierung|buchung|bestätigung|confirmation|danke|hallo|hi|guten tag|dein hotel|ihr hotel|vollständigen reiseplan anzeigen)\b/i;
+ const tries=[
+  ()=>{const m=t.match(/(?:Buchung|Reservierung)\s+(?:in|im|bei|für)\s+(?:der|dem|die)?\s*(.{3,70}?)\s+(?:ist|wurde)\s+(?:bestätigt|bestaetigt)/i);return m&&m[1]},
+  ()=>{const m=t.match(/(?:booking|reservation|stay)\s+(?:at|in)\s+(.{3,70}?)\s+(?:is|has been)\s+confirmed/i);return m&&m[1]},
+  ()=>{for(let k=1;k<L.length;k++){if(!/Reiseplan|Itinerary/i.test(L[k])||/^(subject|betreff|fw|wg|aw|re)\b/i.test(L[k]))continue;for(let j=k-1;j>=Math.max(0,k-3);j--)if(!bad.test(L[j])&&L[j].length<70&&!/bestätigt|confirmed|bereit|anzeigen|^(subject|betreff|from|von|to|an|sent|gesendet)\b/i.test(L[j]))return L[j]}},
+  ()=>{const m=t.match(/(?:^|\n)\s*(?:Hotel|Unterkunft|Property|Accommodation|Hotelname|Name der Unterkunft)\s*[:]\s*([^\n]{3,70})/i);return m&&m[1]},
+  ()=>{const m=t.match(/(?:^|\n)\s*(?:Hotel|Unterkunft|Property|Accommodation)\s*\n\s*([^\n]{3,70})/i);return m&&!bad.test(m[1])&&m[1]},
+ ];
+ for(const f of tries){const v=f();if(v&&!bad.test(v.trim())){b.name=v.trim().replace(/[.!]$/,'');break}}
+ // Adresse
+ {const cre=new RegExp('('+BK_CTRY.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')\\s*$','i');let k=L.findIndex(x=>cre.test(x)&&(/\d/.test(x)||/,/.test(x))&&x.length<140&&!/(reisepreis|sicherung|bgb|telefon|phone)/i.test(x));
+  const am=t.match(/(?:^|\n)\s*(?:Adresse|Address|Anschrift|Standort|Location)\s*[:]\s*([^\n]{6,140})/i);
+  if(am)b.addr=am[1].trim();else if(k>=0){let a=L[k];const pv=L[k-1];if(pv&&pv.length<80&&/(,|\d)/.test(pv)&&!/[:.!?]$/.test(pv)&&!bad.test(pv)&&pv!==b.name&&!/(reiseplan|itinerary|nr\.|nummer)/i.test(pv))a=pv+' '+a;b.addr=a}
+  if(!b.name&&k>0){const pv=L[k-1];if(pv&&pv.length<60&&!/\d/.test(pv)&&!bad.test(pv))b.name=pv}}
+ // Link
+ {const all=[...(links||[]),...(t.match(/https?:\/\/[^\s<>"')]+/g)||[])];const good=all.find(u=>/(expedia\.[a-z.]+\/(trips|itinerary|.*manage|.*Trips))|(booking\.com\/.*(myreservations|confirmation|mybooking|booking_details))|(agoda\.com\/.*(booking|account))|(airbnb\.[a-z.]+\/(trips|reservation|hosting))|(hotels\.com\/.*(trips|itinerary))|(trip\.com\/.*order)/i.test(u));
+  b.link=good||'';}
+ b.score=(b.name?2:0)+(b.cin?3:0)+(b.cout?2:0)+(b.code?2:0)+(b.cost!=null?1:0)+(b.addr?1:0);
+ return b}
+function bkMoney(s){s=String(s||'');const cm=[['EUR',/€|EUR/],['USD',/US\$|USD|\$/],['VND',/₫|VND|đ\b/],['THB',/฿|THB/],['LKR',/LKR|Rs\.?/],['MYR',/MYR|RM/],['PHP',/₱|PHP/],['KHR',/៛|KHR/],['IDR',/IDR|Rp/],['SGD',/SGD|S\$/],['JPY',/¥|JPY/]];
+ const n=s.match(/(\d{1,3}(?:[.,\s]\d{3})*(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)/);if(!n)return null;let cur='';for(const [c,re] of cm)if(re.test(s)){cur=c;break}if(!cur)return null;
+ let x=n[1].replace(/\s/g,'');if(/[.,]\d{1,2}$/.test(x)){const dec=x.slice(-3).replace(/^[.,]/,'').length;const sep=x[x.length-dec-1];x=x.slice(0,x.length-dec-1).replace(/[.,]/g,'')+'.'+x.slice(-dec);if(sep&&false)x=x}else x=x.replace(/[.,]/g,'');const v=parseFloat(x);return v>0?{v,cur}:null}
+// Etappe finden
+function bkMatch(b){const ds=stagesDated();let best=-1,bs=-1e9;const adr=(b.addr||'')+' '+(b.name||'');
+ ds.forEach((s,i)=>{const st=S.stages[i];if(st.gap)return;let sc=0;if(b.cin){const a=b.cin,e=b.cout||addDays(b.cin,1);const ov=Math.max(0,Math.min(e,s.to)-Math.max(a,s.from))/864e5;sc+=ov*10;if(iso(a)===iso(s.from))sc+=6;if(!ov)sc-=Math.min(Math.abs(a-s.from),Math.abs(a-s.to))/864e5}
+  const c=country(st.country);if(c&&c.name&&new RegExp(c.name.split(' ')[0],'i').test(adr))sc+=8;const p=byId(st.placeId);if(p&&p.name&&adr.toLowerCase().includes(p.name.toLowerCase().split(/[ ,]/)[0]))sc+=5;
+  if(sc>bs){bs=sc;best=i}});return best}
+// IndexedDB für Bestätigungen (bleiben offline auf dem Gerät)
+function bkDb(){return new Promise((res,rej)=>{const r=indexedDB.open('auszeit27-docs',1);r.onupgradeneeded=()=>r.result.createObjectStore('docs');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function bkPut(k,v){const db=await bkDb();return new Promise((res,rej)=>{const tx=db.transaction('docs','readwrite');tx.objectStore('docs').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function bkGet(k){const db=await bkDb();return new Promise((res,rej)=>{const tx=db.transaction('docs');const r=tx.objectStore('docs').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function bkDel(k){const db=await bkDb();return new Promise(res=>{const tx=db.transaction('docs','readwrite');tx.objectStore('docs').delete(k);tx.oncomplete=()=>res()})}
+// PDF
+let BK_PDF=null;
+async function bkPdfLib(){if(BK_PDF)return BK_PDF;const m=await import(new URL('lib/pdf.min.mjs',location.href).href);m.GlobalWorkerOptions.workerSrc=new URL('lib/pdf.worker.min.mjs',location.href).href;BK_PDF=m;return m}
+async function bkPdfText(buf){const P=await bkPdfLib();const doc=await P.getDocument({data:new Uint8Array(buf)}).promise;const pages=[],links=[];
+ for(let n=1;n<=Math.min(doc.numPages,12);n++){const pg=await doc.getPage(n);const tc=await pg.getTextContent();const rows=[];
+  tc.items.forEach(it=>{if(!('str' in it))return;const x=it.transform[4],y=it.transform[5];let r=rows.find(r=>Math.abs(r.y-y)<3);if(!r){r={y,it:[]};rows.push(r)}r.it.push({x,w:it.width||0,s:it.str})});
+  rows.sort((a,b)=>b.y-a.y);pages.push(rows.map(r=>{r.it.sort((a,b)=>a.x-b.x);let s='',end=null;r.it.forEach(o=>{if(end!=null&&o.x-end>1.5&&!/\s$/.test(s)&&!/^\s/.test(o.s))s+=(o.x-end>40?'  ':' ');s+=o.s;end=o.x+o.w});return s.trim()}).filter(Boolean).join('\n'));
+  try{(await pg.getAnnotations()).forEach(a=>{if(a.url)links.push(a.url)})}catch(e){}}
+ return {text:pages.join('\n'),links}}
+// Einstieg
+function bkStart(i){UI.bk={i:i==null?null:+i,text:'',src:null};bkStartSheet()}
+function bkStartSheet(msg){const B=UI.bk||{};openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">${B.i!=null?'Für '+esc(byId(S.stages[B.i]?.placeId)?.name||'')+' · ':''}Mailtext oder PDF der Bestätigung</div>
+ <div class="smlist" style="padding:12px 14px">
+  <div class="row" style="gap:8px;margin-bottom:10px"><label class="btn gh sp" style="cursor:pointer">${ic('dl',15)} PDF / Datei wählen<input type="file" id="bkFile" accept="application/pdf,.pdf,.eml,message/rfc822,.txt,text/plain,.html,text/html" style="display:none"></label><button class="btn gh sp" data-a="bkPaste">${ic('book',15)} Aus Zwischenablage</button></div>
+  <textarea id="bkText" class="fld" rows="6" placeholder="Oder hier den Text der Buchungsmail einfügen …" style="width:100%;padding:9px;font-size:13px;resize:vertical">${esc(B.text||'')}</textarea>
+  ${msg?`<div class="t12" style="color:#e2c07c;margin-top:8px;line-height:1.45">${msg}</div>`:''}
+  <div class="t12 mu" style="margin-top:10px;line-height:1.5"><b style="color:#c9ccce">So geht's ohne Kopieren:</b> In der Mail-App den Text lange drücken → „Alles auswählen“ → „Teilen“ → Auszeit27. Ein PDF der Buchung direkt an Auszeit27 teilen. Mails ohne PDF kannst du auch über „Drucken“ → „Als PDF speichern“ teilen.</div></div>
+ <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Abbrechen</button><button class="btn pri sp" data-a="bkRun">${ic('spark',15)} Auswerten</button></div>`);
+ const f=document.getElementById('bkFile');if(f)f.onchange=async()=>{const x=f.files&&f.files[0];if(x)await bkFile(x)}}
+async function bkFile(file){UI.bk=UI.bk||{i:null};const nm=file.name||'Datei';const ty=file.type||'';toast('Lese '+nm+' …',5000);
+ try{let r;if(/pdf/i.test(ty)||/\.pdf$/i.test(nm)){r=await bkPdfText(await file.arrayBuffer())}else{const raw=await file.text();if(/\.eml$|rfc822/i.test(nm+ty))r={text:bkEml(raw),links:(raw.match(/https?:\/\/[^\s<>"'=]+/g)||[])};else if(/html/i.test(ty)||/\.html?$/i.test(nm))r=bkHtmlText(raw);else r={text:raw,links:[]}}
+  UI.bk.src={name:nm,type:ty||(/\.pdf$/i.test(nm)?'application/pdf':'text/plain'),blob:file};bkEval(r.text,r.links)}
+ catch(e){UI.bk.text='';bkStartSheet('Die Datei konnte nicht gelesen werden ('+esc(errTxt(e))+'). Bei PDFs braucht das erste Einlesen einmal Internet.')}}
+function bkEval(text,links){UI.bk=UI.bk||{i:null};UI.bk.text=text;UI.bk.links=links||[];const b=parseBooking(text,links);UI.bk.b=b;
+ if(!b.cin&&!b.name&&!b.code){bkStartSheet('Darin habe ich keine Buchung erkannt. Prüfe, ob der Text Hotel, Check-in und Buchungsnummer enthält.');return}
+ UI.bk.st=UI.bk.i!=null?UI.bk.i:bkMatch(b);bkSheet()}
+function bkSheet(){const B=UI.bk,b=B.b;const ds=stagesDated();const i=B.st;const s=ds[i],st=S.stages[i];const no=stageNo();
+ const row=(l,v,miss)=>`<div class="lrow"><span class="t12 mu" style="width:92px;flex:none">${l}</span><span class="sp t13" style="color:${v?'#e3e4e5':'#7d8287'};min-width:0;overflow-wrap:anywhere">${v||miss||'nicht erkannt'}</span></div>`;
+ const n=b.cin&&b.cout?Math.round((b.cout-b.cin)/864e5):null;
+ const dTxt=b.cin?`${WD2[b.cin.getDay()]} ${fmtD(b.cin)}${b.cout?' – '+WD2[b.cout.getDay()]+' '+fmtD(b.cout):''}${n?' · '+n+' '+(n===1?'Nacht':'Nächte'):''}`:'';
+ let warn=[];if(s&&b.cin){if(iso(b.cin)!==iso(s.from)||(b.cout&&iso(b.cout)!==iso(s.to)))warn.push(`Etappe läuft ${fmtD(s.from)}–${fmtD(s.to)} (${s.nights} N), die Buchung ${fmtD(b.cin)}${b.cout?'–'+fmtD(b.cout):''}${n?' ('+n+' N)':''}.`)}
+ if(st?.stay?.name&&b.name&&st.stay.name.toLowerCase()!==b.name.toLowerCase())warn.push(`Ersetzt die bisherige Unterkunft „${esc(st.stay.name)}“.`);
+ const opts=ds.map((x,k)=>S.stages[k].gap?'':`<option value="${k}" ${k===i?'selected':''}>${no[S.stages[k].placeId]||''} · ${esc(byId(S.stages[k].placeId)?.name||'')} · ${fmtD(x.from)}–${fmtD(x.to)}</option>`).join('');
+ openSheet(`<div class="smt">Buchung erkannt</div><div class="smsub">${esc(b.prov||'Unterkunft')}${B.src?' · '+esc(B.src.name):' · Mailtext'}</div>
+ <div class="card" style="padding:2px 12px;margin-bottom:10px">${row('Unterkunft',esc(b.name))}${row('Adresse',esc(b.addr))}${row('Zeitraum',dTxt)}${row('Check-in / -out',[b.cinT?'ab '+b.cinT:'',b.coutT?'bis '+b.coutT:''].filter(Boolean).join(' · '))}${row('Buchungsnr.',esc(b.code)+(b.pin?' · PIN '+esc(b.pin):''))}${row('Preis',b.cost!=null?b.cost.toLocaleString('de-DE',{minimumFractionDigits:b.cost%1?2:0,maximumFractionDigits:2})+' '+(CUR_INFO[b.cur]?.[0]||b.cur)+(b.paid?' · bezahlt':' · Zahlung vor Ort'):'')}${b.room||b.guests?row('Zimmer',esc([b.room,b.guests].filter(Boolean).join(' · '))):''}${b.cancel?row('Storno',esc(b.cancel)):''}${row('Link',b.link?esc(b.link.replace(/^https?:\/\//,'').slice(0,48))+'…':'','kein Buchungslink')}</div>
+ <div class="lab" style="margin-bottom:5px">Gehört zu Etappe</div><select id="bkSt" class="fld" style="width:100%;padding:8px;margin-bottom:8px">${opts}</select>
+ ${warn.map(w=>`<div class="t12" style="color:#e2c07c;margin-bottom:6px;line-height:1.45">${ic('alert',12,'#e2c07c')} ${w}</div>`).join('')}
+ ${B.src?`<div class="t12 mu" style="margin:4px 0 2px">${ic('book',12,'#8c9196')} ${esc(B.src.name)} wird offline bei der Unterkunft gespeichert.</div>`:`<div class="t12 mu" style="margin:4px 0 2px">${ic('book',12,'#8c9196')} Der Mailtext wird offline bei der Unterkunft gespeichert.</div>`}
+ <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="bkBack">Zurück</button><button class="btn pri sp" data-a="bkApply">${ic('check',16)} Übernehmen &amp; prüfen</button></div>`);
+ const sel=document.getElementById('bkSt');if(sel)sel.onchange=()=>{UI.bk.st=+sel.value;bkSheet()}}
+function bkApply(){const B=UI.bk,b=B.b;const i=B.st;const st=S.stages[i];if(!st)return;const s=stagesDated()[i];
+ const notes=[st.stay?.note,b.room,b.guests,b.cancel,b.pin?'PIN '+b.pin:'',b.cin&&s&&(iso(b.cin)!==iso(s.from)||(b.cout&&iso(b.cout)!==iso(s.to)))?`Gebucht ${fmtD(b.cin)}–${b.cout?fmtD(b.cout):'?'}`:''].filter(Boolean);
+ const h=Object.assign({paid:true},st.stay||{});const nameChanged=b.name&&h.name&&h.name.toLowerCase()!==b.name.toLowerCase();
+ if(nameChanged){delete h.ll;delete h.maps;delete h.addr}
+ Object.assign(h,{status:'gebucht'},b.name?{name:b.name}:{},b.addr?{addr:b.addr}:{},b.cinT?{cin:b.cinT}:{},b.coutT?{cout:b.coutT}:{},b.code?{code:b.code}:{},b.cost!=null?{cost:String(b.cost).replace('.',','),cur:b.cur||h.cur}:{},b.link?{link:b.link}:{},{paid:b.paid});
+ h.note=[...new Set(notes)].join(' · ').slice(0,300)||h.note;h.docPend=true;
+ UI.bkPend={sid:st.id,src:B.src,text:B.text,prov:b.prov};UI.hDraft=h;closeSheet();show('route');hotelSheet(i);toast('Bitte kurz prüfen und speichern.',5000);
+ if(!h.ll&&(h.name||h.addr)){const p=byId(st.placeId);liveFind([h.name,h.addr].filter(Boolean).join(', '),p,40,{}).then(r=>{const x=Array.isArray(r)&&r.find(x=>x.lat!=null&&(!p||hav(p,x)<40));if(x&&UI.hDraft===h&&!h.ll){h.ll={lat:x.lat,lon:x.lon};if(x.gUri&&!h.maps)h.maps=x.gUri;const el=document.querySelector('#sheet');if(el&&el.classList.contains('open')){hotelCollect();hotelSheet(i)}}}).catch(()=>{})}}
+async function bkSaveDoc(st){const P=UI.bkPend;if(!P||P.sid!==st.id)return;UI.bkPend=null;const h=st.stay;delete h.docPend;
+ try{const v={ts:Date.now(),prov:P.prov||'',text:P.text||''};if(P.src&&P.src.blob){v.blob=P.src.blob;v.name=P.src.name;v.type=P.src.type}await bkPut(st.id,v);h.doc={name:v.name||'Buchungsmail',type:v.type||'text/plain',ts:v.ts};save()}catch(e){toast('Bestätigung konnte nicht gespeichert werden.')}}
+async function bkDocOpen(i){const st=S.stages[i];try{const v=await bkGet(st.id);if(!v){toast('Bestätigung nicht auf diesem Gerät gespeichert.');return}
+ if(v.blob){const u=URL.createObjectURL(v.blob);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';if(!/pdf|html|text/.test(v.type||''))a.download=v.name||'buchung';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return}
+ hotelCollect();const back=i;openSheet(`<div class="smt">Bestätigung</div><div class="smsub">${esc(v.prov||'Buchungsmail')} · gespeichert ${fmtD(new Date(v.ts))}</div><div class="smlist" style="padding:12px 14px;white-space:pre-wrap;font-size:12.5px;line-height:1.5;color:#d4d6d8;max-height:60vh;overflow:auto">${esc(v.text)}</div><div class="row sheetfoot"><button class="btn pri sp" data-a="bkDocBack" data-i="${back}">Zurück zur Unterkunft</button></div>`)}catch(e){toast('Öffnen nicht möglich.')}}
+function bkLooks(t){t=String(t||'');return t.length>150&&/(check-?\s?in|anreise|reiseplan|buchungsnummer|bestätigungsnummer|reservierungsnummer|confirmation number|booking number|itinerary|reservation)/i.test(t)&&bkDates(t).length>=1}
+// geteilte Inhalte (POST share target über den Service Worker)
+async function bkShared(){try{const c=await caches.open('auszeit-share');const m=await c.match('./share-meta');if(!m)return false;const meta=await m.json();await c.delete('./share-meta');
+  const files=[];for(const f of meta.files||[]){const r=await c.match(f.key);if(r){const bl=await r.blob();files.push(new File([bl],f.name||'datei',{type:f.type||bl.type}))}await c.delete(f.key)}
+  if(files.length){UI.bk={i:null};await bkFile(files[0]);return true}
+  const tx=[meta.title,meta.text,meta.url].filter(Boolean).join('\n').trim();if(!tx)return true;
+  if(bkLooks(tx)){UI.bk={i:null};bkEval(tx,[]);return true}shareOpen(tx);return true}catch(e){return false}}
+
 // ---------- Aktionen ----------
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,d=el.dataset;
@@ -3717,8 +3867,8 @@ document.addEventListener('click',e=>{
   pvMap:()=>pvOpen(d.k,+d.i),pvAdd:()=>pvAdd(),pvBack:()=>pvBack(),
   hotelOpen:()=>{UI.hDraft=null;hotelSheet(+d.i)},
   hotelStat:()=>{hotelCollect();UI.hDraft.status=d.k;hotelSheet(+d.i)},
-  hotelCancel:()=>{UI.hDraft=null;closeSheet()},
-  hotelSave:()=>{hotelCollect();const h=UI.hDraft;Object.keys(h).forEach(k=>{if(h[k]==null||h[k]==='')delete h[k]});fixRate(h);S.stages[+d.i].stay=h;UI.hDraft=null;save();if(h.ll)setTimeout(()=>{try{LIVE_FAIL=false;autoLive()}catch(e){}},600);closeSheet();render();if(UI.pages.length)rerenderPage();toast(`Unterkunft gespeichert. <span class="click b" style="color:#a9d6cf" data-a="rhOpenSt" data-id="${S.stages[+d.i].id}">Etappe öffnen</span>`,7000)},
+  hotelCancel:()=>{UI.hDraft=null;UI.bkPend=null;closeSheet()},
+  hotelSave:()=>{hotelCollect();const h=UI.hDraft;Object.keys(h).forEach(k=>{if(h[k]==null||h[k]==='')delete h[k]});fixRate(h);S.stages[+d.i].stay=h;UI.hDraft=null;save();bkSaveDoc(S.stages[+d.i]);if(h.ll)setTimeout(()=>{try{LIVE_FAIL=false;autoLive()}catch(e){}},600);closeSheet();render();if(UI.pages.length)rerenderPage();toast(`Unterkunft gespeichert. <span class="click b" style="color:#a9d6cf" data-a="rhOpenSt" data-id="${S.stages[+d.i].id}">Etappe öffnen</span>`,7000)},
   hotelDel:()=>{if(!confirm('Unterkunft entfernen?'))return;delete S.stages[+d.i].stay;UI.hDraft=null;save();closeSheet();render();if(UI.pages.length)rerenderPage()},
   costOpen:()=>costSheet(+d.i),
   openPage:()=>push({t:'open'}),
@@ -3892,7 +4042,7 @@ document.addEventListener('click',e=>{
   mode:()=>{const s=S.stages[+d.i];const k=Object.keys(MODES);s.mode=k[(k.indexOf(s.mode)+1)%k.length];save();renderRoute()},
   stageAdd:()=>stagePick(d.k),
   spTab:()=>{UI.sp.tab=d.k;stagePickSheet()},spSel:()=>{UI.sp.sel=UI.sp.sel===d.id?null:d.id;UI.sp.lsel=null;stagePickSheet()},spSelL:()=>{const i=+d.i;UI.sp.lsel=UI.sp.lsel===i?null:i;UI.sp.sel=null;stagePickSheet()},
-  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spAt:()=>{UI.sp.after=+d.k;UI.sp.afterSet=true;stagePickSheet()},spStep:()=>{UI.sp.step=+d.k;if(+d.k===2)UI.sp.afterSet=false;stagePickSheet()},spOk:()=>spOk(),rhJump:()=>rhJump(+d.i),ccPick:()=>ccPick(d.k),ccSet:()=>{const c=S.countries.find(x=>x.id===d.k);if(c){if(d.c)c.color=d.c;else delete c.color;save()}ccPick(d.k);renderRouteH()},
+  spN:()=>{UI.sp.nights=Math.max(1,UI.sp.nights+(+d.d));stagePickSheet()},spAt:()=>{UI.sp.after=+d.k;UI.sp.afterSet=true;stagePickSheet()},spStep:()=>{UI.sp.step=+d.k;if(+d.k===2)UI.sp.afterSet=false;stagePickSheet()},spOk:()=>spOk(),bkStart:()=>bkStart(d.i),bkRun:()=>{const t=(document.getElementById('bkText')||{}).value||'';UI.bk=UI.bk||{i:null};UI.bk.src=null;if(!t.trim()){bkStartSheet('Bitte Text einfügen oder eine Datei wählen.');return}bkEval(t,[])},bkPaste:async()=>{try{const t=await navigator.clipboard.readText();const e=document.getElementById('bkText');if(e){e.value=t;UI.bk.text=t}if(!t)toast('Zwischenablage ist leer.')}catch(e){toast('Kein Zugriff auf die Zwischenablage – bitte lange ins Feld drücken und „Einfügen“ wählen.',5000)}},bkBack:()=>bkStartSheet(),bkApply:()=>bkApply(),bkDocOpen:()=>bkDocOpen(+d.i),bkDocBack:()=>hotelSheet(+d.i),bkDocDel:async()=>{const st=S.stages[+d.i];if(!confirm('Gespeicherte Bestätigung entfernen?'))return;try{await bkDel(st.id)}catch(e){}hotelCollect();delete UI.hDraft.doc;if(st.stay)delete st.stay.doc;save();hotelSheet(+d.i)},rhJump:()=>rhJump(+d.i),ccPick:()=>ccPick(d.k),ccSet:()=>{const c=S.countries.find(x=>x.id===d.k);if(c){if(d.c)c.color=d.c;else delete c.color;save()}ccPick(d.k);renderRouteH()},
   spMap:()=>{const cen=spCenter();UI.spMap={...UI.sp};closeSheet();UI.mapFocus=null;UI.mapScope=UI.sp.c;show('karte');setTimeout(()=>MAP&&cen.lat&&MAP.setView([cen.lat,cen.lon],9),150)},stagePick:()=>{addStageFor(d.id);closeSheet();renderRoute()},
   togCountry:()=>{const c=country(d.k);c.status=c.status==='geplant'?'Entwurf':'geplant';save();if(UI.pages.length){rerenderPage();bindSettings()}else render()},
   dayShift:()=>{UI.day=iso(addDays(new Date(UI.day+'T12:00:00'),+d.d));renderUnterwegs()},dayToday:()=>{UI.day=iso(nowD());renderUnterwegs()},
