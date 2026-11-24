@@ -494,7 +494,8 @@ body.cmp .K{padding:14px 12px 10px}
 .f4card .f4ft:not(.f4add){background:color-mix(in srgb,var(--cc,#8c9196) 8%,#1e1f21)}.f4card .f4ft:not(.f4solo):not(.f4add){border-top:1px solid color-mix(in srgb,var(--cc,#8c9196) 20%,#26282b)}
 .f4card.f4arr{border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}
 .f4ft .f4tb{border-color:#4a4e53;color:#b7bbbf}
-.f4si{display:flex;align-items:center;gap:6px}.f4mi{display:inline-flex;align-items:center;gap:3px;flex:none}.f4mi i{font-style:normal;font-size:10px;color:#6f7479}.f4mi svg{display:block}
+.f4si{display:flex;align-items:center;gap:6px}.f4si>span{overflow:hidden;text-overflow:ellipsis}.f4si svg{flex:none}
+.f4ht{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:#dfe2e1;white-space:nowrap;overflow:hidden}.f4ht span{overflow:hidden;text-overflow:ellipsis}.f4ht svg{flex:none}.f4ht.off{color:#8c9196}.f4mi{display:inline-flex;align-items:center;gap:3px;flex:none}.f4mi i{font-style:normal;font-size:10px;color:#6f7479}.f4mi svg{display:block}
 .f4g{padding-left:0}.f4w{position:relative}
 .f4gut{position:absolute;left:-46px;top:0;bottom:0;width:38px;text-align:center;padding-top:11px}
 .f4gut .d{font:600 17px/1 Poppins,"Segoe UI",sans-serif;color:#e6e7e8}.f4gut .m{font-size:10px;color:#8c9196;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}.f4gut .w{font-size:10px;color:#6f7479}
@@ -532,9 +533,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_48';
+const APP_VERSION='0.80_49';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_49',d:'24.11.2026',items:['Etappen-Karte dreizeilig: Ort, dann Kalender-Symbol mit Datum und Nächten, dann Bett-Symbol mit dem Hotel in voller Breite','Grüner Haken hinter dem Hotel, wenn gebucht – sonst bleibt der gelbe Punkt','Ohne Eintrag steht blass „Unterkunft offen“']},
  {v:'0.80_48',d:'24.11.2026',items:['Transport in der Route kürzer: „nach Kep“ statt „weiter nach Kep“','Verkehrsmittel als Symbol statt Text (Auto, Flug, Fähre …) direkt vor dem Datum']},
  {v:'0.80_47',d:'24.11.2026',items:['Neuer, ruhiger Farbstil in der ganzen App: Pastell-Mint als Akzent, Lavendel als zweite Farbe – Länder wechseln zwischen beiden','Etappen-Karten pastellig getönt, Transport in der gleichen Farbe deutlich schwächer','Zeitleiste im Ablauf ist jetzt die Kopfzeile: Zeitraum und Länder groß oben, darunter die Leiste mit Rahmen','Karten nutzen die volle Breite, das Datum mit Wochentag steht wieder in der Karte']},
  {v:'0.80_46',d:'23.11.2026',items:['Jedes Land hat jetzt eine eigene Farbe: Länderkopf, Streifen an jeder Etappe, Etappen-Nummer, Ebene-Markierung und Zeitverlauf. Antippen des Farbbalkens im Land ändert die Farbe','Transfers sind bewusst grau und gestrichelt abgesetzt – klar „zwischen“ den Etappen','Ablauf mit Zeitleiste: Sie bleibt beim Scrollen oben stehen, der helle Rahmen zeigt den sichtbaren Zeitraum und wandert mit. Antippen eines Abschnitts springt zur Etappe','Links neben jeder Etappe steht das Anreisedatum wie auf einem Zeitstrahl']},
@@ -3509,7 +3511,8 @@ function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div
   h+=`<div class="f4w" data-i="${i}" data-c="${s.country}" data-f="${+s.from}" data-t="${+s.to}" style="${ccVars(s.country)}">`;
   if(st.gap){h+=`<div class="f4card f4gap"><div class="f4r"><div class="f4c"><span class="f4nr" style="background:#2c2f33;color:#8c9196">–</span></div><div class="sp"><div class="f4nm">Lücke · ${st.nights} ${st.nights===1?'freie Nacht':'freie Nächte'}</div><div class="f4s">${fmtD(s.from)}–${fmtD(s.to)}</div></div><button class="btn sm pri" data-a="gapFill" data-i="${i}">${ic('plus',12)} Etappe</button></div></div></div>`}
   else{const todo=st.stay?.status!=='gebucht'||analyse(i).some(x=>x.lvl==='err');
-   h+=`<div class="f4card f4st"><div class="f4r click" data-a="rh" data-l="s" data-id="${st.id}"><div class="f4c"><span class="f4nr">${no[p.id]||''}</span></div><div class="sp" style="min-width:0"><div class="f4nm">${esc(p.name)}</div><div class="f4s">${WD2[s.from.getDay()]} ${fmtD(s.from)} – ${WD2[s.to.getDay()]} ${fmtD(s.to)} · ${s.nights} N · ${esc(st.stay?.name||'Unterkunft offen')}</div></div><div class="f4rt">${todo?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>'}${ic('chev',14,'#5d6166')}</div></div>`;
+   const bk=st.stay?.status==='gebucht',hn=st.stay?.name;
+   h+=`<div class="f4card f4st"><div class="f4r click" data-a="rh" data-l="s" data-id="${st.id}"><div class="f4c"><span class="f4nr">${no[p.id]||''}</span></div><div class="sp" style="min-width:0"><div class="f4nm">${esc(p.name)}</div><div class="f4s f4si">${ic('cal',13,'#9aa0a5')}<span>${WD2[s.from.getDay()]} ${fmtD(s.from)} – ${WD2[s.to.getDay()]} ${fmtD(s.to)} · ${s.nights} N</span></div><div class="f4ht ${hn?'':'off'}">${ic('bed',14,hn?'#b7bbbf':'#7d8287')}<span>${esc(hn||'Unterkunft offen')}</span>${bk?ic('check',13,'#8cc79a'):''}</div></div><div class="f4rt">${todo?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>'}${ic('chev',14,'#5d6166')}</div></div>`;
    const j=i+1,nx=S.stages[j];if(nx&&!nx.gap){const np=byId(nx.placeId);const border=nx.country!==st.country;const t=f4tr(j,'nach '+(np?.name||'')+(border?' · Grenze':''));
     if(t)h+=f4trRow(t);else if(nx.placeId!==st.placeId)h+=f4missing(j,'Weiterreise nach '+(np?.name||'')+' hinzufügen',`data-a="autoTr" data-i="${j}"`)}
    h+='</div></div>'}
