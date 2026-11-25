@@ -572,9 +572,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_70';
+const APP_VERSION='0.80_71';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_71',d:'25.11.2026',items:['Screenshots einlesen: an Auszeit27 teilen oder unter „Buchung einlesen“ wählen (auch mehrere); Claude liest sie aus','Lange Screenshots werden automatisch in Teile geschnitten; abgeschriebener Text und Screenshot werden als Beleg gespeichert','Ohne Claude-Schlüssel: Hinweis statt Fehler']},
  {v:'0.80_70',d:'25.11.2026',items:['Claude-Guthaben wird mitgezählt (Schätzung je Abfrage), Warnung unter 0,50 $','Nach dem Aufladen: Betrag eintragen mit „+ Aufgeladen“ oder „Stand setzen“; meldet Anthropic leeres Guthaben, steht es auf 0 mit Link zum Eintragen']},
  {v:'0.80_69',d:'25.11.2026',items:['Claude (KI): eigener Anthropic-Schlüssel unter Einstellungen → Suche und KI (bleibt nur auf dem Gerät, nicht im Export)','Buchung einlesen: Claude liest Mailtext und PDF-Text aus (Unterkunft, Transfer, Ausflug, Portal, Preis, Storno, Flugdaten); Regel-Auswertung bleibt als Rückfall','Modellwahl Haiku 5.5 (Standard) oder Sonnet 5.5, Test-Knopf, Kostenanzeige pro Buchung und pro Monat']},
  {v:'0.80_68',d:'25.11.2026',items:['Karte: Zweiter Aufenthalt am selben Ort zeigt seine eigene Unterkunft; Ausflüge starten am Hotel der richtigen Etappe','Karte: Unterkunft ohne Position erscheint gestrichelt mit ? am Ort; Etappen mit 0 Nächten ohne Hotel-Pin','Karte: Gleiche Unterkunft in mehreren Etappen als ein Pin (z. B. 1+4) mit Auswahl','Karte: Teilstrecken ohne Koordinaten werden über Flughafen bzw. Zwischenpunkt trotzdem gezeichnet']},
@@ -3916,14 +3917,14 @@ async function bkPdfText(buf){const P=await bkPdfLib();const doc=await P.getDocu
  return {text:pages.join('\n'),links}}
 // Einstieg
 function bkStart(i,kind,j,x){UI.bk={i:i==null||i===''?null:+i,pk:kind||null,pj:j==null||j===''?null:+j,px:x||null,text:'',src:null};bkStartSheet()}
-function bkStartSheet(msg){const B=UI.bk||{};openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">${B.pk==='tr'?'Transfer':B.pk==='tour'?'Ausflug':B.pk==='stay'?'Unterkunft':'Unterkunft, Transfer oder Ausflug'}${B.i!=null?' · '+esc(byId(S.stages[B.i]?.placeId)?.name||''):''} · Mailtext oder PDF</div>
+function bkStartSheet(msg){const B=UI.bk||{};openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">${B.pk==='tr'?'Transfer':B.pk==='tour'?'Ausflug':B.pk==='stay'?'Unterkunft':'Unterkunft, Transfer oder Ausflug'}${B.i!=null?' · '+esc(byId(S.stages[B.i]?.placeId)?.name||''):''} · Mailtext, PDF oder Screenshot</div>
  <div class="smlist" style="padding:12px 14px">
-  <div class="row" style="gap:8px;margin-bottom:10px"><label class="btn gh sp" style="cursor:pointer">${ic('dl',15)} PDF / Datei wählen<input type="file" id="bkFile" accept="application/pdf,.pdf,.eml,message/rfc822,.txt,text/plain,.html,text/html" style="display:none"></label><button class="btn gh sp" data-a="bkPaste">${ic('book',15)} Aus Zwischenablage</button></div>
+  <div class="row" style="gap:8px;margin-bottom:10px"><label class="btn gh sp" style="cursor:pointer">${ic('dl',15)} PDF, Datei, Screenshot<input type="file" id="bkFile" multiple accept="application/pdf,.pdf,.eml,message/rfc822,.txt,text/plain,.html,text/html,image/*" style="display:none"></label><button class="btn gh sp" data-a="bkPaste">${ic('book',15)} Aus Zwischenablage</button></div>
   <textarea id="bkText" class="fld" rows="6" placeholder="Oder hier den Text der Buchungsmail einfügen …" style="width:100%;padding:9px;font-size:13px;resize:vertical">${esc(B.text||'')}</textarea>
   ${msg?`<div class="t12" style="color:#e2c07c;margin-top:8px;line-height:1.45">${msg}</div>`:''}
-  <div class="t12 mu" style="margin-top:10px;line-height:1.5"><b style="color:#c9ccce">So geht's ohne Kopieren:</b> In der Mail-App den Text lange drücken → „Alles auswählen“ → „Teilen“ → Auszeit27. Ein PDF der Buchung direkt an Auszeit27 teilen. Mails ohne PDF kannst du auch über „Drucken“ → „Als PDF speichern“ teilen.</div></div>
+  <div class="t12 mu" style="margin-top:10px;line-height:1.5"><b style="color:#c9ccce">So geht's ohne Kopieren:</b> In der Mail-App den Text lange drücken → „Alles auswählen“ → „Teilen“ → Auszeit27. Ein PDF oder Screenshots der Buchung direkt an Auszeit27 teilen (Screenshots liest Claude). Mails ohne PDF kannst du auch über „Drucken“ → „Als PDF speichern“ teilen.</div></div>
  <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Abbrechen</button><button class="btn pri sp" data-a="bkRun">${ic('spark',15)} Auswerten</button></div>`);
- const f=document.getElementById('bkFile');if(f)f.onchange=async()=>{const x=f.files&&f.files[0];if(x)await bkFile(x)}}
+ const f=document.getElementById('bkFile');if(f)f.onchange=async()=>{const x=f.files?[...f.files]:[];if(x.length)await bkFiles(x)}}
 async function bkFile(file){UI.bk=UI.bk||{i:null};const nm=file.name||'Datei';const ty=file.type||'';toast('Lese '+nm+' …',5000);
  try{let r;if(/pdf/i.test(ty)||/\.pdf$/i.test(nm)){r=await bkPdfText(await file.arrayBuffer())}else{const raw=await file.text();if(/\.eml$|rfc822/i.test(nm+ty))r={text:bkEml(raw),links:(raw.match(/https?:\/\/[^\s<>"'=]+/g)||[])};else if(/html/i.test(ty)||/\.html?$/i.test(nm))r=bkHtmlText(raw);else r={text:raw,links:[]}}
   UI.bk.src={name:nm,type:ty||(/\.pdf$/i.test(nm)?'application/pdf':'text/plain'),blob:file};bkEval(r.text,r.links)}
@@ -3971,7 +3972,7 @@ function bkSheet(){const B=UI.bk,b=B.b;const kind=B.kind||b.kind||'stay';B.kind=
  <div class="card" style="padding:2px 12px;margin-bottom:10px">${rows}${row('Portal',esc(b.portal||''),'nicht erkannt – im nächsten Schritt wählbar')}${row('Link',b.link?esc(b.link.replace(/^https?:\/\//,'').slice(0,48))+'…':'','kein Buchungslink')}</div>
  <div class="t12 mu" style="margin:4px 0 2px">${ic('book',12,'#8c9196')} ${B.src?esc(B.src.name):'Der Mailtext'} wird offline beim Eintrag gespeichert.</div>
  <button class="btn gh" data-a="bkTxt" style="width:100%;margin:2px 0 8px">${ic('book',15)} ${B.showTxt?'Originaltext ausblenden':'Originaltext ansehen'}</button>
- ${B.showTxt?`<textarea id="bkTxtEd" class="fld" rows="12" style="width:100%;padding:9px;font-size:12.5px;line-height:1.45;resize:vertical;margin-bottom:6px">${esc(B.text||'')}</textarea><div class="row" style="gap:8px;margin-bottom:10px"><span class="t12 mu sp">Falsch erkannt? Text hier korrigieren und neu auswerten.</span><button class="btn sm gh" data-a="bkReEval">${ic('spark',13)} Neu auswerten</button></div>`:''}
+ ${B.showTxt&&B.imgs&&B.imgs.length?`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:8px">${B.imgs.map(u=>`<a href="${u}" target="_blank" rel="noopener" style="flex:none"><img src="${u}" style="height:220px;border-radius:8px;border:1px solid #34373b;display:block"></a>`).join('')}</div>`:''}${B.showTxt?`<textarea id="bkTxtEd" class="fld" rows="12" style="width:100%;padding:9px;font-size:12.5px;line-height:1.45;resize:vertical;margin-bottom:6px">${esc(B.text||'')}</textarea><div class="row" style="gap:8px;margin-bottom:10px"><span class="t12 mu sp">Falsch erkannt? Text hier korrigieren und neu auswerten.</span><button class="btn sm gh" data-a="bkReEval">${ic('spark',13)} Neu auswerten</button></div>`:''}
  <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="bkBack">Zurück</button><button class="btn pri sp" data-a="bkApply">${ic('check',16)} ${warn.some(w=>w.lvl==='err')?'Trotzdem übernehmen':'Übernehmen &amp; prüfen'}</button></div>`);
  const sel=document.getElementById('bkSt');if(sel)sel.onchange=()=>{UI.bk.stManual=1;UI.bk.reMatched=0;UI.bk.st=+sel.value;UI.bk.j=null;UI.bk.ex=null;bkSheet()};
  const sj=document.getElementById('bkJ');if(sj)sj.onchange=()=>{UI.bk.j=+sj.value;bkSheet()};
@@ -4001,14 +4002,14 @@ function bkDocRow(key,meta,pend,back){if(!meta&&!pend)return '';return `<div cla
 function bkBackTo(back){const [k,v,w]=String(back).split('|');if(k==='h')hotelSheet(+v);else if(k==='t')trSheet(+v,+w);else if(k==='x')ttSheet(v)}
 function bkCollectAny(back){const k=String(back).split('|')[0];try{if(k==='h')hotelCollect();else if(k==='t')trCollect();else if(k==='x')ttCollect()}catch(e){}}
 async function bkDocOpen(key,back){try{const v=await bkGet(key);if(!v){toast('Bestätigung nicht auf diesem Gerät gespeichert.');return}
- if(v.blob){const u=URL.createObjectURL(v.blob);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';if(!/pdf|html|text/.test(v.type||''))a.download=v.name||'buchung';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return}
+ if(v.blob){const u=URL.createObjectURL(v.blob);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';if(!/pdf|html|text|image/.test(v.type||''))a.download=v.name||'buchung';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return}
  bkCollectAny(back);openSheet(`<div class="smt">Bestätigung</div><div class="smsub">${esc(v.prov||'Buchungsmail')} · gespeichert ${fmtD(new Date(v.ts))}</div><div class="smlist" style="padding:12px 14px;white-space:pre-wrap;font-size:12.5px;line-height:1.5;color:#d4d6d8;max-height:60vh;overflow:auto">${esc(v.text)}</div><div class="row sheetfoot"><button class="btn pri sp" data-a="bkDocBack" data-b="${esc(back)}">Zurück</button></div>`)}catch(e){toast('Öffnen nicht möglich.')}}
 function bkDocObj(key){if(String(key).startsWith('P:'))return {o:byId(key.slice(2))?.tt,d:UI.ttDraft};const m=String(key).match(/^(.+):L(\d+)$/);if(m){const st=S.stages.find(x=>x.id===m[1]);return {o:st&&legsOf(st)[+m[2]],d:UI.trForm}}const st=S.stages.find(x=>x.id===key);return {o:st&&st.stay,d:UI.hDraft}}
 function bkLooks(t){t=String(t||'');return t.length>120&&/(check-?\s?in|anreise|reiseplan|buchungsnummer|bestätigungsnummer|reservierungsnummer|buchungscode|confirmation|booking (?:number|id|reference)|itinerary|reservation|e-?ticket|boarding|flugnummer|ticket|treffpunkt|meeting point|buchung bestätigt|booking confirmed)/i.test(t)&&bkDates(t).length>=1}
 // geteilte Inhalte (POST share target über den Service Worker)
 async function bkShared(){try{const c=await caches.open('auszeit-share');const m=await c.match('./share-meta');if(!m)return false;const meta=await m.json();await c.delete('./share-meta');
   const files=[];for(const f of meta.files||[]){const r=await c.match(f.key);if(r){const bl=await r.blob();files.push(new File([bl],f.name||'datei',{type:f.type||bl.type}))}await c.delete(f.key)}
-  if(files.length){UI.bk={i:null};await bkFile(files[0]);return true}
+  if(files.length){UI.bk={i:null};await bkFiles(files);return true}
   const tx=[meta.title,meta.text,meta.url].filter(Boolean).join('\n').trim();if(!tx)return true;
   if(bkLooks(tx)){UI.bk={i:null};bkEval(tx,[]);return true}shareOpen(tx);return true}catch(e){return false}}
 
@@ -4393,6 +4394,20 @@ function aiBalSet(b){try{if(b)localStorage.setItem(AI_BAL,JSON.stringify(b));els
 function aiUsd(x){return (x||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:x<10?3:2})+' $'}
 function aiBalLine(){const b=aiBal();if(!b)return '<span class="mu">Noch kein Guthaben eingetragen.</span>';const low=b.usd<0.5;return `<b style="color:${b.empty?'#e59c96':low?'#e2c07c':'#9cc7a4'};font-size:15px">ca. ${aiUsd(b.usd)}</b> <span class="mu">übrig · seit ${new Date(b.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})} verbraucht ${aiUsd(b.used||0)}${b.empty?' · Anthropic meldet: leer':''}</span>`}
 function aiCent(usd){const c=usd*100;return (c<0.1?'< 0,1':c.toLocaleString('de-DE',{maximumFractionDigits:c<1?2:1}))+' Cent'}
+async function bkFiles(files){files=(files||[]).filter(Boolean);const im=files.filter(f=>/^image\//.test(f.type||'')||/\.(png|jpe?g|webp|heic)$/i.test(f.name||''));
+ if(!im.length)return bkFile(files[0]);UI.bk=UI.bk||{i:null};const B=UI.bk;
+ if(!aiKey()){B.text='';bkStartSheet('Screenshots kann nur Claude lesen. Bitte unter Einstellungen → Suche und KI einen Claude-Schlüssel eintragen – oder den Mailtext bzw. ein PDF verwenden.');return}
+ openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">${im.length} Screenshot${im.length>1?'s':''} · Claude liest</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Bilder werden vorbereitet …</span></div>`);
+ try{const parts=[];for(const f of im.slice(0,6)){parts.push(...await bkImgParts(f));if(parts.length>=8)break}
+  B.imgData=parts.slice(0,8);(B.imgs||[]).forEach(u=>{try{URL.revokeObjectURL(u)}catch(e){}});B.imgs=im.slice(0,6).map(f=>URL.createObjectURL(f));
+  B.src={name:im.length>1?`${im.length} Screenshots`:(im[0].name||'Screenshot'),type:im[0].type||'image/jpeg',blob:im[0]};B.text='';B.links=[];B.ai=null;B.aiErr=null;B.aiBusy=0;B.b=parseBooking('',[]);B.b.kind=B.pk||'stay';
+  aiRunBk(B);openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">${esc(B.src.name)} · Claude liest</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Claude liest die Screenshots … (einige Sekunden)</span></div>`)}
+ catch(e){bkStartSheet('Bild konnte nicht gelesen werden ('+esc(errTxt(e))+').')}}
+// Screenshot verkleinern und lange Screenshots in Teile schneiden (JPEG, base64)
+async function bkImgParts(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('Bildformat nicht unterstützt'));i.src=url});
+ const W=Math.min(1100,img.naturalWidth),sc=W/img.naturalWidth,H=Math.round(img.naturalHeight*sc);const CH=1600;const n=Math.min(4,Math.ceil(H/CH));const step=Math.ceil(H/n);const out=[];
+ for(let k=0;k<n;k++){const y0=k*step,h=Math.min(step+(k<n-1?40:0),H-y0);const c=document.createElement('canvas');c.width=W;c.height=h;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,W,h);g.drawImage(img,0,-y0,W,H);out.push(c.toDataURL('image/jpeg',0.85).split(',')[1])}
+ return out}finally{URL.revokeObjectURL(url)}}
 async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
  try{r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:o.messages})});
@@ -4416,11 +4431,13 @@ Felder (fehlende Angaben als null, nichts erfinden):
  "room": string|null, "guests": string|null, "phone": string|null,
  "transport": {"mode":"flight"|"bus"|"train"|"boat"|"car","date":"YYYY-MM-DD","dep":"HH:MM","arr":"HH:MM","from":string,"to":string,"fromIata":string|null,"toIata":string|null,"no":string|null,"airline":string|null,"operator":string|null}|null,
  "tour": {"title":string,"date":"YYYY-MM-DD","time":"HH:MM","meet":string|null,"operator":string|null}|null,
- "notes": string|null                   // wichtige Hinweise kurz auf Deutsch (Gepäck, Abholung, Treffpunkt), sonst null
+ "notes": string|null,                  // wichtige Hinweise kurz auf Deutsch (Gepäck, Abholung, Treffpunkt), sonst null
+ "text": string|null                    // nur bei Screenshots: abgeschriebener Buchungstext, sonst null
 }
 Bei mehreren Flugsegmenten: transport = erstes Segment, weitere Segmente kurz in notes. Jahreszahlen ohne Angabe aus dem Reisezeitraum ableiten.`;
-async function aiBooking(text){const t=String(text||'').slice(0,40000);
- const r=await aiCall({system:AI_BK_SYS,max:1500,messages:[{role:'user',content:`Reiseplan (zur Einordnung von Jahr und Ort):\n${aiTripCtx()}\n\nBuchungstext:\n"""\n${t}\n"""`}]});
+async function aiBooking(text,imgs){const t=String(text||'').slice(0,40000);const ctx=`Reiseplan (zur Einordnung von Jahr und Ort):\n${aiTripCtx()}\n\n`;
+ const content=imgs&&imgs.length?[...imgs.map(d=>({type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}})),{type:'text',text:ctx+`Die Bilder sind Screenshots einer Buchung (bei langen Screenshots in Teilen von oben nach unten). Gib zusätzlich das Feld "text" zurück: den Buchungstext der Screenshots als reinen Text abgeschrieben (nur relevante Angaben, max. 2500 Zeichen).${t?'\n\nZusätzlicher Text:\n'+t:''}`}]:ctx+`Buchungstext:\n"""\n${t}\n"""`;
+ const r=await aiCall({system:AI_BK_SYS,max:imgs&&imgs.length?2500:1500,timeout:imgs&&imgs.length?70000:45000,messages:[{role:'user',content}]});
  return {j:aiJson(r.text),usd:r.usd,model:r.model}}
 function aiMerge(b,j){const D=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3],12):null};const T=s=>/^\d{1,2}:\d{2}$/.test(s||'')?s.padStart(5,'0'):'';const v=x=>x!=null&&x!==''&&x!=='null';
  if(['stay','tr','tour'].includes(j.kind))b.kind=j.kind;if(v(j.portal)){b.portal=String(j.portal);b.prov=b.prov||b.portal}
@@ -4438,10 +4455,10 @@ function aiMerge(b,j){const D=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''
 function aiRunBk(B){if(!aiKey()||!B||B.aiBusy)return;B.aiBusy=1;B.aiErr=null;const kind0=B.kind;
  const refresh=()=>{if(UI.bk!==B)return;const has=B.b&&(B.b.cin||B.b.name||B.b.code||B.b.T&&B.b.T.date);if(!has){bkStartSheet(B.aiErr?'Darin habe ich keine Buchung erkannt (Claude: '+esc(B.aiErr)+').':'Auch Claude hat darin keine Buchung erkannt.');return}
   if(B.pk){B.kind=B.pk;B.stK=null}else if(B.kind===kind0){B.kind=null;B.stK=null}if(B.i!=null&&(B.kind||B.b.kind)==='stay')B.st=B.i;bkSheet()};
- aiBooking(B.text).then(r=>{if(UI.bk!==B)return;aiMerge(B.b,r.j);B.ai={model:r.model,usd:r.usd};B.verTried=0;B.aiBusy=0;refresh()})
+ aiBooking(B.text,B.imgData).then(r=>{if(UI.bk!==B)return;if(B.imgData&&r.j&&r.j.text&&!B.text){B.text=String(r.j.text);B.links=[]}aiMerge(B.b,r.j);B.ai={model:r.model,usd:r.usd};B.verTried=0;B.aiBusy=0;refresh()})
   .catch(e=>{B.aiBusy=0;B.aiErr=e.message||String(e);refresh()})}
 (function(){const _be=bkEval;window.bkEval=function(text,links){if(!aiKey()||!aiAuto())return _be(text,links);
- UI.bk=UI.bk||{i:null};const B=UI.bk;B.ai=null;B.aiErr=null;B.aiBusy=0;const b0=parseBooking(text,links);
+ UI.bk=UI.bk||{i:null};const B=UI.bk;B.ai=null;B.aiErr=null;B.aiBusy=0;if(!B.imgKeep){B.imgData=null;B.imgs=null}B.imgKeep=0;const b0=parseBooking(text,links);
  if(!b0.cin&&!b0.name&&!b0.code){B.text=text;B.links=links||[];B.b=b0;aiRunBk(B);openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">Claude liest die Buchung</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Einen Moment …</span></div>`);return}
  _be(text,links);aiRunBk(UI.bk);if(document.getElementById('bkSt'))bkSheet()}})();
 function aiLine(B){if(!B)return '';if(B.aiBusy)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px"><span class="spin"></span> Claude liest die Buchung genauer …</div>`;

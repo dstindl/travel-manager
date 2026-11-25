@@ -40,7 +40,15 @@
             "text/plain",
             ".txt",
             "text/html",
-            ".html"
+            ".html",
+            "image/*",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".webp"
           ]
         }
       ]
