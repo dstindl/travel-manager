@@ -571,9 +571,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_64';
+const APP_VERSION='0.80_65';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_65',d:'25.11.2026',items:['Karte und Atlas: Orte, die mehrmals Etappe sind, zeigen alle Nummern – z. B. Hanoi „1+3“']},
  {v:'0.80_64',d:'25.11.2026',items:['Ein Ort mehrmals in der Route (z. B. zweimal Hanoi) ist jetzt jedes Mal eine eigene Etappe mit eigener Nummer','Ausflüge gehören zur Etappe, nicht zum Ort: geplante nach ihrem Tag, ungeplante zur ersten Etappe am Ort – oder zu der Etappe, in der sie angelegt wurden. Nummern wie 3.1 folgen der jeweiligen Etappe','Gilt in Route, Ausflugsseite, Atlas, Analyse und überall, wo Nummern stehen']},
  {v:'0.80_63',d:'25.11.2026',items:['Reise-Startseite neu (Variante A): Kopfkarte mit Reisezeitraum, Länderbalken, Abflug und Buchungsstand; „Als Nächstes“ mit den zwei dringendsten Punkten; klar getrennte Gruppen Reise, Geld und Organisation als ruhige Listen','Unterwegs: Wetter, Ausgaben und Kurs in einer Kopfkarte; der Tag ist nach Transport, Ausflügen und Übernachtung getrennt, im Stil der Route; Uhrzeit nur, wenn es eine gibt']},
  {v:'0.80_62',d:'25.11.2026',items:['Atlas im Stil der Route: Ausflüge je Etappe als Karte (Etappenkopf kräftig, Ausflüge mittel), Nummern als gefüllte Marken, Fähnchen + Datum statt Kategorie, Status-Punkt','Kostencheck: Zeilen zweizeilig – oben Kennung und Name, darunter Betrag, bezahlt, Währung; Nummern wie in der Route','Ausflug-Seite, Etappen-Seite im Atlas, Anker-Seite und Ausflug-Popup zeigen oben die Karte im Route-Stil','Unterwegs: Nummern von Etappe und Ausflug wie in der Route']},
@@ -1284,7 +1285,7 @@ function sumOf(p,full){let w=(p.wikiTitle&&S.wiki['de:'+p.wikiTitle])||(!p.wikiN
  if(w.lang==='en'&&w.de)w={...w,text:w.de,lang:'de-auto',short:false};else if(w.lang==='en'&&!w.deTry){w.deTry=1;translateWiki(w)}
  if(full)return w;const ss=w.text.match(/[^.!?]+[.!?]+(\s|$)/g)||[w.text];let t='';for(const x of ss){if((t+x).length>320&&t)break;t+=x;if(t.length>180)break}return {...w,text:t.trim(),short:t.trim().length<w.text.length}}
 async function translateWiki(w){try{const ss=w.text.match(/[^.!?]+[.!?]+(\s|$)/g)||[w.text];let t='';for(const x of ss){if((t+x).length>450)break;t+=x}const de=await translateDe(t.trim()||w.text.slice(0,450));if(de){w.de=de;save();if(UI.pages.length)rerenderPage();else render()}}catch(e){}}
-function kindOf(p){if(p.role==='anchor')return{k:'etappe',lab:'ETAPPE '+(stageNo()[p.id]||''),bg:'var(--c-anc)',fg:'#1c1d1f'};const n=excNo(p);if(n)return{k:'ausflug',lab:'AUSFLUG '+n,bg:`color-mix(in srgb,var(--c-${p.role==='inbox'?'wei':p.role}) 30%,#26282b)`,fg:'#e3cfa8'};return{k:'idee',lab:'IDEE',bg:'transparent',fg:'#9a9ea3',dash:1}}
+function kindOf(p){if(p.role==='anchor')return{k:'etappe',lab:'ETAPPE '+(routeNo(p)||''),bg:'var(--c-anc)',fg:'#1c1d1f'};const n=excNo(p);if(n)return{k:'ausflug',lab:'AUSFLUG '+n,bg:`color-mix(in srgb,var(--c-${p.role==='inbox'?'wei':p.role}) 30%,#26282b)`,fg:'#e3cfa8'};return{k:'idee',lab:'IDEE',bg:'transparent',fg:'#9a9ea3',dash:1}}
 function pagePlace(pg){
  const p=byId(pg.id);if(!p)return head('','Nicht gefunden');
  const as=assign(p);const dt=dayTravel(p);const st=stagesDated().filter(s=>s.placeId===p.id);const K=kindOf(p);const isA=K.k==='etappe';
@@ -1882,9 +1883,9 @@ async function trPickRun(){const P=UI.trPick;const s=stagesDated()[P.i];const I=
 function trPickApply(name,ll){const P=UI.trPick;UI.trForm=UI.trForm||{};UI.trForm[P.which]=name;UI.trForm[P.which+'LL']=ll;UI.trPick=null;trSheet(P.i,P.j)}
 
 
-function routeNo(p){const st=S.stages.find(s=>s.placeId===p.id);if(st)return String(stageNo()[p.id]||'');return excNo(p)}
+function routeNo(p){const sts=S.stages.filter(s=>s.placeId===p.id&&!s.gap);if(sts.length){const no=stageNo();return sts.map(s=>no[s.id]).filter(Boolean).join('+')}return excNo(p)}
 function routeTag(p){const n=routeNo(p);if(!n)return '';const isSt=!n.includes('.');const pr=p.role==='anchor'?(prioOf(p)||'anc'):p.role;return `<span class="bdg ${pr==='inbox'?'':pr}" style="min-width:${isSt?26:36}px;height:22px;padding:0 6px;font-weight:bold;font-size:12px">${isSt?'':''}${n}</span>`}
-function routeInfo(p){const sts=stagesDated().filter(s=>s.placeId===p.id);if(sts.length)return `Etappe ${stageNo()[p.id]} in ${country(p.country).name}, ${sts.map(s=>fmtD(s.from)+'–'+fmtD(s.to)+' ('+s.nights+' N)').join(', ')}`;
+function routeInfo(p){const sts=stagesDated().filter(s=>s.placeId===p.id);if(sts.length)return `Etappe ${routeNo(p)} in ${country(p.country).name}, ${sts.map(s=>fmtD(s.from)+'–'+fmtD(s.to)+' ('+s.nights+' N)').join(', ')}`;
  const n=excNo(p);if(n){const aid=p.attached&&p.anchorId?p.anchorId:assign(p)?.a.id;return `Ausflug ${n} ab ${byId(aid)?.name||''}${p.planned?', geplant '+fmtDL(new Date(p.planned+'T12:00:00')).slice(0,9):', noch ohne Tag'}`}
  const as=assign(p);return as&&as.band<3?`Nicht angehängt, nächster Anker ${as.a.name}`:'Nicht in der Route'}
 
@@ -1941,7 +1942,7 @@ function statusSheet(id){const p=byId(id);const isA=p.role==='anchor';const cur=
  <div class="lab" style="margin-bottom:4px">Priorität</div><div class="card" style="padding:0 12px">${opts.map(o).join('')}</div>
  <div class="lab" style="margin:12px 0 4px">Übernachtung</div>${ancRow(p)}`)}
 function ancRow(p){const isA=p.role==='anchor';const st=stagesDated().filter(x=>x.placeId===p.id);const n=st.reduce((a,x)=>a+x.nights,0);const as=!isA?assign(p):null;
- return `<div class="card row" style="padding:10px 12px">${bdg('bed',isA?'anc':'',32,16)}<div class="sp"><div class="t14 b" style="color:#e0e1e3">${isA?'Etappe':excNo(p)?'Ausflug':'Idee'}</div><div class="t12 mu">${isA?`Etappe ${stageNo()[p.id]||''}, ${n} ${n===1?'Nacht':'Nächte'}`:excNo(p)?`Ausflug ${excNo(p)} von Etappe ${esc((byId(p.anchorId)||as?.a)?.name||'')}`:'Idee, keiner Etappe zugeordnet'}</div></div>${isA?`<button class="btn sm gh" data-a="rmPlaceStages" data-id="${p.id}">${ic('x',14)} Aus der Route</button>`:`<button class="btn sm pri" data-a="addStage" data-id="${p.id}">${ic('bed',14)} Als Etappe</button>`}</div>`}
+ return `<div class="card row" style="padding:10px 12px">${bdg('bed',isA?'anc':'',32,16)}<div class="sp"><div class="t14 b" style="color:#e0e1e3">${isA?'Etappe':excNo(p)?'Ausflug':'Idee'}</div><div class="t12 mu">${isA?`Etappe ${routeNo(p)||''}, ${n} ${n===1?'Nacht':'Nächte'}`:excNo(p)?`Ausflug ${excNo(p)} von Etappe ${esc((byId(p.anchorId)||as?.a)?.name||'')}`:'Idee, keiner Etappe zugeordnet'}</div></div>${isA?`<button class="btn sm gh" data-a="rmPlaceStages" data-id="${p.id}">${ic('x',14)} Aus der Route</button>`:`<button class="btn sm pri" data-a="addStage" data-id="${p.id}">${ic('bed',14)} Als Etappe</button>`}</div>`}
 
 // ---------- Etappe hinzufügen (Auswahlblatt) ----------
 function stagePick(c){const ix=S.stages.map((x,k)=>x.country===c?k:-1).filter(k=>k>=0);
@@ -2985,7 +2986,7 @@ function drawMap(){setTimeout(updPeek,30);setTimeout(()=>{if(UI.pv)pvMarker()},0
  UI.mapList.forEach(p=>{const draft=country(p.country).status!=='geplant';const r=p.role==='anchor'?'anc':p.role==='inbox'?'wei':draft&&p.role!=='anchor'?'draft':p.role;
   const rn=routeNo(p);let icon;
   const ML=S.settings.mapLabels||{};const lab=[ML.g&&p.gRating?'★'+String(p.gRating).replace('.',','):'',ML.w&&wCount(p)?'W '+wCount(p):''].filter(Boolean).join(' · ');const badge=lab?`<div style="position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;font:bold 10px Poppins,sans-serif;color:#e3e4e5;background:#1e2022e6;border:1px solid #34373b;border-radius:5px;padding:1px 5px">${lab}</div>`:'';
-  if(rn){const pr=p.role==='anchor'?(prioOf(p)||'anc'):p.role;const isSt=!rn.includes('.');const w=isSt?26:Math.max(30,rn.length*8+10);
+  if(rn){const pr=p.role==='anchor'?(prioOf(p)||'anc'):p.role;const isSt=!rn.includes('.');const w=isSt?Math.max(26,rn.length*8+10):Math.max(30,rn.length*8+10);
    icon=L.divIcon({html:`<div style="position:relative"><div class="mk" style="width:${w}px;height:${isSt?26:20}px;border-radius:${isSt?7:5}px;background:var(--c-${pr==='inbox'?'wei':pr});display:flex;align-items:center;justify-content:center;font:bold ${isSt?13:11}px Poppins,sans-serif;color:${pr==='anc'?'#1c1d1f':'#fff'};${draft?'opacity:.6':''}">${rn}</div>${badge}</div>`,className:'',iconSize:[w,isSt?26:20],iconAnchor:[w/2,(isSt?26:20)/2]})}
   else if(badge){const base=mkIcon(sc==='all'&&r==='anc'?(draft?'draft':'fix'):r);const o=base.options||base;icon=L.divIcon({html:`<div style="position:relative">${o.html}${badge}</div>`,className:o.className||'',iconSize:o.iconSize,iconAnchor:o.iconAnchor})}
   else icon=mkIcon(sc==='all'&&r==='anc'?(draft?'draft':'fix'):r);
@@ -3309,7 +3310,7 @@ function exSheet(){const A=UI.att;const a=byId(A.aid);if(!a)return;if(!A.s1&&S.s
  let h=smHead('Ausflug hinzufügen',`Etappe ${no?no+' ':''}${esc(a.name)}${UI.attachDay?' · wird am '+fmtDL(new Date(UI.attachDay+'T12:00:00')).slice(0,9)+' eingeplant':''}`);
  h+=smSeg([['vorschlaege','Vorschläge'],['saved','Gespeichert'],['live','Suche'],['map','Karte']],A.tab,'attTab');
  const savedRow=p=>{const t=travel(p,a);const b=bandOf(t.min);const here=exl.includes(p.id);let st='',warn=false;
-  if(here)st='Bereits Ausflug '+excNo(p);else if(p.role==='anchor'){st='Ist Etappe '+(stageNo()[p.id]||'')+', wird zum Ausflug';warn=true}else if(p.attached&&p.anchorId&&p.anchorId!==a.id){st='Gehört zu '+(byId(p.anchorId)?.name||'')+', wird umgehängt'}else if(b>=2){st='Weit für eine Tagestour, besser als eigene Etappe?';warn=true}
+  if(here)st='Bereits Ausflug '+excNo(p);else if(p.role==='anchor'){st='Ist Etappe '+(routeNo(p)||'')+', wird zum Ausflug';warn=true}else if(p.attached&&p.anchorId&&p.anchorId!==a.id){st='Gehört zu '+(byId(p.anchorId)?.name||'')+', wird umgehängt'}else if(b>=2){st='Weit für eine Tagestour, besser als eigene Etappe?';warn=true}
   const done=here||A.done.has('p:'+p.id);
   return smRow({icon:CAT_IC[p.cats[0]]||'pin',dot:ROLE_DOT[p.role],name:p.name,key:'p:'+p.id,info:p.cats.join(', '),meta:[ROLES[p.role],p.cats[0],(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min),smRate(p)],hint:st,warn,links:smLinks(p),right:done?'done':'add',doneTxt:here?'bereits Ausflug '+excNo(p):'hinzugefügt',act:`data-a="addEx" data-k="p" data-id="${p.id}"`})};
  if(A.tab==='vorschlaege'){const loc=suggestionsOf(a.id);const wd=S.sugg[a.id]||[];const vf=A.vf||'all';
