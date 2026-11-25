@@ -579,9 +579,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_76';
+const APP_VERSION='0.80_77';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_77',d:'25.11.2026',items:['Transfer: Bereich „Preise & Buchen“ mit Direkt-Links zu 12Go, Rome2Rio und bei Flügen Google Flights (Start, Ziel, Datum vorausgefüllt)','Richtpreis mit Claude: liest die 12Go-Streckenseite (oder Websuche/Schätzung) – Spanne, Dauer, Anbieter; als geschätzte Kosten für 2 übernehmen','Schnellwahl im Land: Richtpreise für alle offenen Transfers ermitteln und übernehmen; Websuche-Gebühren werden im Guthaben mitgezählt']},
  {v:'0.80_76',d:'25.11.2026',items:['Claude-Einstellungen: Links direkt zu Guthaben & Aufladen, API-Schlüssel und Ausgabenlimit in der Anthropic Console']},
  {v:'0.80_75',d:'25.11.2026',items:['Vorschläge übernehmen läuft jetzt sauber nacheinander (kein Hängenbleiben bei mehrfachem Antippen), Positionssuche mit Zeitlimit, „Erneut“ bei Fehlschlag','Von Claude angelegte Ausflüge tragen in der Route das KI-Symbol; ungefähre Position wird angezeigt','KI-Symbol (Stern) nur noch für KI-Funktionen – Umgebungsvorschläge, automatische Transfers und Auswerten haben eigene Symbole']},
  {v:'0.80_74',d:'25.11.2026',items:['KI-Schnellwahl über den KI-Knopf in Route, Land und Etappe (passende Fragen, Prüfen)','Frag deine Reise: Claude schlägt Ausflüge, Nächte und Termine als Vorschläge vor – einzeln oder alle übernehmen; Ausflüge werden mit Position und Tag an der Etappe angelegt','Längere Antworten möglich, Hinweis bei gekürzter Antwort; „Zu viele Hinweise“ wird beim Prüfen klar angezeigt','Budget: Claude bekommt die automatische Budgetrechnung erklärt und meldet sie nicht mehr als Fehler']},
@@ -1885,7 +1886,7 @@ function trSheet(i,j=0){UI.trCtx={i,j};const s=stagesDated()[i];const F=UI.trFor
  <div id="trDepBox">${trDepBox(f,t)}</div>
  ${f?`<div class="kv" style="margin-bottom:10px">${fld('trNo','Flugnummer',t.no,'text','z. B. VN 837')}${fld('trAir','Airline',t.airline,'text','z. B. Vietnam Airlines')}</div>`:''}
  <div style="margin-bottom:10px">${fld('trCode','Buchungscode',t.code,'text','optional')}</div>${pfField('trPortal',t.portal,'tr')}
- <div style="margin-bottom:10px">${moneyField('trCost',t.cost,t.cur,s.country,'Kosten gesamt')}</div><div class="kv" style="margin-bottom:10px"><div><div class="lab" style="margin-bottom:5px">Status</div><div class="seg segc" style="margin:0"><button data-a="trStat" data-k="offen" class="${(UI.trStat||t.status||'gebucht')!=='gebucht'?'on y':''}">offen</button><button data-a="trStat" data-k="gebucht" class="${(UI.trStat||t.status||'gebucht')==='gebucht'?'on g':''}">gebucht</button></div></div><div><div class="lab" style="margin-bottom:5px">Bezahlt</div><div class="seg segc" style="margin:0"><button data-a="trPaid" data-k="0" class="${!(UI.trPaid??t.paid??true)?'on y':''}">nein</button><button data-a="trPaid" data-k="1" class="${(UI.trPaid??t.paid??true)?'on g':''}">ja</button></div></div></div>
+ <div id="prBox">${typeof trPriceBox==='function'?trPriceBox(i,j):''}</div><div style="margin-bottom:10px">${moneyField('trCost',t.cost,t.cur,s.country,'Kosten gesamt'+(t.costEst?' (Richtpreis)':''))}</div><div class="kv" style="margin-bottom:10px"><div><div class="lab" style="margin-bottom:5px">Status</div><div class="seg segc" style="margin:0"><button data-a="trStat" data-k="offen" class="${(UI.trStat||t.status||'gebucht')!=='gebucht'?'on y':''}">offen</button><button data-a="trStat" data-k="gebucht" class="${(UI.trStat||t.status||'gebucht')==='gebucht'?'on g':''}">gebucht</button></div></div><div><div class="lab" style="margin-bottom:5px">Bezahlt</div><div class="seg segc" style="margin:0"><button data-a="trPaid" data-k="0" class="${!(UI.trPaid??t.paid??true)?'on y':''}">nein</button><button data-a="trPaid" data-k="1" class="${(UI.trPaid??t.paid??true)?'on g':''}">ja</button></div></div></div>
  ${fld('trNote','Notiz',t.note,'text','z. B. Gepäck 20 kg')}
  <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Abbrechen</button>${legsOf(S.stages[i])[j]?`<button class="btn gh" data-a="legDelS" data-i="${i}" data-j="${j}" aria-label="Teilstrecke löschen" style="color:#e8a59c">${ic('trash',16)}</button>`:''}<button class="btn pri sp" data-a="trSave">${ic('check',16)} Speichern</button></div>`);
  UI.trStat=UI.trStat||t.status||'gebucht';if(UI.trDepX==null)UI.trDepX=!!t.depX;
@@ -4422,12 +4423,17 @@ async function bkImgParts(file){const url=URL.createObjectURL(file);try{const im
  return out}finally{URL.revokeObjectURL(url)}}
 async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
- const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:o.messages},noTh?{thinking:{type:'disabled'}}:{}))});
+ let msgs=o.messages;const hd={'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};if(o.beta)hd['anthropic-beta']=o.beta;
+ const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:hd,body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:msgs},o.tools?{tools:o.tools}:{},noTh?{thinking:{type:'disabled'}}:{}))});
  try{const th=localStorage.getItem('auszeit27_athink')!=='1';r=await send(th);j=await r.json().catch(()=>({}));
-  if(th&&r.status===400&&/thinking/i.test(j?.error?.message||'')){try{localStorage.setItem('auszeit27_athink','1')}catch(e){}r=await send(false);j=await r.json().catch(()=>({}))}}catch(e){throw new Error(e.name==='AbortError'?'Zeitüberschreitung':'keine Verbindung')}finally{clearTimeout(tm)}
+  if(th&&r.status===400&&/thinking/i.test(j?.error?.message||'')){try{localStorage.setItem('auszeit27_athink','1')}catch(e){}r=await send(false);j=await r.json().catch(()=>({}))}
+  // lange Werkzeug-Läufe: fortsetzen
+  let acc=[...(j.content||[])],ui=0,uo=0,ws=0;const addU=x=>{const u=x.usage||{};ui+=u.input_tokens||0;uo+=u.output_tokens||0;ws+=u.server_tool_use?.web_search_requests||0};if(r.ok)addU(j);
+  for(let n=0;r.ok&&j.stop_reason==='pause_turn'&&n<3;n++){msgs=[...msgs,{role:'assistant',content:j.content}];r=await send(localStorage.getItem('auszeit27_athink')!=='1');j=await r.json().catch(()=>({}));if(r.ok){acc=acc.concat(j.content||[]);addU(j)}}
+  if(r.ok){j.content=acc;j.usage={input_tokens:ui,output_tokens:uo,_ws:ws}}}catch(e){throw new Error(e.name==='AbortError'?'Zeitüberschreitung':'keine Verbindung')}finally{clearTimeout(tm)}
  if(!r.ok){const m=j?.error?.message||('HTTP '+r.status);if(/credit balance/i.test(m)){const b=aiBal()||{ts:Date.now(),used:0};b.usd=0;b.empty=1;aiBalSet(b)}throw new Error(r.status===401?'Schlüssel ungültig':/credit balance/i.test(m)?'Guthaben aufgebraucht – in der Anthropic Console aufladen':r.status===429?'zu viele Anfragen, kurz warten':r.status===529||r.status===503?'Claude ist gerade überlastet':m)}
- const u=j.usage||{};const usd=((u.input_tokens||0)*M.pin+(u.output_tokens||0)*M.pout)/1e6;aiCount(usd);
- const text=(j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');UI.aiLastRaw=text;return {text,usd,model:M.name,stop:j.stop_reason}}
+ const u=j.usage||{};const usd=((u.input_tokens||0)*M.pin+(u.output_tokens||0)*M.pout)/1e6+(u._ws||0)*0.01;aiCount(usd);
+ const C=j.content||[];let li=-1;C.forEach((c,n)=>{if(c.type!=='text')li=n});const tail=C.slice(li+1).filter(c=>c.type==='text').map(c=>c.text).join('');const text=tail.trim()?tail:C.filter(c=>c.type==='text').map(c=>c.text).join('');UI.aiLastRaw=text;return {text,usd,model:M.name,stop:j.stop_reason}}
 function aiStripCm(t){let o='',q=false,e=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){o+=c;if(e)e=false;else if(c==='\\')e=true;else if(c==='"')q=false;continue}if(c==='"'){q=true;o+=c;continue}if(c==='/'&&t[i+1]==='/'){while(i<t.length&&t[i]!=='\n')i++;o+='\n';continue}o+=c}return o}
 function aiJson(t){t=String(t||'').replace(/```(?:json)?/g,'');const a=t.indexOf('{');if(a<0)throw new Error('Antwort nicht lesbar');t=t.slice(a);
  const tryP=x=>{try{return JSON.parse(x)}catch(e){return undefined}};const fix=x=>aiStripCm(x).replace(/,\s*([}\]])/g,'$1');
@@ -4564,7 +4570,7 @@ async function aiActRun(mi,ks){if(UI.aiActBusy){toast('Übernahme läuft noch �
 // Schnellwahl (Route, Land, Etappe)
 function aiMenu(k,id){if(!aiKey())return aiSetupHint();UI.aiFocus=k==='all'?null:{k,id};const F=aiFocus();const sc=k==='c'?id:k==='s'&&F?S.stages[F.i].country:'all';const C=aiChkOf(sc);const op=C?C.items.filter(x=>!x.st):[];
  const row=(t,sub,act)=>`<div class="f4r click" ${act}><div class="f4c">${aiIc()}</div><div class="sp" style="min-width:0"><div class="f4tt">${t}</div>${sub?`<div class="f4s">${sub}</div>`:''}</div><div class="f4rt">${ic('chev',14,'#5d6166')}</div></div>`;
- openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'KI-Assistent',sub:F?esc(F.label):'Gesamte Reise',mid:1})}<div class="rcard aicard">${aiQuick().slice(0,4).map((q,n)=>row(esc(q),'',`data-a="aiQ" data-k="${n}"`)).join('')}${row(F?`Frage zu ${esc(F.label)} …`:'Eigene Frage …','Chat öffnen','data-a="aiChat2"')}${row(`${k==='s'?esc(country(sc).name):F?esc(F.label):'Reise'} prüfen`,C?(op.length?`${op.length} offene Hinweise · geprüft ${fmtD(new Date(C.ts))}`:'alles erledigt'):'Fehler, Risiken, Optimierungen',`data-a="aiChk" data-k="${sc}"`)}</div>`)}
+ openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'KI-Assistent',sub:F?esc(F.label):'Gesamte Reise',mid:1})}<div class="rcard aicard">${aiQuick().slice(0,4).map((q,n)=>row(esc(q),'',`data-a="aiQ" data-k="${n}"`)).join('')}${row(F?`Frage zu ${esc(F.label)} …`:'Eigene Frage …','Chat öffnen','data-a="aiChat2"')}${sc!=='all'?row(`Richtpreise für offene Transfers in ${esc(country(sc).name)}`,'12Go / Schätzung · als geschätzte Kosten übernehmen',`data-a="prBatch" data-k="${sc}"`):''}${row(`${k==='s'?esc(country(sc).name):F?esc(F.label):'Reise'} prüfen`,C?(op.length?`${op.length} offene Hinweise · geprüft ${fmtD(new Date(C.ts))}`:'alles erledigt'):'Fehler, Risiken, Optimierungen',`data-a="aiChk" data-k="${sc}"`)}</div>`)}
 
 // --- Reise prüfen ---
 const AI_CHK_SYS=`Du prüfst den Reiseplan einer privaten Reise-App auf Fehler, Risiken und Verbesserungen. Antworte NUR mit gültigem JSON, ohne Kommentare und ohne Text davor oder danach, in genau dieser Form:
@@ -4642,6 +4648,65 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  const H={aiChat:()=>{UI.aiFocus=null;aiChatSheet()},aiChat2:()=>aiChatSheet(),aiQ:()=>{aiAsk(aiQuick()[+el.dataset.k])},aiFocusOff:()=>{UI.aiFocus=null;aiChatSheet()},aiMenu:()=>aiMenu(el.dataset.k,el.dataset.id),aiActOne:()=>aiActRun(+el.dataset.m,[+el.dataset.k]),aiActAll:()=>{const m=aiChatLoad()[+el.dataset.m];if(m)aiActRun(+el.dataset.m,m.acts.map((_,k)=>k))},aiAsk:()=>{const v=document.getElementById('aiIn')?.value;aiAsk(v)},aiClr:()=>{if(!confirm('Verlauf löschen?'))return;aiChatSave([]);aiChatSheet()},
   aiChk:()=>{UI.aiScope=el.dataset.k||'all';UI.aiChkErr=null;aiCheckSheet()},aiScope:()=>{UI.aiScope=el.dataset.k;UI.aiChkErr=null;UI.aiChkRaw=null;aiCheckSheet()},aiRaw:()=>{UI.aiRawShow=!UI.aiRawShow;aiCheckSheet()},aiChkRun:()=>aiCheckRun(),aiApply:()=>aiApply(+el.dataset.k),aiDis:()=>{const x=aiChkOf(aiScope())?.items.find(y=>y.k===+el.dataset.k);if(x){x.st='no';save()}aiCheckSheet();if(UI.tab==='reise'&&!UI.pages.length)renderReise()},
   aiGo:()=>aiGo(+el.dataset.i),aiRc:()=>{closeSheet();setTimeout(aiReceiptPick,50)}};
+ if(H[a]){e.preventDefault();e.stopPropagation();H[a]()}},true);
+
+
+// ---------- 0.80_77: Transportpreise (Links + Claude mit Webabruf) ----------
+function trSlug(x){return String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[đĐ]/g,'d').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function trCities(i,j){const ds=stagesDated()[i];const st=S.stages[i];const L=legsOf(st);const l=L[j]||{};let I={};try{I=trInfo(ds,null,j)}catch(e){}
+ const clean=x=>String(x||'').replace(/\([^)]*\)/g,'').replace(/\b[A-Z]{3}\b/g,'').replace(/\s+/g,' ').trim();const lodge=x=>typeof LODGE_RE!=='undefined'&&LODGE_RE.test(x||'');
+ const pv=i>0?byId(S.stages[i-1].placeId):null,cu=byId(st.placeId);
+ let from=clean(l.from||I.from),to=clean(l.to||I.to);if(!from||lodge(from)||(j===0&&!l.from))from=pv?pv.name:from;if(!to||lodge(to)||(j===L.length-1&&!l.to))to=cu?cu.name:to;
+ const date=l.date||iso(ds.from);return {from,to,date,mode:l.mode||I.m||'car',leg:l}}
+function trLinks(i,j){const c=trCities(i,j);const a=(u,t)=>`<a class="chip sm" href="${u}" target="_blank" rel="noopener" style="text-decoration:none">${ic('link',12)} ${t}</a>`;
+ const out=[];if(c.mode==='flight')out.push(a(`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${c.from} to ${c.to} on ${c.date}`)}`,'Google Flights'));
+ out.push(a(`https://12go.asia/en/travel/${trSlug(c.from)}/${trSlug(c.to)}?people=2&date=${c.date}`,'12Go'));out.push(a(`https://www.rome2rio.com/map/${encodeURIComponent(c.from)}/${encodeURIComponent(c.to)}`,'Rome2Rio'));return out.join('')}
+const AI_PR_SYS=`Du ermittelst Richtpreise für einen Transport in Südostasien/Südasien für eine Reise-App. Rufe zuerst die angegebene 12Go-Seite ab (falls ein Web-Werkzeug verfügbar ist) und lies Fahrplan, Anbieter und Preise. Ist die Seite nicht lesbar oder die Strecke dort nicht vorhanden, nutze die Websuche falls verfügbar, sonst dein Wissen.
+Antworte am Ende NUR mit JSON ohne Kommentare:
+{"min":ZAHL,"max":ZAHL,"cur":"EUR","per":"person" oder "vehicle","dur":"z. B. 5½–7 Std.","ops":"bis zu 4 Anbieter/Klassen kurz","modes":"z. B. Bus, Limousine, Zug","src":"12go.asia" oder "Websuche" oder "Schätzung","note":"1 kurzer Satz auf Deutsch, z. B. Abholung am Hotel, Nachtbus"}
+Preise in EUR umrechnen. per = "vehicle" bei Privatfahrer/Taxi, sonst "person". min/max = typische Spanne der sinnvollen Optionen für das gewünschte Verkehrsmittel.`;
+async function aiPrice(i,j){const c=trCities(i,j);const url=`https://12go.asia/en/travel/${trSlug(c.from)}/${trSlug(c.to)}`;const M={flight:'Flug',bus:'Bus/Zug/Limousine',boat:'Boot/Fähre',car:'Privatfahrer oder Taxi'}[c.mode]||'Bus';
+ const msg=`Strecke: ${c.from} → ${c.to}, ${country(S.stages[i].country).name}. Datum: ${c.date}. 2 Reisende. Gewünschtes Verkehrsmittel: ${M}.\n12Go-Seite: ${url}`;
+ const tries=[];const pref=localStorage.getItem('auszeit27_aweb')||'';
+ if(pref!=='search'&&pref!=='none')tries.push(['fetch',{tools:[{type:'web_fetch_20250910',name:'web_fetch',max_uses:2,max_content_tokens:12000,allowed_domains:['12go.asia','www.12go.asia']}],beta:'web-fetch-2025-09-10'}]);
+ if(pref!=='none')tries.push(['search',{tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}]}]);tries.push(['none',{}]);
+ let last=null;for(const [k,o] of tries){try{const r=await aiCall(Object.assign({system:AI_PR_SYS,max:1500,timeout:90000,messages:[{role:'user',content:msg}]},o));const j2=aiJson(r.text);
+   if(k!==pref){try{localStorage.setItem('auszeit27_aweb',k)}catch(e){}}const mn=+j2.min,mx=+j2.max;if(!(mn>0||mx>0))throw new Error('kein Preis gefunden');
+   return {min:mn||mx,max:mx||mn,cur:String(j2.cur||'EUR').toUpperCase(),per:j2.per==='vehicle'?'vehicle':'person',dur:String(j2.dur||''),ops:String(j2.ops||''),modes:String(j2.modes||''),src:String(j2.src||(k==='none'?'Schätzung':k==='fetch'?'12go.asia':'Websuche')),note:String(j2.note||''),url,ts:Date.now(),usd:r.usd,model:r.model,via:k}}
+  catch(e){last=e;if(!/tool|beta|web_fetch|web_search|not supported|unsupported|invalid/i.test(e.message||''))break}}
+ throw last||new Error('kein Preis gefunden')}
+function prTotal(e){const mid=Math.round(((e.min||0)+(e.max||0))/2);return e.per==='vehicle'?mid:mid*2}
+function prTxt(e){const f=x=>Math.round(x).toLocaleString('de-DE');return `${f(e.min)}${e.max&&e.max!==e.min?'–'+f(e.max):''} ${CUR_INFO[e.cur]?.[0]||e.cur} ${e.per==='vehicle'?'pro Fahrzeug':'p. P.'}`}
+function trPriceBox(i,j){const st=S.stages[i];const l=legsOf(st)[j]||{};const e=l.est;const busy=UI.prBusy===st.id+':'+j;
+ let h=`<div class="smlist" style="padding:10px 12px;margin-bottom:12px"><div class="lab" style="margin-bottom:7px">Preise &amp; Buchen</div><div class="row wrap" style="gap:6px;margin-bottom:8px">${trLinks(i,j)}</div>`;
+ if(e)h+=`<div style="border-top:1px solid #c9c6ee33;padding-top:8px;margin-top:2px"><div class="t12" style="margin-bottom:3px">${aiB(9)} <span class="mu">Richtpreis · ${esc(e.src)} · ${fmtD(new Date(e.ts))}</span></div>
+  <div class="t14 b" style="color:#e3e4e5">${esc(prTxt(e))}${e.dur?` <span class="t12 mu" style="font-weight:normal">· ${esc(e.dur)}</span>`:''}</div>${e.ops?`<div class="t12 mu" style="margin-top:2px">${esc(e.ops)}</div>`:''}${e.note?`<div class="t12" style="color:#bfc2c5;margin-top:2px">${esc(e.note)}</div>`:''}
+  <div class="row wrap" style="gap:6px;margin-top:8px"><button class="btn sm pri" data-a="prUse" data-i="${i}" data-j="${j}">${ic('check',13)} Als Kosten übernehmen (${prTotal(e).toLocaleString('de-DE')} ${CUR_INFO[e.cur]?.[0]||e.cur} für 2)</button><button class="btn sm gh" data-a="prRun" data-i="${i}" data-j="${j}" ${busy?'disabled':''}>Neu</button></div></div>`;
+ else if(aiKey())h+=`<button class="btn sm" data-a="prRun" data-i="${i}" data-j="${j}" style="width:100%" ${busy?'disabled':''}>${busy?'<span class="spin"></span> Claude sucht Preise …':`${aiB(10)} Richtpreis mit Claude ermitteln`}</button>`;
+ if(UI.prErr&&UI.prErr.k===st.id+':'+j)h+=`<div class="t12" style="color:#e59c96;margin-top:6px">${esc(UI.prErr.m)}</div>`;return h+'</div>'}
+async function prRun(i,j,quiet){const st=S.stages[i];const key=st.id+':'+j;UI.prBusy=key;UI.prErr=null;if(!quiet&&document.getElementById('prBox'))prRefresh(i,j);
+ try{const e=await aiPrice(i,j);const l=legsOf(st)[j];if(l){l.est=e;save()}return e}catch(err){UI.prErr={k:key,m:'Claude: '+(err.message||err)};return null}finally{UI.prBusy=null;if(!quiet&&document.getElementById('prBox'))prRefresh(i,j)}}
+function prRefresh(i,j){const b=document.getElementById('prBox');if(b)b.innerHTML=trPriceBox(i,j)}
+function prApplyLeg(l){const e=l.est;if(!e)return false;l.cost=prTotal(e);l.cur=e.cur;l.costEst=1;if(typeof fixRate==='function')try{fixRate(l)}catch(x){}return true}
+// geschätzte Kosten: Kennzeichen entfernen, wenn Betrag geändert
+(function(){const _sv=trSave;window.trSave=function(){const c=UI.trCtx;const r=_sv.apply(this,arguments);try{const l=legsOf(S.stages[c.i])[c.j];if(l&&l.costEst&&(!l.est||Number(l.cost)!==prTotal(l.est))){delete l.costEst;save()}}catch(e){}return r}})();
+// Lauf für ein Land
+function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country!==c)return;legsOf(st).forEach((l,j)=>{if(i===0&&j===0)return;if(l.status==='gebucht'||l.mode==='flight')return;if(numOf(l.cost)!=null&&!l.costEst)return;out.push({i,j})})});return out}
+function prBatchSheet(){const B=UI.prB;if(!B)return;const no=stageNo();const done=B.items.filter(x=>x.e).length;
+ const rows=B.items.map((x,k)=>{const st=S.stages[x.i];const c=trCities(x.i,x.j);const l=legsOf(st)[x.j]||{};return `<div class="f4r"><div class="f4c"><span class="f4pill">${trLabel(st,x.j).replace(/^T/,'T')}</span></div><div class="sp" style="min-width:0"><div class="f4tt">${esc(c.from)} → ${esc(c.to)}</div><div class="f4s">${x.busy?'<span class="spin"></span> sucht …':x.err?`<span style="color:#e59c96">${esc(x.err)}</span>`:x.e?`${esc(prTxt(x.e))}${x.e.dur?' · '+esc(x.e.dur):''} · ${esc(x.e.src)}`:'wartet'}</div></div><div class="f4rt">${x.ok?`<span class="t12" style="color:#9cc7a4">${ic('check',12,'#9cc7a4')} ${prTotal(x.e)} ${CUR_INFO[x.e.cur]?.[0]||x.e.cur}</span>`:x.e?`<button class="btn sm" data-a="prBOne" data-k="${k}">Übernehmen</button>`:''}</div></div>`}).join('');
+ const open=B.items.filter(x=>x.e&&!x.ok).length;
+ openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'Richtpreise Transfers',sub:`<span>${esc(country(B.c).name)} · ${done} von ${B.items.length} · ${aiCent(B.usd||0)}</span>`,mid:1})}<div id="prB"></div>
+ ${B.items.length?`<div class="rcard aicard">${rows}</div>`:'<div class="t13 mu" style="margin:6px 0 12px">Keine offenen Transfers ohne Betrag (Flüge ausgenommen).</div>'}
+ <div class="t12 mu" style="margin:8px 2px 10px;line-height:1.45">Richtwerte für 2 Personen aus 12Go bzw. Claudes Schätzung – keine Verfügbarkeit für euer Datum. Übernommene Beträge sind als Schätzung markiert, bis du den echten Preis einträgst.</div>
+ <div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Schließen</button>${open>1?`<button class="btn pri sp" data-a="prBAll">${ic('check',15)} Alle ${open} übernehmen</button>`:B.run?'<button class="btn pri sp" disabled><span class="spin"></span> läuft …</button>':''}</div>`)}
+async function prBatch(c){if(!aiKey())return aiSetupHint();if(UI.prB&&UI.prB.run){prBatchSheet();return}UI.prB={c,items:prCands(c).map(x=>({...x})),usd:0,run:1};prBatchSheet();
+ for(const x of UI.prB.items){const B=UI.prB;if(!B||B.c!==c)return;x.busy=1;if(document.getElementById('prB'))prBatchSheet();const e=await prRun(x.i,x.j,true);x.busy=0;if(e){x.e=e;B.usd+=e.usd||0}else x.err=(UI.prErr&&UI.prErr.m)||'nicht gefunden';if(document.getElementById('prB'))prBatchSheet()}
+ UI.prB.run=0;if(document.getElementById('prB'))prBatchSheet()}
+function prBUse(ks){const B=UI.prB;if(!B)return;let n=0;ks.forEach(k=>{const x=B.items[k];if(!x||!x.e||x.ok)return;const l=legsOf(S.stages[x.i])[x.j];if(l&&prApplyLeg(l)){x.ok=1;n++}});save();render();prBatchSheet();if(n)toast(`${aiB(10)} ${n} Richtpreise als geschätzte Kosten übernommen.`,4000)}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;const H={
+ prRun:()=>prRun(+el.dataset.i,+el.dataset.j),
+ prUse:()=>{const i=+el.dataset.i,j=+el.dataset.j;const l=legsOf(S.stages[i])[j];if(!l||!l.est)return;trCollect();UI.trForm.cost=String(prTotal(l.est));UI.trForm.cur=l.est.cur;UI.trForm.costEst=1;trSheet(i,j);toast('Richtpreis eingesetzt – mit Speichern übernehmen.',3500)},
+ prBatch:()=>prBatch(el.dataset.k),prBOne:()=>prBUse([+el.dataset.k]),prBAll:()=>{const B=UI.prB;if(B)prBUse(B.items.map((_,k)=>k))}};
  if(H[a]){e.preventDefault();e.stopPropagation();H[a]()}},true);
 
 </script>
