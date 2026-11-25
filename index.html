@@ -553,6 +553,12 @@ body.cmp .K{padding:14px 12px 10px}
 .ccsw{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px}
 .ccsw button{height:40px;border-radius:10px;border:2px solid transparent}.ccsw button.on{border-color:#e9eaeb}
 
+.aib{display:inline-flex;align-items:center;gap:3px;padding:1px 6px 1px 4px;border-radius:7px;background:#c9c6ee1f;border:1px solid #c9c6ee55;color:#c9c6ee;font-weight:700;letter-spacing:.3px;line-height:1.35;vertical-align:middle}
+.aiic{width:28px;height:28px;border-radius:9px;background:#c9c6ee1f;border:1px solid #c9c6ee55;display:flex;align-items:center;justify-content:center;flex:none}
+.ctx .aiic{width:32px;height:32px;border-radius:10px}
+.aicard{border-color:#c9c6ee33!important}
+.aichk{border-left:3px solid var(--lv);background:#232527;border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.aichk.done{opacity:.5}
 </style>
 </head>
 <body>
@@ -572,9 +578,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_71';
+const APP_VERSION='0.80_72';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_72',d:'25.11.2026',items:['KI-Assistent auf der Seite Reise, alle KI-Funktionen mit KI-Symbol','Frag deine Reise: Fragen zu Etappen, Buchungen und Offenem, mit Vorschlägen und Verlauf','Reise prüfen: Fehler, Warnungen und Optimierungen mit Erläuterung; Übernehmen (Nächte, Ausflugsdatum), Ansehen, Ausblenden','Beleg fotografieren: Claude füllt Betrag, Währung, Datum und Kategorie der Ausgabe vor']},
  {v:'0.80_71',d:'25.11.2026',items:['Screenshots einlesen: an Auszeit27 teilen oder unter „Buchung einlesen“ wählen (auch mehrere); Claude liest sie aus','Lange Screenshots werden automatisch in Teile geschnitten; abgeschriebener Text und Screenshot werden als Beleg gespeichert','Ohne Claude-Schlüssel: Hinweis statt Fehler']},
  {v:'0.80_70',d:'25.11.2026',items:['Claude-Guthaben wird mitgezählt (Schätzung je Abfrage), Warnung unter 0,50 $','Nach dem Aufladen: Betrag eintragen mit „+ Aufgeladen“ oder „Stand setzen“; meldet Anthropic leeres Guthaben, steht es auf 0 mit Link zum Eintragen']},
  {v:'0.80_69',d:'25.11.2026',items:['Claude (KI): eigener Anthropic-Schlüssel unter Einstellungen → Suche und KI (bleibt nur auf dem Gerät, nicht im Export)','Buchung einlesen: Claude liest Mailtext und PDF-Text aus (Unterkunft, Transfer, Ausflug, Portal, Preis, Storno, Flugdaten); Regel-Auswertung bleibt als Rückfall','Modellwahl Haiku 5.5 (Standard) oder Sonnet 5.5, Test-Knopf, Kostenanzeige pro Buchung und pro Monat']},
@@ -1182,7 +1189,7 @@ function renderReise(){
  <div style="display:flex;gap:2px;border-radius:5px;overflow:hidden;margin:12px 0 8px">${band}</div><div class="row wrap" style="gap:4px 12px">${cs.map(({c,r})=>`<span class="t12" style="display:flex;gap:5px;align-items:center;color:#c4c7ca"><span style="width:8px;height:8px;border-radius:2px;background:${ccol(c.id)}"></span>${esc(c.name)} <span class="mu">${r.nights}</span></span>`).join('')}</div>
  <div class="herog">${rhTile(lab,dd>0?dd+(dd===1?' Tag':' Tagen'):now<end?'Tag '+(Math.floor((now-start)/864e5)+1)+' von '+(N+1):'beendet','')}${rhTile('Gebucht',`${o.length-ob.length} / ${o.length}`,'Unterkünfte, Transfers, Ausflüge','data-a="openPage"')}</div></div>`;
  if(nextL.length){h+=sec('Als Nächstes',`<span class="r" data-a="openPage">alle ${ob.length}</span>`);h+=`<div class="rcard">${nextL.map(x=>{const [dt,col]=dueTxt(x);return rw(icOf(x),col==='#d9645a'?'#e59c96':'#e2c07c',esc(x.t),`${esc(dt)}${x.grp?' · '+esc(x.grp):''}`,col==='#d9645a'?'r':1,x.a)}).join('')}</div>`}
- h+=sec('Reise')+`<div class="rcard">${rw('globe','',`Länder · ${visCountries().length}`,`${visCountries().filter(c=>c.status==='geplant').length} geplant, ${visCountries().filter(c=>c.status!=='geplant').length} in Planung`,0,'data-a="settings" data-k="reise"')}${rw('route','',`Etappen · ${S.stages.filter(x=>!x.gap).length}`,`${S.places.filter(p=>p.role!=='anchor'&&excNo(p)).length} Ausflüge zugeordnet`,0,'data-a="atlasGo" data-k="etappen"')}</div>`;
+ h+=aiReiseSec();h+=sec('Reise')+`<div class="rcard">${rw('globe','',`Länder · ${visCountries().length}`,`${visCountries().filter(c=>c.status==='geplant').length} geplant, ${visCountries().filter(c=>c.status!=='geplant').length} in Planung`,0,'data-a="settings" data-k="reise"')}${rw('route','',`Etappen · ${S.stages.filter(x=>!x.gap).length}`,`${S.places.filter(p=>p.role!=='anchor'&&excNo(p)).length} Ausflüge zugeordnet`,0,'data-a="atlasGo" data-k="etappen"')}</div>`;
  h+=sec('Geld')+`<div class="rcard">`;
  if(bs){const spent=bs.fix+bs.varPast;const rest=bs.B-spent;const miss=it.filter(x=>x.amt==null).length;
   h+=rw('wallet','',`Budget · ${eur(bs.B)}`,`verbleibend <b style="color:${rest<0?'#e59c96':'#9cc7a4'}">${eur(rest)}</b> · für zwei`,rest<0?'r':0,'data-a="settings" data-k="budget"')+rw('wallet','',`Spielraum pro Tag · ${eur(bs.daily)}`,miss?'vorläufig, Fixkosten unvollständig':`Plan ${eur(bs.plan)}`,miss?1:0,'data-a="nav" data-k="unterwegs"')}
@@ -4461,11 +4468,11 @@ function aiRunBk(B){if(!aiKey()||!B||B.aiBusy)return;B.aiBusy=1;B.aiErr=null;con
  UI.bk=UI.bk||{i:null};const B=UI.bk;B.ai=null;B.aiErr=null;B.aiBusy=0;if(!B.imgKeep){B.imgData=null;B.imgs=null}B.imgKeep=0;const b0=parseBooking(text,links);
  if(!b0.cin&&!b0.name&&!b0.code){B.text=text;B.links=links||[];B.b=b0;aiRunBk(B);openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">Claude liest die Buchung</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Einen Moment …</span></div>`);return}
  _be(text,links);aiRunBk(UI.bk);if(document.getElementById('bkSt'))bkSheet()}})();
-function aiLine(B){if(!B)return '';if(B.aiBusy)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px"><span class="spin"></span> Claude liest die Buchung genauer …</div>`;
- if(B.ai)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px">${ic('check',12,'#c9c6ee')} Von Claude ausgelesen · ${esc(B.ai.model)} · ${aiCent(B.ai.usd)}${aiBal()?' · Rest ca. '+aiUsd(aiBal().usd):''}</div>`;
+function aiLine(B){if(!B)return '';if(B.aiBusy)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px"><span class="spin"></span> ${aiB(10)} Claude liest die Buchung genauer …</div>`;
+ if(B.ai)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px">${aiB(10)} Von Claude ausgelesen · ${esc(B.ai.model)} · ${aiCent(B.ai.usd)}${aiBal()?' · Rest ca. '+aiUsd(aiBal().usd):''}</div>`;
  if(B.aiErr)return `<div class="t12" style="color:#e8cf9a;margin:0 0 8px">${ic('alert',12,'#e2c07c')} Claude: ${esc(B.aiErr)} – Regel-Auswertung angezeigt. <span class="click b" data-a="aiBk" style="color:#c9c6ee">Erneut</span>${/Guthaben/.test(B.aiErr)?` · <span class="click b" data-a="settings" data-k="suche" style="color:#c9c6ee">Guthaben eintragen</span>`:''}</div>`;
- if(aiKey())return `<button class="btn gh" data-a="aiBk" style="width:100%;margin:0 0 8px">${ic('spark',15)} Mit Claude auslesen</button>`;return ''}
-function aiCard(){const k=aiKey();const u=aiUse();const m=aiModel();return `<div class="sec"><h3>Claude (KI)</h3><span>${k?'aktiv':'aus'}</span></div>
+ if(aiKey())return `<button class="btn gh" data-a="aiBk" style="width:100%;margin:0 0 8px">${aiB(11)} Mit Claude auslesen</button>`;return ''}
+function aiCard(){const k=aiKey();const u=aiUse();const m=aiModel();return `<div class="sec"><h3>Claude (KI)</h3><span>${aiB(10)} ${k?'aktiv':'aus'}</span></div>
  <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">Mit eigenem Anthropic-Schlüssel liest Claude Buchungsmails und PDFs aus. Der Schlüssel bleibt nur auf diesem Gerät und kommt nicht in den Export. Ohne Schlüssel arbeitet die App wie bisher.</div>
   <div class="row" style="gap:8px;margin-top:12px"><input class="fld" id="akIn" type="password" autocomplete="off" placeholder="${k?'Schlüssel gespeichert ('+esc(k.slice(0,10))+'…)':'sk-ant-… einfügen'}" style="flex:1;padding:8px"><button class="btn sm pri" data-a="akSave">Speichern</button></div>
   <div class="lab" style="margin:12px 0 6px">Modell</div><div class="seg">${Object.entries(AI_MODELS).map(([id,M])=>`<button data-a="akMod" data-k="${id}" class="${m===id?'on':''}">${M.name}</button>`).join('')}</div>
@@ -4487,6 +4494,105 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   akBalSet:()=>{const raw=String(document.getElementById('akBalIn')?.value||'').trim();if(raw===''){if(aiBal()&&confirm('Guthaben-Zählung ausschalten?')){aiBalSet(null);rerenderPage();bindSettings()}else toast('Bitte den Stand aus der Console in $ eingeben.');return}const v=parseFloat(raw.replace(',','.'));if(!(v>=0)){toast('Ungültiger Betrag.');return}aiBalSet({usd:v,ts:Date.now(),used:0});rerenderPage();bindSettings();toast(`Guthaben auf ${aiUsd(v)} gesetzt.`)},
   aiBk:()=>{const B=UI.bk;if(!B)return;B.aiErr=null;aiRunBk(B);bkSheet()}
  };if(H[a]){e.preventDefault();H[a]()}});
+
+
+const AI_CC='--cc:#c9c6ee;--cca:#c9c6ee33;--ccb:#c9c6ee80;--cct:#c9c6ee17;--ccr:#c9c6ee47';
+// ---------- 0.80_72: KI-Assistent (Frag deine Reise, Reise prüfen, Beleg) ----------
+function aiB(sz){sz=sz||11;return `<span class="aib" style="font-size:${sz}px">${ic('spark',sz,'#c9c6ee',2.2)}KI</span>`}
+function aiIc(){return `<span class="aiic">${ic('spark',15,'#c9c6ee',2.2)}</span>`}
+function aiTripFull(){const ds=stagesDated();const no=stageNo();const D=d=>d?fmtD(d)+'.'+d.getFullYear():'';const L=[];
+ const st0=D0(),N=totalNights();L.push(`Heute: ${D(nowD())}. Reise: ${D(st0)} bis ${D(addDays(st0,N))}, ${N} Nächte, zwei Reisende.`);
+ S.stages.forEach((st,i)=>{if(st.gap)return;const d=ds[i];const p=byId(st.placeId);const h=st.stay;
+  L.push(`\nE${no[st.id]} (stage=${i}) ${p?p.name:''}, ${country(st.country).name} · ${D(d.from)}–${D(d.to)} · ${d.nights} Nächte${st.pinFrom||st.pinTo?' · Datum fixiert':''}`);
+  if(d.nights)L.push(`  Unterkunft: ${h&&h.name?h.name+' ('+(h.status||'offen')+(eurOf(h)?', '+Math.round(eurOf(h))+' €':'')+(h.cinT?', Check-in '+h.cinT:'')+(h.coutT?', Check-out '+h.coutT:'')+')':'keine eingetragen'}`);
+  legsOf(st).forEach((l,j)=>{let I={};try{I=trInfo(d,null,j)}catch(e){}L.push(`  Anreise ${trLabel(st,j)}: ${(MODES[l.mode||I.m]||MODES.car)[1]} ${I.from||''} → ${I.to||''}${I.km?' (~'+I.km+' km'+(I.min?', ~'+fmtMin(I.min):'')+')':''} · ${l.status||'offen'}${l.date?' · '+l.date:''}${l.dep?' ab '+l.dep:''}${l.arr?' an '+l.arr:''}${l.no?' · '+l.no:''}`)});
+  excursionsSt(i).forEach(o=>{const x=o.p;L.push(`  Ausflug [ex=${x.id}] ${x.name}${x.planned?' · '+x.planned:' · ohne Datum'}${x.tt?' · Transfer '+(x.tt.status||'offen'):''}`)})});
+ const o=openItems().filter(x=>!x.booked&&x.t).slice(0,40);if(o.length){L.push('\nOffen:');o.forEach(x=>L.push(`- ${x.t}${x.s?' ('+x.s+')':''}${x.date?' · fällig '+D(x.date):''}`))}
+ const bs=budgetState();if(bs)L.push(`\nBudget: ${Math.round(bs.B)} € gesamt, Spielraum ${Math.round(bs.daily)} € pro Tag.`);
+ const ex=(S.expenses||[]);if(ex.length){const sum=ex.reduce((a,e)=>a+(eurOf(e,'amt')||0),0);L.push(`Ausgaben vor Ort bisher: ${ex.length} Posten, ${Math.round(sum)} €.`)}
+ return L.join('\n')}
+// --- Frag deine Reise ---
+const AI_CHAT_SYS=`Du bist der Reiseassistent in der privaten Planungs-App „Asien-Auszeit 2027“ von zwei Reisenden aus Deutschland. Antworte auf Deutsch, knapp und konkret, mit Bezug auf die Etappen (E1, E2 …) und Daten aus dem Reiseplan. Nutze kurze Absätze oder Aufzählungen mit „- “, **fett** sparsam. Du hast keinen Internetzugang: Bei Preisen, Fahrplänen, Öffnungszeiten, Visa- und Einreiseregeln sagst du, dass sie vor der Reise zu prüfen sind. Erfinde keine Buchungen.`;
+function aiMd(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').split('\n').map(l=>/^\s*[-•]\s+/.test(l)?`<div style="padding-left:14px;text-indent:-10px">• ${l.replace(/^\s*[-•]\s+/,'')}</div>`:l.trim()?`<div>${l}</div>`:'<div style="height:6px"></div>').join('')}
+function aiChatLoad(){try{return JSON.parse(localStorage.getItem('auszeit27_achat')||'[]')}catch(e){return []}}
+function aiChatSave(m){try{localStorage.setItem('auszeit27_achat',JSON.stringify(m.slice(-20)))}catch(e){}}
+const AI_QUICK=['Was ist als Nächstes zu buchen?','Welche Etappen sind zu kurz oder zu lang?','Wo haben wir freie Tage für Ausflüge?','Was müssen wir vor der Einreise in jedes Land erledigen?','Welche Transfers sind besonders lang?'];
+function aiChatSheet(){if(!aiKey())return aiSetupHint();const M=aiChatLoad();const busy=UI.aiChatBusy;
+ openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'Frag deine Reise',sub:`Claude · ${AI_MODELS[aiModel()].name} · kennt Etappen, Buchungen und Offenes`,mid:1})}
+ <div id="aiMsgs" style="display:flex;flex-direction:column;gap:8px;margin:4px 0 10px">${M.length?M.map(m=>m.role==='user'?`<div style="align-self:flex-end;max-width:85%;background:#2b3a38;border-radius:12px 12px 2px 12px;padding:8px 11px" class="t13">${esc(m.content)}</div>`:`<div style="align-self:flex-start;max-width:94%;background:color-mix(in srgb,#c9c6ee 10%,#232527);border:1px solid color-mix(in srgb,#c9c6ee 25%,transparent);border-radius:12px 12px 12px 2px;padding:9px 12px;line-height:1.5;color:#d9dadc" class="t13"><div style="margin-bottom:4px">${aiB(10)}${m.usd!=null?` <span class="t12 mu">${aiCent(m.usd)}</span>`:''}</div>${aiMd(m.content)}</div>`).join(''):`<div class="t12 mu" style="line-height:1.5">Stell eine Frage zu eurer Reise – oder tippe einen Vorschlag an.</div>`}
+ ${busy?`<div class="t13" style="color:#c9c6ee"><span class="spin"></span> Claude denkt nach …</div>`:''}${UI.aiChatErr?`<div class="t12" style="color:#e59c96">${esc(UI.aiChatErr)}</div>`:''}</div>
+ ${M.length?'':`<div class="row wrap" style="gap:6px;margin-bottom:10px">${AI_QUICK.map((q,k)=>`<span class="chip sm" data-a="aiQ" data-k="${k}">${esc(q)}</span>`).join('')}</div>`}
+ <div class="row sheetfoot" style="gap:8px"><textarea id="aiIn" class="fld sp" rows="2" placeholder="Frage zur Reise …" style="padding:8px;resize:none;font-size:14px"></textarea><button class="btn pri" data-a="aiAsk" ${busy?'disabled':''}>${ic('spark',16)}</button>${M.length?`<button class="btn gh" data-a="aiClr" aria-label="Verlauf löschen">${ic('trash',15)}</button>`:''}</div>`);
+ const box=document.getElementById('aiMsgs');const sh=document.getElementById('sheet');if(sh&&box)sh.scrollTop=sh.scrollHeight}
+async function aiAsk(q){q=String(q||'').trim();if(!q||UI.aiChatBusy)return;const M=aiChatLoad();M.push({role:'user',content:q});aiChatSave(M);UI.aiChatBusy=1;UI.aiChatErr=null;aiChatSheet();
+ try{const hist=M.slice(-7).map(m=>({role:m.role,content:m.content}));hist[0]={role:'user',content:`Reiseplan:\n${aiTripFull()}\n\n---\n${hist[0].role==='user'?hist[0].content:''}`};if(hist[0].content.endsWith('---\n'))hist.shift();while(hist.length&&hist[0].role!=='user')hist.shift();
+  const r=await aiCall({system:AI_CHAT_SYS,max:1200,messages:hist});M.push({role:'assistant',content:r.text.trim(),usd:r.usd});aiChatSave(M)}
+ catch(e){UI.aiChatErr='Claude: '+(e.message||e)}finally{UI.aiChatBusy=0}if(document.getElementById('aiMsgs'))aiChatSheet()}
+// --- Reise prüfen ---
+const AI_CHK_SYS=`Du prüfst den Reiseplan einer privaten Reise-App auf Fehler, Risiken und Verbesserungen. Antworte NUR mit JSON:
+{"summary": string,   // 1–2 Sätze Gesamteindruck auf Deutsch
+ "items": [ {"level":"fehler"|"warnung"|"optimierung",
+   "title": string,    // kurz, max. 60 Zeichen
+   "detail": string,   // Erläuterung auf Deutsch, 1–3 Sätze, mit konkretem Grund
+   "stage": number|null,   // Wert aus "stage=" der betroffenen Etappe
+   "action": null | {"type":"nights","stage":number,"nights":number}   // Nächte einer Etappe ändern (nur wenn klar sinnvoll)
+                 | {"type":"exDate","ex":string,"date":"YYYY-MM-DD"}   // Ausflug auf anderes Datum innerhalb seiner Etappe legen
+ } ] }
+Fehler = Widerspruch/unmöglich (Datum außerhalb der Etappe, Transfer am falschen Tag, fehlende Unterkunft kurz vor der Reise). Warnung = Risiko (sehr lange Fahrt nach Nachtflug, nur 1 Nacht nach langem Transfer, knappe Umstiege, Fristen). Optimierung = sinnvolle Verbesserung (Nächte umverteilen, Ausflug auf freien Tag, Reihenfolge). Max. 12 Punkte, wichtigste zuerst. Keine allgemeinen Tipps ohne Bezug zum Plan. Nichts erfinden; tagesaktuelle Fakten (Preise, Fahrpläne) nicht behaupten.`;
+async function aiCheckRun(){if(!aiKey())return aiSetupHint();UI.aiChkBusy=1;UI.aiChkErr=null;aiCheckSheet();
+ try{const r=await aiCall({system:AI_CHK_SYS,max:3000,timeout:90000,messages:[{role:'user',content:`Reiseplan:\n${aiTripFull()}`}]});const j=aiJson(r.text);
+  S.aiCheck={ts:Date.now(),model:r.model,usd:r.usd,summary:String(j.summary||''),items:(Array.isArray(j.items)?j.items:[]).slice(0,15).map((x,k)=>({k,level:['fehler','warnung','optimierung'].includes(x.level)?x.level:'warnung',title:String(x.title||''),detail:String(x.detail||''),stage:Number.isInteger(x.stage)?x.stage:null,sid:Number.isInteger(x.stage)&&S.stages[x.stage]?S.stages[x.stage].id:null,action:x.action&&typeof x.action==='object'?x.action:null,st:''}))};save()}
+ catch(e){UI.aiChkErr='Claude: '+(e.message||e)}finally{UI.aiChkBusy=0}if(document.getElementById('aiChk'))aiCheckSheet();if(UI.tab==='reise'&&!UI.pages.length)renderReise()}
+const AI_LV={fehler:['Fehler','#e59c96','alert'],warnung:['Warnung','#e2c07c','alert'],optimierung:['Optimierung','#c9c6ee','spark']};
+function aiActTxt(a){if(!a)return '';const no=stageNo();if(a.type==='nights'){const st=S.stages[a.stage];if(!st)return '';return `${byId(st.placeId)?.name||'Etappe'}: ${st.nights} → ${a.nights} ${a.nights===1?'Nacht':'Nächte'}`}
+ if(a.type==='exDate'){const x=byId(a.ex);if(!x)return '';return `${x.name}: ${x.planned?fmtD(new Date(x.planned+'T12:00:00')):'ohne Datum'} → ${fmtD(new Date(a.date+'T12:00:00'))}`}return ''}
+function aiActOk(a){if(!a)return false;if(a.type==='nights'){const st=S.stages[a.stage];return !!st&&Number.isInteger(a.nights)&&a.nights>=0&&a.nights<=60&&a.nights!==st.nights}if(a.type==='exDate'){const x=byId(a.ex);return !!x&&/^\d{4}-\d{2}-\d{2}$/.test(a.date||'')&&a.date!==x.planned}return false}
+function aiCheckSheet(){if(!aiKey())return aiSetupHint();const C=S.aiCheck;const busy=UI.aiChkBusy;const no=stageNo();
+ const open=C?C.items.filter(x=>!x.st):[];const cnt=l=>open.filter(x=>x.level===l).length;
+ let h=sheetCtx({cc:AI_CC,badge:aiIc(),title:'Reise prüfen',sub:C?`${C.model} · ${new Date(C.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${aiCent(C.usd||0)}`:'Claude prüft Etappen, Transfers, Unterkünfte und Ausflüge',mid:1});
+ h+=`<div id="aiChk"></div>`;
+ if(busy)h+=`<div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Claude prüft eure Reise … (bis zu einer Minute)</span></div>`;
+ else if(UI.aiChkErr)h+=`<div class="t12" style="color:#e59c96;margin:6px 0 10px">${esc(UI.aiChkErr)}</div>`;
+ if(C&&!busy){h+=`<div class="t13" style="color:#d4d6d8;line-height:1.5;margin:2px 0 10px">${esc(C.summary)}</div>
+  <div class="row" style="gap:6px;margin-bottom:10px">${['fehler','warnung','optimierung'].filter(l=>cnt(l)).map(l=>`<span class="pill" style="border:1px solid ${AI_LV[l][1]}55;color:${AI_LV[l][1]};padding:2px 9px;border-radius:10px;font-size:12px">${cnt(l)} ${AI_LV[l][0]}${cnt(l)>1&&l!=='fehler'?'en':''}</span>`).join('')||`<span class="t12" style="color:#9cc7a4">${ic('check',12,'#9cc7a4')} alle Punkte erledigt</span>`}</div>`;
+  const it=C.items.slice().sort((a,b)=>(!!a.st)-(!!b.st));
+  h+=it.map(x=>{const L=AI_LV[x.level];const si=x.sid?S.stages.findIndex(s=>s.id===x.sid):-1;const ok=aiActOk(x.action);const at=ok?aiActTxt(x.action):'';
+   return `<div class="aichk ${x.st?'done':''}" style="--lv:${L[1]}"><div class="row" style="gap:8px;align-items:flex-start"><span style="flex:none;margin-top:1px">${ic(L[2],15,L[1])}</span><div class="sp" style="min-width:0">
+    <div class="t12" style="color:${L[1]};font-weight:600">${L[0]}${si>=0?` · E${no[S.stages[si].id]} ${esc(byId(S.stages[si].placeId)?.name||'')}`:''}${x.st==='ok'?' · übernommen':x.st==='no'?' · ausgeblendet':''}</div>
+    <div class="t14 b" style="color:#e3e4e5;margin:2px 0 3px">${esc(x.title)}</div><div class="t13" style="color:#bfc2c5;line-height:1.5">${esc(x.detail)}</div>
+    ${!x.st?`<div class="row wrap" style="gap:6px;margin-top:9px">${ok?`<button class="btn sm pri" data-a="aiApply" data-k="${x.k}">${ic('check',13)} Übernehmen</button>`:''}${si>=0?`<button class="btn sm" data-a="aiGo" data-i="${si}">Ansehen</button>`:''}<button class="btn sm gh" data-a="aiDis" data-k="${x.k}">Ausblenden</button></div>${at?`<div class="t12 mu" style="margin-top:6px">${aiB(10)} Vorschlag: ${esc(at)}</div>`:''}`:''}</div></div></div>`}).join('')||`<div class="t13 mu">Keine Auffälligkeiten gefunden.</div>`}
+ h+=`<div class="row sheetfoot" style="gap:8px"><button class="btn gh" data-a="closeSheet">Schließen</button><button class="btn pri sp" data-a="aiChkRun" ${busy?'disabled':''}>${ic('spark',15)} ${C?'Neu prüfen':'Jetzt prüfen'}</button></div>`;openSheet(h)}
+function aiApply(k){const C=S.aiCheck;const x=C&&C.items.find(y=>y.k===k);if(!x||!aiActOk(x.action))return;const a=x.action;let ok=false;const txt=aiActTxt(a);
+ if(a.type==='nights'){const i=a.stage;const dd=a.nights-S.stages[i].nights;ok=nightsChange(i,dd)!==false}
+ else if(a.type==='exDate'){const p=byId(a.ex);if(p){const old=p.planned;p.planned=a.date;ok=true;UI.undo=()=>{p.planned=old;save();render()}}}
+ if(ok){x.st='ok';save();render();toast(`${aiB(10)} Übernommen: ${esc(txt||x.title)}`,4000)}aiCheckSheet()}
+function aiGo(i){const st=S.stages[i];if(!st)return;closeSheet();show('route');UI.rh=[{l:'c',c:st.country},{l:'s',id:st.id}];renderRoute();if(typeof rhScroll==='function')rhScroll()}
+// --- Beleg ---
+const AI_RC_SYS=`Du liest einen Kassenbeleg, eine Rechnung oder ein Foto eines Preises und gibst NUR JSON zurück:
+{"amount": number|null, "currency": "ISO-4217"|null, "date": "YYYY-MM-DD"|null, "title": string|null, "category": string|null, "place": string|null, "note": string|null}
+title = kurz auf Deutsch wofür (z. B. "Abendessen", "Taxi zum Flughafen", "Eintritt Angkor Wat"). amount = Gesamtbetrag inkl. Steuern/Service. category aus der vorgegebenen Liste. Nichts erfinden.`;
+async function aiReceipt(file){if(!aiKey())return aiSetupHint();openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'Beleg erfassen',sub:'Claude liest den Beleg',mid:1})}<div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Einen Moment …</span></div>`);
+ try{const parts=(await bkImgParts(file)).slice(0,3);const day=UI.day||iso(nowD());const an=dayAnchor(day);
+  const r=await aiCall({system:AI_RC_SYS,max:500,timeout:60000,messages:[{role:'user',content:[...parts.map(d=>({type:'image',source:{type:'base64',media_type:'image/jpeg',data:d}})),{type:'text',text:`Kategorien: ${expCats().join(', ')}. Heute in der App: ${day}${an?', Ort '+an.name+' ('+country(an.country).name+')':''}. Landeswährung dort: ${an?curDefault(an.country):'unbekannt'}.`}]}]});
+  const j=aiJson(r.text);const cats=expCats();const dt=/^\d{4}-\d{2}-\d{2}$/.test(j.date||'')?j.date:day;
+  UI.exIdx=null;UI.exDraft={date:dt,amt:typeof j.amount==='number'?j.amount:'',cur:j.currency&&CUR_INFO[String(j.currency).toUpperCase()]?String(j.currency).toUpperCase():(an?curDefault(an.country):'EUR'),txt:[j.title,j.place].filter(Boolean).join(' · ').slice(0,80),cat:cats.includes(j.category)?j.category:'Sonstiges',paid:true,_ai:{usd:r.usd,model:r.model,note:j.note||''}};
+  expSheet(null,dt)}catch(e){openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'Beleg erfassen',sub:'Claude',mid:1})}<div class="t13" style="color:#e59c96;margin:8px 0 12px">${esc(e.message||String(e))}</div><div class="row sheetfoot"><button class="btn gh sp" data-a="closeSheet">Schließen</button><button class="btn pri sp" data-a="exNew">Manuell erfassen</button></div>`)}}
+function aiReceiptPick(){const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=()=>{const x=f.files&&f.files[0];if(x)aiReceipt(x)};f.click()}
+(function(){const _es=expSheet;window.expSheet=function(){const r=_es.apply(this,arguments);try{const d=UI.exDraft;const sh=document.getElementById('sheet');const t=sh&&sh.querySelector('.h');
+ if(t&&d&&d._ai)t.insertAdjacentHTML('afterend',`<div class="t12" style="color:#c9c6ee;margin:6px 0 0;line-height:1.45">${aiB(10)} Von Claude erkannt · ${esc(d._ai.model)} · ${aiCent(d._ai.usd)} – bitte kurz prüfen.${d._ai.note?'<br><span class="mu">'+esc(d._ai.note)+'</span>':''}</div>`);
+ else if(t&&!d?.amt&&aiKey()&&!(UI.exIdx!=null))t.insertAdjacentHTML('afterend',`<button class="btn gh" data-a="aiRc" style="width:100%;margin:8px 0 0">${aiIc()} Beleg fotografieren – Claude füllt aus</button>`)}catch(e){}return r}})();
+function aiSetupHint(){openSheet(`${sheetCtx({cc:AI_CC,badge:aiIc(),title:'Claude einrichten',sub:'KI-Funktionen brauchen einen eigenen Schlüssel',mid:1})}<div class="t13" style="color:#c4c7ca;line-height:1.55;margin:6px 0 12px">Unter Einstellungen → Suche und KI den Anthropic-Schlüssel eintragen. Danach stehen „Frag deine Reise“, „Reise prüfen“, „Beleg fotografieren“ und das Auslesen von Buchungen und Screenshots zur Verfügung.</div><div class="row sheetfoot"><button class="btn gh sp" data-a="closeSheet">Später</button><button class="btn pri sp" data-a="settings" data-k="suche">Einstellungen</button></div>`)}
+// Bereich auf der Seite Reise
+function aiReiseSec(){const r=(icn,t,sub,act,right)=>`<div class="f4r click" ${act}><div class="f4c">${icn}</div><div class="sp" style="min-width:0"><div class="f4tt">${t}</div>${sub?`<div class="f4s">${sub}</div>`:''}</div><div class="f4rt">${right||''}${ic('chev',14,'#5d6166')}</div></div>`;
+ if(!aiKey())return `<div class="rsec"><span>KI-Assistent</span>${aiB(10)}</div><div class="rcard aicard">${r(aiIc(),'Claude einrichten','Fragen, Reise prüfen, Belege und Buchungen auslesen','data-a="settings" data-k="suche"')}</div>`;
+ const C=S.aiCheck;const op=C?C.items.filter(x=>!x.st):[];const f=op.filter(x=>x.level==='fehler').length,w=op.filter(x=>x.level==='warnung').length,o=op.filter(x=>x.level==='optimierung').length;
+ const sub=C?(op.length?[f?`<span style="color:#e59c96">${f} Fehler</span>`:'',w?`<span style="color:#e2c07c">${w} Warnung${w>1?'en':''}</span>`:'',o?`<span style="color:#c9c6ee">${o} Optimierung${o>1?'en':''}</span>`:''].filter(Boolean).join(' · ')+` · geprüft ${fmtD(new Date(C.ts))}`:`alles erledigt · geprüft ${fmtD(new Date(C.ts))}`):'Fehler, Risiken und Verbesserungen mit Erläuterung';
+ return `<div class="rsec"><span>KI-Assistent</span>${aiB(10)}</div><div class="rcard aicard">${r(aiIc(),'Frag deine Reise','z. B. „Was ist als Nächstes zu buchen?“','data-a="aiChat"')}${r(aiIc(),'Reise prüfen',sub,'data-a="aiChk"',f?'<span class="h5dot r"></span>':w?'<span class="h5dot"></span>':'')}${r(aiIc(),'Beleg fotografieren','Ausgabe aus Kassenzettel oder Rechnung','data-a="aiRc"')}</div>`}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
+ const H={aiChat:()=>aiChatSheet(),aiQ:()=>aiAsk(AI_QUICK[+el.dataset.k]),aiAsk:()=>{const v=document.getElementById('aiIn')?.value;aiAsk(v)},aiClr:()=>{if(!confirm('Verlauf löschen?'))return;aiChatSave([]);aiChatSheet()},
+  aiChk:()=>aiCheckSheet(),aiChkRun:()=>aiCheckRun(),aiApply:()=>aiApply(+el.dataset.k),aiDis:()=>{const x=S.aiCheck?.items.find(y=>y.k===+el.dataset.k);if(x){x.st='no';save()}aiCheckSheet();if(UI.tab==='reise'&&!UI.pages.length)renderReise()},
+  aiGo:()=>aiGo(+el.dataset.i),aiRc:()=>{closeSheet();setTimeout(aiReceiptPick,50)}};
+ if(H[a]){e.preventDefault();e.stopPropagation();H[a]()}},true);
 
 </script>
 </body>
