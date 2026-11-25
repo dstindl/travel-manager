@@ -572,9 +572,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_68';
+const APP_VERSION='0.80_69';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_69',d:'25.11.2026',items:['Claude (KI): eigener Anthropic-Schlüssel unter Einstellungen → Suche und KI (bleibt nur auf dem Gerät, nicht im Export)','Buchung einlesen: Claude liest Mailtext und PDF-Text aus (Unterkunft, Transfer, Ausflug, Portal, Preis, Storno, Flugdaten); Regel-Auswertung bleibt als Rückfall','Modellwahl Haiku 5.5 (Standard) oder Sonnet 5.5, Test-Knopf, Kostenanzeige pro Buchung und pro Monat']},
  {v:'0.80_68',d:'25.11.2026',items:['Karte: Zweiter Aufenthalt am selben Ort zeigt seine eigene Unterkunft; Ausflüge starten am Hotel der richtigen Etappe','Karte: Unterkunft ohne Position erscheint gestrichelt mit ? am Ort; Etappen mit 0 Nächten ohne Hotel-Pin','Karte: Gleiche Unterkunft in mehreren Etappen als ein Pin (z. B. 1+4) mit Auswahl','Karte: Teilstrecken ohne Koordinaten werden über Flughafen bzw. Zwischenpunkt trotzdem gezeichnet']},
  {v:'0.80_67',d:'25.11.2026',items:['Route: Transfers mit mehreren Teilstrecken zeigen jede Teilstrecke als eigene Zeile (T7.1, T7.2, T7.3) mit Strecke, Verkehrsmittel, Datum, Uhrzeit und eigenem Status-Punkt']},
  {v:'0.80_66',d:'25.11.2026',items:['Etappe: „Ort ändern …“ im Menü ••• – die Etappe behält Nummer, Daten und Transfers, bekommt aber einen anderen Ort','0 Nächte möglich (Durchreise): Unterkunft entfällt, keine offenen Punkte oder Kosten dafür; in der Route mit gestrichelter Kontur']},
@@ -1453,7 +1454,7 @@ function pageSettingsAll(){
  <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">Alle Suchfelder suchen schon beim Tippen (ab 2 Zeichen) und zeigen ohne Eingabe Vorschläge in der Nähe. Quellen: gespeicherte Orte, ${AIRPORTS.length} Flughäfen, ${HUBS.length} Bahnhöfe, Busbahnhöfe und Häfen, OpenStreetMap (Photon, Nominatim) und Wikidata, bei Unterkünften zusätzlich Hotels aus OpenStreetMap. Ein Google-Maps-Link oder Koordinaten im Suchfeld werden direkt übernommen.</div>
   <div class="lab" style="margin:12px 0 6px">Sortierung der Treffer</div><div class="seg">${SRCH_SORT.map(([k,l])=>`<button data-a="srchSort" data-k="${k}" class="${srchMode()===k?'on':''}">${l}</button>`).join('')}</div>
   <div class="t12 mu" style="margin-top:6px;line-height:1.45">Relevanz: beste Namenstreffer und bekannte Orte zuerst. Ausgewogen: Relevanz, nahe Orte werden bevorzugt. Entfernung: nächster Ort zuerst, gemessen ab Etappe, Standort oder Suchbereich.</div></div>
- ${gplCard()}
+ ${gplCard()}${aiCard()}
  <div class="sec"><h3>Vorschläge</h3><span></span></div>
  <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">So findet die App Vorschläge: Rund um jede Etappe sucht sie in <b>Wikidata</b> nach Sehenswürdigkeiten, Natur, Stränden und Orten im <b>Umkreis eurer Tagestour</b> (aktuell bis ${fmtMin(S.settings.bands[1])}, ca. ${Math.round(bandKm(1))} km Luftlinie). Sortiert wird nach <b>Bekanntheit</b>, also nach der Zahl der Wikipedia-Sprachen. Was ihr schon gespeichert oder verworfen habt, wird ausgelassen.</div>
   <div class="kv" style="margin-top:12px"><div><div class="lab">Mindestens</div><input class="fld" type="number" id="sLinks" value="${s.minLinks}" min="0" style="padding:6px;margin-top:4px"><div class="t12 mu" style="margin-top:3px">Wikipedia-Sprachen</div></div><div><div class="lab">Automatisch suchen</div><button class="btn sm ${S.settings.autoSugg!==false?'pri':''}" style="margin-top:6px" data-a="autoSugg">${S.settings.autoSugg!==false?'An':'Aus'}</button><div class="t12 mu" style="margin-top:3px">für alle Etappen im Hintergrund</div></div></div></div>
@@ -2277,8 +2278,8 @@ function expSheet(idx,dIso){const e=idx!=null?S.expenses[idx]:null;const d=UI.ex
  <div class="row sheetfoot" style="gap:8px">${e?`<button class="btn gh" data-a="exDel2" data-i="${idx}" aria-label="Löschen">${ic('trash',15)}</button>`:''}<button class="btn gh" data-a="exCancel">Abbrechen</button><button class="btn pri sp" data-a="exSave" data-i="${idx??''}">${ic('check',16)} Speichern</button></div>`)}
 function exCollect(){const d=UI.exDraft;if(!d)return;const a=$('#xAmt');if(a)d.amt=a.value;const c=$('#xAmt_cur');if(c)d.cur=c.value;const t=$('#xTxt');if(t)d.txt=t.value.trim();const dt=$('#xDate');if(dt&&dt.value)d.date=dt.value}
 
-const SET_TABS=[['reise','Reise','home',['Reisezeitraum','Länder der Reise']],['planung','Planung','route',['Entfernungsbänder','Schätzung ohne Live-Berechnung','Vorschläge']],['suche','Suche','search',['Suche','Google-Suche']],['budget','Budget','wallet',['Budget']],['waehrung','Währungen','wallet',['Währungsrechner','Währungen eurer Reise','Kurse']],['darst','Darstellung','layers',['Darstellung','Farben der Rollen','Farben der Transferarten']],['daten','Daten','down',['Daten']],['dienste','Dienste und Test','locate',['Standort','Verbindungstest','Sicherheitslage']],['dev','Über','info',['To-do','Version']]];
-function setSummary(k){const bs=budgetState();if(k==='suche')return 'Sortierung: '+((SRCH_SORT.find(x=>x[0]===srchMode())||[])[1]||'')+' · Google-Suche '+(gplKey()?'an':'aus');switch(k){
+const SET_TABS=[['reise','Reise','home',['Reisezeitraum','Länder der Reise']],['planung','Planung','route',['Entfernungsbänder','Schätzung ohne Live-Berechnung','Vorschläge']],['suche','Suche und KI','search',['Suche','Google-Suche','Claude (KI)']],['budget','Budget','wallet',['Budget']],['waehrung','Währungen','wallet',['Währungsrechner','Währungen eurer Reise','Kurse']],['darst','Darstellung','layers',['Darstellung','Farben der Rollen','Farben der Transferarten']],['daten','Daten','down',['Daten']],['dienste','Dienste und Test','locate',['Standort','Verbindungstest','Sicherheitslage']],['dev','Über','info',['To-do','Version']]];
+function setSummary(k){const bs=budgetState();if(k==='suche')return 'Sortierung: '+((SRCH_SORT.find(x=>x[0]===srchMode())||[])[1]||'')+' · Google-Suche '+(gplKey()?'an':'aus')+' · Claude '+(typeof aiKey==='function'&&aiKey()?'an':'aus');switch(k){
  case 'reise':return `${fmtD(D0())}–${fmtD(addDays(D0(),totalNights()))}.${addDays(D0(),totalNights()).getFullYear()}, ${S.countries.length} Länder`;
  case 'planung':return `${S.settings.bands.map(b=>fmtMin(b)).join(' / ')}, Vorschläge ${S.settings.autoSugg!==false?'automatisch':'manuell'}`;
  case 'budget':return bs?`${eur(bs.B)}, ${eur(bs.daily)} pro Tag frei`:'kein Budget festgelegt';
@@ -3964,7 +3965,7 @@ function bkSheet(){const B=UI.bk,b=B.b;const kind=B.kind||b.kind||'stay';B.kind=
   {const dayBusy=A.date?S.places.filter(y=>y.id!==B.ex&&y.planned===iso(A.date)&&y.role!=='anchor'):[];if(dayBusy.length)warn.push({lvl:'warn',t:`Am ${fmtD(A.date)} ist schon ${dayBusy.map(y=>esc(y.name)).join(', ')} geplant.`})}
   target=`<div class="lab" style="margin-bottom:5px">Etappe</div><select id="bkSt" class="fld" style="width:100%;padding:8px;margin-bottom:8px">${ds.map((x,k)=>S.stages[k].gap?'':`<option value="${k}" ${k===i?'selected':''}>${no[S.stages[k].id]||''} · ${esc(byId(S.stages[k].placeId)?.name||'')} · ${fmtD(x.from)}–${fmtD(x.to)}</option>`).join('')}</select>
   <div class="lab" style="margin-bottom:5px">Ausflug</div><select id="bkEx" class="fld" style="width:100%;padding:8px;margin-bottom:8px"><option value="new" ${B.ex==='new'?'selected':''}>Neuer Ausflug${A.title?': '+esc(A.title.slice(0,40)):''}</option>${ex.map(x=>`<option value="${x.id}" ${B.ex===x.id?'selected':''}>${excNo(x)||''} ${esc(x.name)}${x.planned?' · '+fmtD(new Date(x.planned+'T12:00:00')):''}</option>`).join('')}</select>`}
- openSheet(`<div class="smt">Buchung erkannt</div><div class="smsub">${esc(b.portal||b.prov||'Portal nicht erkannt')}${B.src?' · '+esc(B.src.name):' · Mailtext'}</div>${seg}
+ openSheet(`<div class="smt">Buchung erkannt</div><div class="smsub">${esc(b.portal||b.prov||'Portal nicht erkannt')}${B.src?' · '+esc(B.src.name):' · Mailtext'}</div>${seg}${aiLine(B)}
  ${target}${(()=>{const inf=warn.filter(w=>w.lvl==='info'||w.lvl==='ok');warn=warn.filter(w=>w.lvl!=='info'&&w.lvl!=='ok');return inf.map(w=>w.lvl==='ok'?`<div class="t12" style="color:#9cc7a4;margin:0 0 6px;line-height:1.45">${ic('check',12,'#9cc7a4')} ${w.t}</div>`:`<div class="t12 mu" style="margin:0 0 6px;line-height:1.45">${w.t}</div>`).join('')})()}${warn.length?`<div class="smlist" style="padding:10px 12px;margin:4px 0 10px;border-color:${warn.some(w=>w.lvl==='err')?'#6b3a36':'#5a4e33'};background:${warn.some(w=>w.lvl==='err')?'#3a2826':'#2f2a20'}"><div class="t13 b" style="color:#e3e4e5;margin-bottom:6px">${ic('alert',13,warn.some(w=>w.lvl==='err')?'#e59c96':'#e2c07c')} Bitte prüfen</div>${warn.map(w=>`<div class="t12" style="color:${w.lvl==='err'?'#efb3ad':'#e8cf9a'};margin-bottom:4px;line-height:1.45">• ${w.t}</div>`).join('')}</div>`:`<div class="t12" style="color:#9cc7a4;margin:4px 0 8px">${ic('check',12,'#9cc7a4')} Daten passen zur gewählten ${kind==='tr'?'Etappe':kind==='tour'?'Etappe':'Etappe'}.</div>`}
  <div class="card" style="padding:2px 12px;margin-bottom:10px">${rows}${row('Portal',esc(b.portal||''),'nicht erkannt – im nächsten Schritt wählbar')}${row('Link',b.link?esc(b.link.replace(/^https?:\/\//,'').slice(0,48))+'…':'','kein Buchungslink')}</div>
  <div class="t12 mu" style="margin:4px 0 2px">${ic('book',12,'#8c9196')} ${B.src?esc(B.src.name):'Der Mailtext'} wird offline beim Eintrag gespeichert.</div>
@@ -4374,6 +4375,89 @@ function mapLab(ll,txt,col,strong){if(!ll||!txt)return;try{const m=L.marker(ll,{
 function tourMark(x,hl){try{const col=tourCol(x.tt.mode);const M=TOUR_MODES[x.tt.mode]||TOUR_MODES.car;const mid=[(hl.lat+x.lat)/2,(hl.lon+x.lon)/2];const no=excNo(x);
  const mk=L.marker(mid,{icon:L.divIcon({className:'',html:`<div style="position:relative;width:30px;height:30px"><div style="position:absolute;left:4px;top:6px;width:22px;height:22px;border-radius:6px;background:${col};display:flex;align-items:center;justify-content:center;border:2px solid #141617">${ic(M[0],12,'#141617',2.2)}</div>${no?`<div style="position:absolute;left:-6px;top:-4px;white-space:nowrap;font:bold 9.5px Poppins,sans-serif;color:${col};background:#1e2526;border:1px solid ${col};border-radius:5px;padding:0 3px;line-height:14px">${no}</div>`:''}</div>`,iconSize:[30,30],iconAnchor:[15,17]}),zIndexOffset:120}).addTo(LAY);
  if(mk.on)mk.on('click',ev=>{if(L.DomEvent)L.DomEvent.stopPropagation(ev);UI.ttDraft=null;ttSheet(x.id)})}catch(e){}}
+
+
+// ---------- 0.80_69: Claude (eigener API-Schlüssel) ----------
+const AI_LS='auszeit27_akey',AI_MOD='auszeit27_amodel',AI_AUTO='auszeit27_aauto',AI_USE='auszeit27_ause';
+const AI_MODELS={haiku:{id:'claude-haiku-5-5',name:'Haiku 5.5',pin:0.10,pout:0.50,hint:'schnell, ca. 0,1 Cent pro Buchung'},sonnet:{id:'claude-sonnet-5-5',name:'Sonnet 5.5',pin:2,pout:10,hint:'genauer, ca. 2 Cent pro Buchung'}};
+function aiKey(){try{return localStorage.getItem(AI_LS)||''}catch(e){return ''}}
+function aiModel(){let m='haiku';try{m=localStorage.getItem(AI_MOD)||'haiku'}catch(e){}return AI_MODELS[m]?m:'haiku'}
+function aiAuto(){try{return localStorage.getItem(AI_AUTO)!=='0'}catch(e){return true}}
+function aiUse(){try{const u=JSON.parse(localStorage.getItem(AI_USE)||'{}');const m=iso(new Date()).slice(0,7);return u.m===m?u:{m,n:0,usd:0}}catch(e){return {n:0,usd:0}}}
+function aiCount(usd){try{const u=aiUse();u.n=(u.n||0)+1;u.usd=(u.usd||0)+usd;localStorage.setItem(AI_USE,JSON.stringify(u))}catch(e){}}
+function aiCent(usd){const c=usd*100;return (c<0.1?'< 0,1':c.toLocaleString('de-DE',{maximumFractionDigits:c<1?2:1}))+' Cent'}
+async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
+ const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
+ try{r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:o.messages})});
+  j=await r.json().catch(()=>({}))}catch(e){throw new Error(e.name==='AbortError'?'Zeitüberschreitung':'keine Verbindung')}finally{clearTimeout(tm)}
+ if(!r.ok){const m=j?.error?.message||('HTTP '+r.status);throw new Error(r.status===401?'Schlüssel ungültig':/credit balance/i.test(m)?'Guthaben aufgebraucht – in der Anthropic Console aufladen':r.status===429?'zu viele Anfragen, kurz warten':r.status===529||r.status===503?'Claude ist gerade überlastet':m)}
+ const u=j.usage||{};const usd=((u.input_tokens||0)*M.pin+(u.output_tokens||0)*M.pout)/1e6;aiCount(usd);
+ return {text:(j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join(''),usd,model:M.name}}
+function aiJson(t){t=String(t||'').replace(/```(?:json)?/g,'');const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw new Error('Antwort nicht lesbar');return JSON.parse(t.slice(a,b+1))}
+function aiTripCtx(){const ds=stagesDated();const no=stageNo();return ds.map((d,i)=>{const st=S.stages[i];if(st.gap)return '';const p=byId(st.placeId);return `${no[st.id]}. ${p?p.name:''} (${country(st.country).name||st.country}) ${iso(d.from)} bis ${iso(d.to)}, ${st.nights} Nächte`}).filter(Boolean).join('\n')}
+const AI_BK_SYS=`Du liest Buchungsbestätigungen (E-Mail-Text oder PDF-Text) für eine private Reiseplanungs-App und gibst NUR ein JSON-Objekt zurück, ohne Erklärung.
+Felder (fehlende Angaben als null, nichts erfinden):
+{"kind":"stay"|"tr"|"tour",            // Unterkunft, Transport (Flug/Bus/Zug/Fähre/Transfer) oder Ausflug/Aktivität
+ "portal": string|null,                 // Buchungsportal oder Anbieter, z.B. "Booking.com","Agoda","Expedia","Airbnb","12Go","GetYourGuide","Viator","Klook", Airline-Name bei Direktbuchung
+ "name": string|null,                   // Name der Unterkunft (nur bei stay; nie ein Ortsname oder Betreff)
+ "address": string|null,
+ "checkin": "YYYY-MM-DD"|null, "checkout": "YYYY-MM-DD"|null,
+ "checkinTime": "HH:MM"|null, "checkoutTime": "HH:MM"|null,
+ "code": string|null, "pin": string|null,   // Buchungs-/Bestätigungsnummer bzw. PNR, PIN
+ "cost": number|null, "currency": "ISO-4217"|null, "paid": true|false|null,   // Gesamtpreis; paid=false wenn vor Ort zu zahlen
+ "cancel": string|null,                 // Stornobedingungen kurz auf Deutsch, z.B. "kostenlos bis 05.02.2027 18:00"
+ "room": string|null, "guests": string|null, "phone": string|null,
+ "transport": {"mode":"flight"|"bus"|"train"|"boat"|"car","date":"YYYY-MM-DD","dep":"HH:MM","arr":"HH:MM","from":string,"to":string,"fromIata":string|null,"toIata":string|null,"no":string|null,"airline":string|null,"operator":string|null}|null,
+ "tour": {"title":string,"date":"YYYY-MM-DD","time":"HH:MM","meet":string|null,"operator":string|null}|null,
+ "notes": string|null                   // wichtige Hinweise kurz auf Deutsch (Gepäck, Abholung, Treffpunkt), sonst null
+}
+Bei mehreren Flugsegmenten: transport = erstes Segment, weitere Segmente kurz in notes. Jahreszahlen ohne Angabe aus dem Reisezeitraum ableiten.`;
+async function aiBooking(text){const t=String(text||'').slice(0,40000);
+ const r=await aiCall({system:AI_BK_SYS,max:1500,messages:[{role:'user',content:`Reiseplan (zur Einordnung von Jahr und Ort):\n${aiTripCtx()}\n\nBuchungstext:\n"""\n${t}\n"""`}]});
+ return {j:aiJson(r.text),usd:r.usd,model:r.model}}
+function aiMerge(b,j){const D=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?new Date(+m[1],+m[2]-1,+m[3],12):null};const T=s=>/^\d{1,2}:\d{2}$/.test(s||'')?s.padStart(5,'0'):'';const v=x=>x!=null&&x!==''&&x!=='null';
+ if(['stay','tr','tour'].includes(j.kind))b.kind=j.kind;if(v(j.portal)){b.portal=String(j.portal);b.prov=b.prov||b.portal}
+ if(v(j.name))b.name=String(j.name);if(v(j.address))b.addr=String(j.address);
+ if(D(j.checkin))b.cin=D(j.checkin);if(D(j.checkout))b.cout=D(j.checkout);if(T(j.checkinTime))b.cinT=T(j.checkinTime);if(T(j.checkoutTime))b.coutT=T(j.checkoutTime);
+ if(v(j.code))b.code=String(j.code);if(v(j.pin))b.pin=String(j.pin);
+ if(typeof j.cost==='number'&&j.cost>0){b.cost=j.cost;if(v(j.currency))b.cur=String(j.currency).toUpperCase()}if(typeof j.paid==='boolean')b.paid=j.paid;
+ ['cancel','room','guests','phone'].forEach(k=>{if(v(j[k]))b[k]=String(j[k])});
+ if(j.transport&&typeof j.transport==='object'){const x=j.transport;const t=b.T=b.T||{};const md={flight:'flight',bus:'bus',train:'bus',boat:'boat',car:'car'}[x.mode];if(md)t.mode=md;if(D(x.date))t.date=D(x.date);if(T(x.dep))t.dep=T(x.dep);if(T(x.arr))t.arr=T(x.arr);
+  const ap=c=>typeof AIRPORTS!=='undefined'&&/^[A-Z]{3}$/.test(c||'')?AIRPORTS.find(a=>a[0]===c):null;
+  [['from','fromIata','fromLL'],['to','toIata','toLL']].forEach(([f,ia,ll])=>{const A=ap(String(x[ia]||'').toUpperCase());if(A){t[f]=A[2]+' ('+A[0]+')';t[ll]={lat:A[3],lon:A[4]}}else if(v(x[f])){t[f]=String(x[f]);delete t[ll]}});
+  if(v(x.no))t.no=String(x.no);if(v(x.airline))t.airline=String(x.airline);if(v(x.operator))t.op=String(x.operator)}
+ if(j.tour&&typeof j.tour==='object'){const x=j.tour;const a=b.A=b.A||{};if(v(x.title))a.title=String(x.title);if(D(x.date))a.date=D(x.date);if(T(x.time))a.time=T(x.time);if(v(x.meet))a.meet=String(x.meet);if(v(x.operator))a.op=String(x.operator)}
+ if(v(j.notes))b.extra=[b.extra,String(j.notes)].filter(Boolean).join(' · ');return b}
+function aiRunBk(B){if(!aiKey()||!B||B.aiBusy)return;B.aiBusy=1;B.aiErr=null;const kind0=B.kind;
+ const refresh=()=>{if(UI.bk!==B)return;const has=B.b&&(B.b.cin||B.b.name||B.b.code||B.b.T&&B.b.T.date);if(!has){bkStartSheet(B.aiErr?'Darin habe ich keine Buchung erkannt (Claude: '+esc(B.aiErr)+').':'Auch Claude hat darin keine Buchung erkannt.');return}
+  if(B.pk){B.kind=B.pk;B.stK=null}else if(B.kind===kind0){B.kind=null;B.stK=null}if(B.i!=null&&(B.kind||B.b.kind)==='stay')B.st=B.i;bkSheet()};
+ aiBooking(B.text).then(r=>{if(UI.bk!==B)return;aiMerge(B.b,r.j);B.ai={model:r.model,usd:r.usd};B.verTried=0;B.aiBusy=0;refresh()})
+  .catch(e=>{B.aiBusy=0;B.aiErr=e.message||String(e);refresh()})}
+(function(){const _be=bkEval;window.bkEval=function(text,links){if(!aiKey()||!aiAuto())return _be(text,links);
+ UI.bk=UI.bk||{i:null};const B=UI.bk;B.ai=null;B.aiErr=null;B.aiBusy=0;const b0=parseBooking(text,links);
+ if(!b0.cin&&!b0.name&&!b0.code){B.text=text;B.links=links||[];B.b=b0;aiRunBk(B);openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">Claude liest die Buchung</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Einen Moment …</span></div>`);return}
+ _be(text,links);aiRunBk(UI.bk);if(document.getElementById('bkSt'))bkSheet()}})();
+function aiLine(B){if(!B)return '';if(B.aiBusy)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px"><span class="spin"></span> Claude liest die Buchung genauer …</div>`;
+ if(B.ai)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px">${ic('check',12,'#c9c6ee')} Von Claude ausgelesen · ${esc(B.ai.model)} · ${aiCent(B.ai.usd)}</div>`;
+ if(B.aiErr)return `<div class="t12" style="color:#e8cf9a;margin:0 0 8px">${ic('alert',12,'#e2c07c')} Claude: ${esc(B.aiErr)} – Regel-Auswertung angezeigt. <span class="click b" data-a="aiBk" style="color:#c9c6ee">Erneut</span></div>`;
+ if(aiKey())return `<button class="btn gh" data-a="aiBk" style="width:100%;margin:0 0 8px">${ic('spark',15)} Mit Claude auslesen</button>`;return ''}
+function aiCard(){const k=aiKey();const u=aiUse();const m=aiModel();return `<div class="sec"><h3>Claude (KI)</h3><span>${k?'aktiv':'aus'}</span></div>
+ <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">Mit eigenem Anthropic-Schlüssel liest Claude Buchungsmails und PDFs aus. Der Schlüssel bleibt nur auf diesem Gerät und kommt nicht in den Export. Ohne Schlüssel arbeitet die App wie bisher.</div>
+  <div class="row" style="gap:8px;margin-top:12px"><input class="fld" id="akIn" type="password" autocomplete="off" placeholder="${k?'Schlüssel gespeichert ('+esc(k.slice(0,10))+'…)':'sk-ant-… einfügen'}" style="flex:1;padding:8px"><button class="btn sm pri" data-a="akSave">Speichern</button></div>
+  <div class="lab" style="margin:12px 0 6px">Modell</div><div class="seg">${Object.entries(AI_MODELS).map(([id,M])=>`<button data-a="akMod" data-k="${id}" class="${m===id?'on':''}">${M.name}</button>`).join('')}</div>
+  <div class="t12 mu" style="margin-top:6px">${AI_MODELS[m].hint}</div>
+  <div class="row wrap" style="gap:8px;margin-top:12px"><button class="btn sm" data-a="akTest" ${k?'':'disabled'}>${ic('spark',14)} Testen</button><button class="btn sm gh" data-a="akAuto">${aiAuto()?ic('check',14)+' ':''}Beim Einlesen automatisch</button>${k?`<button class="btn sm gh" data-a="akDel">${ic('trash',14)} Entfernen</button>`:''}</div>
+  <div id="akOut" class="t12 mu" style="margin-top:8px;line-height:1.5">${k?`Diesen Monat ${u.n||0} Abfragen · ca. ${aiCent(u.usd||0)} (auf diesem Gerät, geschätzt).`:''}</div>
+  <div class="t12 mu" style="margin-top:8px;line-height:1.5">Schlüssel: platform.claude.com → API Keys. Ausgabenlimit dort unter Limits setzen.</div></div>`}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
+ const H={
+  akSave:()=>{const v=(document.getElementById('akIn')?.value||'').trim();if(!/^sk-ant-[\w-]{20,}$/.test(v)){toast('Das sieht nicht nach einem Anthropic-Schlüssel aus (beginnt mit „sk-ant-“).');return}try{localStorage.setItem(AI_LS,v)}catch(x){}rerenderPage();bindSettings();toast('Claude-Schlüssel gespeichert. Jetzt „Testen“ antippen.')},
+  akDel:()=>{if(!confirm('Claude-Schlüssel von diesem Gerät entfernen?'))return;try{localStorage.removeItem(AI_LS)}catch(x){}rerenderPage();bindSettings();toast('Claude ausgeschaltet.')},
+  akMod:()=>{try{localStorage.setItem(AI_MOD,el.dataset.k)}catch(x){}rerenderPage();bindSettings()},
+  akAuto:()=>{try{localStorage.setItem(AI_AUTO,aiAuto()?'0':'1')}catch(x){}rerenderPage();bindSettings()},
+  akTest:async()=>{const o=document.getElementById('akOut');if(o)o.innerHTML='<span class="spin"></span> Teste …';try{const r=await aiCall({max:20,messages:[{role:'user',content:'Antworte nur mit: Verbindung steht'}]});if(o)o.innerHTML=`<span style="color:#9cc7a4">Funktioniert.</span> ${esc(r.model)} antwortet: „${esc(r.text.trim().slice(0,60))}“ · ${aiCent(r.usd)}`}catch(err){if(o)o.innerHTML=`<span style="color:#e59c96">Fehler:</span> ${esc(err.message)}`}},
+  aiBk:()=>{const B=UI.bk;if(!B)return;B.aiErr=null;aiRunBk(B);bkSheet()}
+ };if(H[a]){e.preventDefault();H[a]()}});
 
 </script>
 </body>
