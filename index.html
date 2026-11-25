@@ -579,9 +579,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_80';
+const APP_VERSION='0.80_81';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_81',d:'25.11.2026',items:['Frag deine Reise: Claude bekommt bei jeder Anfrage gesagt, ob es eine Websuche hat; alte „kein Internet“-Antworten im Verlauf gelten als überholt','Bei Fragen zu Einreise, Visa, Fahrplänen, Preisen, Öffnungszeiten, Wetter oder Sicherheit ist die Websuche jetzt verpflichtend']},
  {v:'0.80_80',d:'25.11.2026',items:['Frag deine Reise: bei Einreise, Visa, Fahrplänen, Öffnungszeiten und Preisen sucht Claude jetzt immer im Web (bevorzugt Auswärtiges Amt) und nennt die Quelle']},
  {v:'0.80_79',d:'25.11.2026',items:['Websuche: App probiert mehrere Werkzeug-Versionen und merkt sich die funktionierende','Einstellungen → Suche und KI: Status der Websuche mit genauer Meldung und Knopf „Websuche testen“','Chat: Kopf zeigt „Websuche an/aus“; ist sie nicht verfügbar, steht der Grund unter der Antwort']},
  {v:'0.80_78',d:'25.11.2026',items:['Beleg fotografieren: Auswahl Kamera oder Galerie','Frag deine Reise kennt jetzt Einreise-Checklisten (mit Fristen und Erledigt-Status) und Visa-Angaben je Land','Frag deine Reise nutzt bei Bedarf die Websuche für aktuelle Einreise- und Visaregeln (wird an der Antwort angezeigt und im Guthaben gezählt)','Neuer Vorschlag aus dem Chat: Punkt zur Einreise-Checkliste hinzufügen']},
@@ -4428,19 +4429,23 @@ const WS_VERS=['web_search_20250305','web_search_20260209','web_search_20260318'
 function aiWsErr(){try{return JSON.parse(localStorage.getItem('auszeit27_awserr')||'null')}catch(e){return null}}
 function aiWsOn(){const e=aiWsErr();return !(e&&Date.now()-e.ts<12*3600e3)}
 function aiWsIsToolErr(m){return /tool|web_search|web search|not supported|unsupported|does not match|not enabled|disabled|not allowed|permission|organization|beta/i.test(m||'')}
-async function aiCallWeb(o,maxUses){if(!aiWsOn()){const r=await aiCall(o);r.webOff=aiWsErr()?.m||'aus';return r}
+const AI_WS_YES='\n\nWICHTIG: In dieser Anfrage hast du das Werkzeug web_search und damit Internetzugang. Behaupte nie, keinen Internetzugang zu haben. Frühere Antworten im Verlauf, die das behauptet haben, sind überholt.';
+const AI_WS_NO='\n\nIn dieser Anfrage ist keine Websuche verfügbar.';
+async function aiCallWeb(o0,maxUses){const sysBase=o0.system||'';const o=Object.assign({},o0,{system:sysBase+AI_WS_YES});const oNo=Object.assign({},o0,{system:sysBase+AI_WS_NO,toolChoice:undefined});
+ if(!aiWsOn()){const r=await aiCall(oNo);r.webOff=aiWsErr()?.m||'aus';return r}
  const pref=localStorage.getItem('auszeit27_awsv');const vers=pref&&WS_VERS.includes(pref)?[pref,...WS_VERS.filter(v=>v!==pref)]:WS_VERS;let lastErr=null;
- for(const v of vers){try{const r=await aiCall(Object.assign({},o,{tools:[{type:v,name:'web_search',max_uses:maxUses||2}]}));
+ for(const v of vers){try{let r;const oo=Object.assign({},o,{tools:[{type:v,name:'web_search',max_uses:maxUses||2}]});
+   try{r=await aiCall(oo)}catch(e){if(oo.toolChoice&&/tool_choice/i.test(e.message||'')){delete oo.toolChoice;r=await aiCall(oo)}else throw e}
    const errB=(r.blocks||[]).find(b=>b.type==='web_search_tool_result'&&b.content&&!Array.isArray(b.content)&&/error/.test(b.content.type||''));
    try{localStorage.setItem('auszeit27_awsv',v);if(!errB)localStorage.removeItem('auszeit27_awserr')}catch(e){}
    if(errB)r.webErr='Websuche meldet: '+(errB.content.error_code||'Fehler');r.wsv=v;return r}
   catch(e){lastErr=e;if(!aiWsIsToolErr(e.message))throw e}}
  try{localStorage.setItem('auszeit27_awserr',JSON.stringify({m:lastErr?lastErr.message:'nicht verfügbar',ts:Date.now()}))}catch(e){}
- const r=await aiCall(o);r.webOff=lastErr?lastErr.message:'nicht verfügbar';return r}
+ const r=await aiCall(oNo);r.webOff=lastErr?lastErr.message:'nicht verfügbar';return r}
 async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
  let msgs=o.messages;const hd={'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};if(o.beta)hd['anthropic-beta']=o.beta;
- const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:hd,body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:msgs},o.tools?{tools:o.tools}:{},noTh?{thinking:{type:'disabled'}}:{}))});
+ const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:hd,body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:msgs},o.tools?{tools:o.tools}:{},o.tools&&o.toolChoice?{tool_choice:o.toolChoice}:{},noTh?{thinking:{type:'disabled'}}:{}))});
  try{const th=localStorage.getItem('auszeit27_athink')!=='1';r=await send(th);j=await r.json().catch(()=>({}));
   if(th&&r.status===400&&/thinking/i.test(j?.error?.message||'')){try{localStorage.setItem('auszeit27_athink','1')}catch(e){}r=await send(false);j=await r.json().catch(()=>({}))}
   // lange Werkzeug-Läufe: fortsetzen
@@ -4586,7 +4591,8 @@ function aiChatSheet(){if(!aiKey())return aiSetupHint();const M=aiChatLoad();con
 async function aiAsk(q){q=String(q||'').trim();if(!q||UI.aiChatBusy)return;const F=aiFocus();const M=aiChatLoad();M.push({role:'user',content:q,focus:F?F.label:'',fx:F?F.text:''});aiChatSave(M);UI.aiChatBusy=1;UI.aiChatErr=null;aiChatSheet();
  try{const hist=M.slice(-7).map(m=>({role:m.role,content:m.role==='user'?((m.fx?m.fx+'\n':'')+m.content):m.content+(m.acts&&m.acts.length?'\n[Vorschläge angezeigt: '+m.acts.map(a=>aiActTxt(a)+(a.st==='ok'?' (übernommen)':'')).join('; ')+']':'')}));while(hist.length&&hist[0].role!=='user')hist.shift();
   hist[0]={role:'user',content:`Reiseplan:\n${aiTripFull()}\n\n---\n${hist[0].content}`};
-  const r=await aiCallWeb({system:AI_CHAT_SYS,max:4000,timeout:120000,messages:hist},2);const P=aiParseActs(r.text);M.push({role:'assistant',content:P.text,acts:P.acts,usd:r.usd,cut:r.stop==='max_tokens',web:r.ws||0,webOff:r.webOff||r.webErr||''});aiChatSave(M)}
+  const must=/einreise|visum|visa|e-?visa|eta\b|arrival|ankunftskarte|fahrplan|abfahrt|fähre|zug|bus|öffnungszeit|geöffnet|preis|kostet|kosten|eintritt|aktuell|wetter|regenzeit|sicherheit|warnung|news|nachrichten/i.test(q);
+  const r=await aiCallWeb(Object.assign({system:AI_CHAT_SYS,max:4000,timeout:120000,messages:hist},must?{toolChoice:{type:'any'}}:{}),2);const P=aiParseActs(r.text);M.push({role:'assistant',content:P.text,acts:P.acts,usd:r.usd,cut:r.stop==='max_tokens',web:r.ws||0,webOff:r.webOff||r.webErr||''});aiChatSave(M)}
  catch(e){UI.aiChatErr='Claude: '+(e.message||e)}finally{UI.aiChatBusy=0}if(document.getElementById('aiMsgs'))aiChatSheet()}
 async function aiActRun(mi,ks){if(UI.aiActBusy){toast('Übernahme läuft noch …',2000);return}UI.aiActBusy=new Set();let n=0,fail=0;
  try{for(const k of ks){const M=aiChatLoad();const a=M[mi]&&M[mi].acts&&M[mi].acts[k];if(!a||a.st==='ok'||!aiActOk(a))continue;
