@@ -572,9 +572,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_69';
+const APP_VERSION='0.80_70';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_70',d:'25.11.2026',items:['Claude-Guthaben wird mitgezählt (Schätzung je Abfrage), Warnung unter 0,50 $','Nach dem Aufladen: Betrag eintragen mit „+ Aufgeladen“ oder „Stand setzen“; meldet Anthropic leeres Guthaben, steht es auf 0 mit Link zum Eintragen']},
  {v:'0.80_69',d:'25.11.2026',items:['Claude (KI): eigener Anthropic-Schlüssel unter Einstellungen → Suche und KI (bleibt nur auf dem Gerät, nicht im Export)','Buchung einlesen: Claude liest Mailtext und PDF-Text aus (Unterkunft, Transfer, Ausflug, Portal, Preis, Storno, Flugdaten); Regel-Auswertung bleibt als Rückfall','Modellwahl Haiku 5.5 (Standard) oder Sonnet 5.5, Test-Knopf, Kostenanzeige pro Buchung und pro Monat']},
  {v:'0.80_68',d:'25.11.2026',items:['Karte: Zweiter Aufenthalt am selben Ort zeigt seine eigene Unterkunft; Ausflüge starten am Hotel der richtigen Etappe','Karte: Unterkunft ohne Position erscheint gestrichelt mit ? am Ort; Etappen mit 0 Nächten ohne Hotel-Pin','Karte: Gleiche Unterkunft in mehreren Etappen als ein Pin (z. B. 1+4) mit Auswahl','Karte: Teilstrecken ohne Koordinaten werden über Flughafen bzw. Zwischenpunkt trotzdem gezeichnet']},
  {v:'0.80_67',d:'25.11.2026',items:['Route: Transfers mit mehreren Teilstrecken zeigen jede Teilstrecke als eigene Zeile (T7.1, T7.2, T7.3) mit Strecke, Verkehrsmittel, Datum, Uhrzeit und eigenem Status-Punkt']},
@@ -2279,7 +2280,7 @@ function expSheet(idx,dIso){const e=idx!=null?S.expenses[idx]:null;const d=UI.ex
 function exCollect(){const d=UI.exDraft;if(!d)return;const a=$('#xAmt');if(a)d.amt=a.value;const c=$('#xAmt_cur');if(c)d.cur=c.value;const t=$('#xTxt');if(t)d.txt=t.value.trim();const dt=$('#xDate');if(dt&&dt.value)d.date=dt.value}
 
 const SET_TABS=[['reise','Reise','home',['Reisezeitraum','Länder der Reise']],['planung','Planung','route',['Entfernungsbänder','Schätzung ohne Live-Berechnung','Vorschläge']],['suche','Suche und KI','search',['Suche','Google-Suche','Claude (KI)']],['budget','Budget','wallet',['Budget']],['waehrung','Währungen','wallet',['Währungsrechner','Währungen eurer Reise','Kurse']],['darst','Darstellung','layers',['Darstellung','Farben der Rollen','Farben der Transferarten']],['daten','Daten','down',['Daten']],['dienste','Dienste und Test','locate',['Standort','Verbindungstest','Sicherheitslage']],['dev','Über','info',['To-do','Version']]];
-function setSummary(k){const bs=budgetState();if(k==='suche')return 'Sortierung: '+((SRCH_SORT.find(x=>x[0]===srchMode())||[])[1]||'')+' · Google-Suche '+(gplKey()?'an':'aus')+' · Claude '+(typeof aiKey==='function'&&aiKey()?'an':'aus');switch(k){
+function setSummary(k){const bs=budgetState();if(k==='suche')return 'Sortierung: '+((SRCH_SORT.find(x=>x[0]===srchMode())||[])[1]||'')+' · Google-Suche '+(gplKey()?'an':'aus')+' · Claude '+(typeof aiKey==='function'&&aiKey()?'an'+(aiBal()?', Guthaben ca. '+aiUsd(aiBal().usd):''):'aus');switch(k){
  case 'reise':return `${fmtD(D0())}–${fmtD(addDays(D0(),totalNights()))}.${addDays(D0(),totalNights()).getFullYear()}, ${S.countries.length} Länder`;
  case 'planung':return `${S.settings.bands.map(b=>fmtMin(b)).join(' / ')}, Vorschläge ${S.settings.autoSugg!==false?'automatisch':'manuell'}`;
  case 'budget':return bs?`${eur(bs.B)}, ${eur(bs.daily)} pro Tag frei`:'kein Budget festgelegt';
@@ -4378,19 +4379,25 @@ function tourMark(x,hl){try{const col=tourCol(x.tt.mode);const M=TOUR_MODES[x.tt
 
 
 // ---------- 0.80_69: Claude (eigener API-Schlüssel) ----------
-const AI_LS='auszeit27_akey',AI_MOD='auszeit27_amodel',AI_AUTO='auszeit27_aauto',AI_USE='auszeit27_ause';
+const AI_BAL='auszeit27_abal';const AI_LS='auszeit27_akey',AI_MOD='auszeit27_amodel',AI_AUTO='auszeit27_aauto',AI_USE='auszeit27_ause';
 const AI_MODELS={haiku:{id:'claude-haiku-5-5',name:'Haiku 5.5',pin:0.10,pout:0.50,hint:'schnell, ca. 0,1 Cent pro Buchung'},sonnet:{id:'claude-sonnet-5-5',name:'Sonnet 5.5',pin:2,pout:10,hint:'genauer, ca. 2 Cent pro Buchung'}};
 function aiKey(){try{return localStorage.getItem(AI_LS)||''}catch(e){return ''}}
 function aiModel(){let m='haiku';try{m=localStorage.getItem(AI_MOD)||'haiku'}catch(e){}return AI_MODELS[m]?m:'haiku'}
 function aiAuto(){try{return localStorage.getItem(AI_AUTO)!=='0'}catch(e){return true}}
 function aiUse(){try{const u=JSON.parse(localStorage.getItem(AI_USE)||'{}');const m=iso(new Date()).slice(0,7);return u.m===m?u:{m,n:0,usd:0}}catch(e){return {n:0,usd:0}}}
-function aiCount(usd){try{const u=aiUse();u.n=(u.n||0)+1;u.usd=(u.usd||0)+usd;localStorage.setItem(AI_USE,JSON.stringify(u))}catch(e){}}
+function aiCount(usd){try{const u=aiUse();u.n=(u.n||0)+1;u.usd=(u.usd||0)+usd;localStorage.setItem(AI_USE,JSON.stringify(u))}catch(e){}
+ const b=aiBal();if(b){const before=b.usd;b.usd=Math.max(0,b.usd-usd);b.used=(b.used||0)+usd;aiBalSet(b);if(before>=0.5&&b.usd<0.5)toast(`Claude-Guthaben fast aufgebraucht: noch ca. ${aiUsd(b.usd)}. Nach dem Aufladen unter Einstellungen → Suche und KI eintragen.`,8000)}}
+// Guthaben: lokal mitgezählt (Schätzung aus den Token-Angaben jeder Antwort)
+function aiBal(){try{const b=JSON.parse(localStorage.getItem(AI_BAL)||'null');return b&&typeof b.usd==='number'?b:null}catch(e){return null}}
+function aiBalSet(b){try{if(b)localStorage.setItem(AI_BAL,JSON.stringify(b));else localStorage.removeItem(AI_BAL)}catch(e){}}
+function aiUsd(x){return (x||0).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:x<10?3:2})+' $'}
+function aiBalLine(){const b=aiBal();if(!b)return '<span class="mu">Noch kein Guthaben eingetragen.</span>';const low=b.usd<0.5;return `<b style="color:${b.empty?'#e59c96':low?'#e2c07c':'#9cc7a4'};font-size:15px">ca. ${aiUsd(b.usd)}</b> <span class="mu">übrig · seit ${new Date(b.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})} verbraucht ${aiUsd(b.used||0)}${b.empty?' · Anthropic meldet: leer':''}</span>`}
 function aiCent(usd){const c=usd*100;return (c<0.1?'< 0,1':c.toLocaleString('de-DE',{maximumFractionDigits:c<1?2:1}))+' Cent'}
 async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
  try{r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:o.messages})});
   j=await r.json().catch(()=>({}))}catch(e){throw new Error(e.name==='AbortError'?'Zeitüberschreitung':'keine Verbindung')}finally{clearTimeout(tm)}
- if(!r.ok){const m=j?.error?.message||('HTTP '+r.status);throw new Error(r.status===401?'Schlüssel ungültig':/credit balance/i.test(m)?'Guthaben aufgebraucht – in der Anthropic Console aufladen':r.status===429?'zu viele Anfragen, kurz warten':r.status===529||r.status===503?'Claude ist gerade überlastet':m)}
+ if(!r.ok){const m=j?.error?.message||('HTTP '+r.status);if(/credit balance/i.test(m)){const b=aiBal()||{ts:Date.now(),used:0};b.usd=0;b.empty=1;aiBalSet(b)}throw new Error(r.status===401?'Schlüssel ungültig':/credit balance/i.test(m)?'Guthaben aufgebraucht – in der Anthropic Console aufladen':r.status===429?'zu viele Anfragen, kurz warten':r.status===529||r.status===503?'Claude ist gerade überlastet':m)}
  const u=j.usage||{};const usd=((u.input_tokens||0)*M.pin+(u.output_tokens||0)*M.pout)/1e6;aiCount(usd);
  return {text:(j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join(''),usd,model:M.name}}
 function aiJson(t){t=String(t||'').replace(/```(?:json)?/g,'');const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw new Error('Antwort nicht lesbar');return JSON.parse(t.slice(a,b+1))}
@@ -4438,8 +4445,8 @@ function aiRunBk(B){if(!aiKey()||!B||B.aiBusy)return;B.aiBusy=1;B.aiErr=null;con
  if(!b0.cin&&!b0.name&&!b0.code){B.text=text;B.links=links||[];B.b=b0;aiRunBk(B);openSheet(`<div class="smt">Buchung einlesen</div><div class="smsub">Claude liest die Buchung</div><div class="smlist" style="padding:18px 14px;text-align:center"><span class="spin"></span> <span class="t13" style="color:#c4c7ca">Einen Moment …</span></div>`);return}
  _be(text,links);aiRunBk(UI.bk);if(document.getElementById('bkSt'))bkSheet()}})();
 function aiLine(B){if(!B)return '';if(B.aiBusy)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px"><span class="spin"></span> Claude liest die Buchung genauer …</div>`;
- if(B.ai)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px">${ic('check',12,'#c9c6ee')} Von Claude ausgelesen · ${esc(B.ai.model)} · ${aiCent(B.ai.usd)}</div>`;
- if(B.aiErr)return `<div class="t12" style="color:#e8cf9a;margin:0 0 8px">${ic('alert',12,'#e2c07c')} Claude: ${esc(B.aiErr)} – Regel-Auswertung angezeigt. <span class="click b" data-a="aiBk" style="color:#c9c6ee">Erneut</span></div>`;
+ if(B.ai)return `<div class="t12" style="color:#c9c6ee;margin:0 0 8px">${ic('check',12,'#c9c6ee')} Von Claude ausgelesen · ${esc(B.ai.model)} · ${aiCent(B.ai.usd)}${aiBal()?' · Rest ca. '+aiUsd(aiBal().usd):''}</div>`;
+ if(B.aiErr)return `<div class="t12" style="color:#e8cf9a;margin:0 0 8px">${ic('alert',12,'#e2c07c')} Claude: ${esc(B.aiErr)} – Regel-Auswertung angezeigt. <span class="click b" data-a="aiBk" style="color:#c9c6ee">Erneut</span>${/Guthaben/.test(B.aiErr)?` · <span class="click b" data-a="settings" data-k="suche" style="color:#c9c6ee">Guthaben eintragen</span>`:''}</div>`;
  if(aiKey())return `<button class="btn gh" data-a="aiBk" style="width:100%;margin:0 0 8px">${ic('spark',15)} Mit Claude auslesen</button>`;return ''}
 function aiCard(){const k=aiKey();const u=aiUse();const m=aiModel();return `<div class="sec"><h3>Claude (KI)</h3><span>${k?'aktiv':'aus'}</span></div>
  <div class="card"><div class="t13" style="color:#c4c7ca;line-height:1.55">Mit eigenem Anthropic-Schlüssel liest Claude Buchungsmails und PDFs aus. Der Schlüssel bleibt nur auf diesem Gerät und kommt nicht in den Export. Ohne Schlüssel arbeitet die App wie bisher.</div>
@@ -4447,6 +4454,9 @@ function aiCard(){const k=aiKey();const u=aiUse();const m=aiModel();return `<div
   <div class="lab" style="margin:12px 0 6px">Modell</div><div class="seg">${Object.entries(AI_MODELS).map(([id,M])=>`<button data-a="akMod" data-k="${id}" class="${m===id?'on':''}">${M.name}</button>`).join('')}</div>
   <div class="t12 mu" style="margin-top:6px">${AI_MODELS[m].hint}</div>
   <div class="row wrap" style="gap:8px;margin-top:12px"><button class="btn sm" data-a="akTest" ${k?'':'disabled'}>${ic('spark',14)} Testen</button><button class="btn sm gh" data-a="akAuto">${aiAuto()?ic('check',14)+' ':''}Beim Einlesen automatisch</button>${k?`<button class="btn sm gh" data-a="akDel">${ic('trash',14)} Entfernen</button>`:''}</div>
+  <div class="lab" style="margin:14px 0 6px">Guthaben</div><div class="t13" id="akBal" style="line-height:1.5">${aiBalLine()}</div>
+  <div class="row" style="gap:8px;margin-top:8px"><input class="fld" id="akBalIn" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Betrag in $" style="flex:1;padding:8px"><button class="btn sm" data-a="akBalAdd">+ Aufgeladen</button><button class="btn sm gh" data-a="akBalSet">Stand setzen</button></div>
+  <div class="t12 mu" style="margin-top:6px;line-height:1.45">„+ Aufgeladen“ addiert den Betrag zum Rest, „Stand setzen“ übernimmt den Betrag aus der Console. Gezählt wird nur auf diesem Gerät, als Schätzung. Ab und zu mit platform.claude.com → Billing abgleichen.</div>
   <div id="akOut" class="t12 mu" style="margin-top:8px;line-height:1.5">${k?`Diesen Monat ${u.n||0} Abfragen · ca. ${aiCent(u.usd||0)} (auf diesem Gerät, geschätzt).`:''}</div>
   <div class="t12 mu" style="margin-top:8px;line-height:1.5">Schlüssel: platform.claude.com → API Keys. Ausgabenlimit dort unter Limits setzen.</div></div>`}
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a;
@@ -4456,6 +4466,8 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   akMod:()=>{try{localStorage.setItem(AI_MOD,el.dataset.k)}catch(x){}rerenderPage();bindSettings()},
   akAuto:()=>{try{localStorage.setItem(AI_AUTO,aiAuto()?'0':'1')}catch(x){}rerenderPage();bindSettings()},
   akTest:async()=>{const o=document.getElementById('akOut');if(o)o.innerHTML='<span class="spin"></span> Teste …';try{const r=await aiCall({max:20,messages:[{role:'user',content:'Antworte nur mit: Verbindung steht'}]});if(o)o.innerHTML=`<span style="color:#9cc7a4">Funktioniert.</span> ${esc(r.model)} antwortet: „${esc(r.text.trim().slice(0,60))}“ · ${aiCent(r.usd)}`}catch(err){if(o)o.innerHTML=`<span style="color:#e59c96">Fehler:</span> ${esc(err.message)}`}},
+  akBalAdd:()=>{const v=parseFloat(String(document.getElementById('akBalIn')?.value||'').replace(',','.'));if(!(v>0)){toast('Bitte den aufgeladenen Betrag in $ eingeben.');return}const b=aiBal();const n={usd:(b&&!b.empty?b.usd:0)+v,ts:Date.now(),used:0};aiBalSet(n);rerenderPage();bindSettings();toast(`Guthaben jetzt ca. ${aiUsd(n.usd)}.`)},
+  akBalSet:()=>{const raw=String(document.getElementById('akBalIn')?.value||'').trim();if(raw===''){if(aiBal()&&confirm('Guthaben-Zählung ausschalten?')){aiBalSet(null);rerenderPage();bindSettings()}else toast('Bitte den Stand aus der Console in $ eingeben.');return}const v=parseFloat(raw.replace(',','.'));if(!(v>=0)){toast('Ungültiger Betrag.');return}aiBalSet({usd:v,ts:Date.now(),used:0});rerenderPage();bindSettings();toast(`Guthaben auf ${aiUsd(v)} gesetzt.`)},
   aiBk:()=>{const B=UI.bk;if(!B)return;B.aiErr=null;aiRunBk(B);bkSheet()}
  };if(H[a]){e.preventDefault();H[a]()}});
 
