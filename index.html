@@ -495,7 +495,7 @@ body.cmp .K{padding:14px 12px 10px}
 .f4card.f4arr{border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}
 .f4ft .f4tb{border-color:#4a4e53;color:#b7bbbf}
 .f4si{display:flex;align-items:center;gap:6px}
-.hero{border-radius:18px;padding:14px 14px 12px;margin:10px 0 6px;background:color-mix(in srgb,var(--cc,#8c9196) 16%,#26282b);border:1px solid color-mix(in srgb,var(--cc,#8c9196) 28%,#26282b)}
+.hero{border-radius:18px;padding:14px 14px 12px;margin:10px 0 6px;background:color-mix(in srgb,var(--cc,#8c9196) 20%,#26282b);border:1px solid color-mix(in srgb,var(--cc,#8c9196) 32%,#26282b)}
 .hero.faint{background:color-mix(in srgb,var(--cc,#8c9196) 8%,#1e1f21);border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}
 .heroh{display:flex;align-items:center;gap:12px}.hero .h5t{margin-top:0;font:600 21px/1.2 Poppins,"Segoe UI",sans-serif}.hero .h5s{margin:4px 0 0;color:#a7acb0;display:flex;align-items:flex-start;gap:6px;flex-wrap:nowrap}.hero .h5s svg{flex:none;margin-top:2px}
 .hero .hbar{width:5px;height:40px;border-radius:3px;background:var(--cc);flex:none}.hero .cn{width:38px;height:38px;border-radius:50%;background:var(--cc);color:#14201e;font:600 16px Poppins,sans-serif;display:flex;align-items:center;justify-content:center;flex:none}
@@ -504,6 +504,9 @@ body.cmp .K{padding:14px 12px 10px}
 .herog .h5k:nth-child(odd){border-right:1px solid color-mix(in srgb,var(--cc,#8c9196) 26%,#26282b)!important}.herog .h5k:nth-child(n+3){border-top:1px solid color-mix(in srgb,var(--cc,#8c9196) 26%,#26282b)!important}
 .herog .h5k .v{font-size:16px;margin-top:3px}.herog .h5k .h5dot{top:12px;right:10px}
 .f4ph{color:#7d8287;font-style:italic}.f4exs .f4r{min-height:54px;padding-top:8px;padding-bottom:8px;border-top:0}.f4exs .f4r+.f4r{border-top:1px solid color-mix(in srgb,var(--cc) 18%,#26282b)}
+.f4card.f4mid{background:color-mix(in srgb,var(--cc) 12%,#232527);border-color:color-mix(in srgb,var(--cc) 24%,#26282b)}.f4mid>.f4r:first-child{border-top:0}.f4mid .f4nr{background:var(--cc);color:#14201e;border:0}
+.f4card .f4ft.f4add{background:color-mix(in srgb,var(--cc,#8c9196) 8%,#1e1f21);border-top:1px dashed color-mix(in srgb,var(--cc,#8c9196) 28%,#26282b)}
+.ctx.mid{background:color-mix(in srgb,var(--cc,#8c9196) 12%,#232527);border-color:color-mix(in srgb,var(--cc,#8c9196) 24%,#26282b)}
 .f4exs{background:color-mix(in srgb,var(--cc) 12%,#232527);border-top:1px solid color-mix(in srgb,var(--cc) 22%,#26282b);padding:0}
 .f4exh{display:flex;align-items:center;gap:8px;padding:6px 12px 2px 14px;font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#8c9196}
 .f4exr{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 14px;min-height:38px}
@@ -557,9 +560,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_60';
+const APP_VERSION='0.80_61';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_61',d:'25.11.2026',items:['Feste Farbstufen in der ganzen App: Etappe und Kopfkarten kräftig, Ausflüge mittel, Transport ganz zart – auch auf der Ausflugsseite, bei „Transport hinzufügen“ und in den Popups']},
  {v:'0.80_60',d:'25.11.2026',items:['Einheitliche Zeilen: Kennung links, Name, darunter Symbol + Datum im immer gleichen Format (Di 02.02.), Status-Punkt in einer Linie, Pfeil','Route: Ausflüge ohne Überschrift, jeder Ausflug als eigene Zeile mit Nummer und Pfeil – Antippen öffnet ihn direkt; ohne Tag steht „tt.mm.jjjj“','Ausflüge ohne Kategorie-Angabe; gebucht = grüner Punkt wie bei Hotel und Transport','Transport: Datum zuerst, dann Uhrzeit und Teilstrecken']},
  {v:'0.80_59',d:'25.11.2026',items:['Seitenköpfe als Karte: Land, Etappe, Ausflüge, Kosten, Notiz und Transfer zeigen Titel, Datum und Kennzahlen gebündelt in einer Kopfkarte in Landesfarbe','Ausflug-Transport mit T-Nummer wie in der Route (z. B. T4.1) und im gleichen Kartenfuß-Stil','Gebuchte Ausflüge tragen das Kennzeichen „gebucht“','Route: Ausflüge stehen jetzt in der Etappenkarte – unter der Etappe, über dem Transport, als eigener Bereich mit Nummer, Name und Tag']},
  {v:'0.80_58',d:'25.11.2026',items:['Einheitliches Bild in allen Ebenen: Ausflüge als pastellige Karten mit gefüllter Nummer, Transport darunter im schwächeren Kartenfuß mit Symbol und Status-Punkt in einer Linie','Transfer-Seite: Teilstrecken als Transport-Karten, Kacheln in Landesfarbe; Land, Kosten und Etappe ebenso','Popups zu Unterkunft, Kosten, Analyse, Aufenthalt, Transfer, Teilstrecken, Ausflug-Transport und Ausflug einplanen zeigen oben die Karte, um die es geht – im gleichen Stil wie die Route']},
@@ -3604,9 +3608,9 @@ function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div
  return h+'</div>'}
 
 // ---------- 0.80_44: Ebenen 3–5 im gleichen Raster ----------
-function sheetCtx(o){return `<div class="ctx ${o.faint?'faint':''}" style="${o.cc||''}">${o.badge||''}<div class="sp" style="min-width:0"><div class="ct">${o.title}</div>${o.sub?`<div class="cs">${o.sub}</div>`:''}</div>${o.right||''}</div>`}
+function sheetCtx(o){return `<div class="ctx ${o.faint?'faint':o.mid?'mid':''}" style="${o.cc||''}">${o.badge||''}<div class="sp" style="min-width:0"><div class="ct">${o.title}</div>${o.sub?`<div class="cs">${o.sub}</div>`:''}</div>${o.right||''}</div>`}
 function ctxStage(i,extra){const ds=stagesDated()[i];const st=S.stages[i];if(!ds||!st)return '';const p=byId(st.placeId);return sheetCtx({cc:ccVars(st.country),badge:`<span class="cn">${stageNo()[p?.id]||'–'}</span>`,title:esc(p?.name||''),sub:`${ic('cal',12,'#a7acb0')}<span>${WD2[ds.from.getDay()]} ${fmtD(ds.from)} – ${WD2[ds.to.getDay()]} ${fmtD(ds.to)} · ${ds.nights} N</span>${extra?'<span>· '+extra+'</span>':''}`})}
-function ctxEx(x,extra){const aid=x.anchorId||(assign(x)?.a?.id);const st=S.stages.find(o=>o.placeId===aid);const cc=ccVars(st?st.country:x.country);const a=aid?byId(aid):null;return sheetCtx({cc,badge:`<span class="f4pill">${excNo(x)||'·'}</span>`,title:esc(x.name),sub:`${ic('flag',12,'#a7acb0')}<span>${exDate(x)}${a?' · ab '+esc(a.name):''}${extra?' · '+extra:''}</span>`})}
+function ctxEx(x,extra){const aid=x.anchorId||(assign(x)?.a?.id);const st=S.stages.find(o=>o.placeId===aid);const cc=ccVars(st?st.country:x.country);const a=aid?byId(aid):null;return sheetCtx({mid:true,cc,badge:`<span class="f4pill">${excNo(x)||'·'}</span>`,title:esc(x.name),sub:`${ic('flag',12,'#a7acb0')}<span>${exDate(x)}${a?' · ab '+esc(a.name):''}${extra?' · '+extra:''}</span>`})}
 function ctxTr(i,j,txt,sub){const st=S.stages[i];return sheetCtx({faint:true,cc:ccVars(st?.country),badge:`<span class="f4tb" style="border-color:#4a4e53;color:#b7bbbf">${trLabel(st,j)||'T'}</span>`,title:txt,sub})}
 function exDate(x){if(!x.planned)return '<span class="f4ph">tt.mm.jjjj</span>';const d=new Date(x.planned+'T12:00:00');return WD2[d.getDay()]+' '+fmtD(d)}
 function exDot(x){const t=x.tt;if(!t)return '';return `<span class="h5dot ${t.status==='gebucht'?'g':''}"></span>`}
@@ -3641,7 +3645,7 @@ function rhE4ex(i){const S3=stStatus(i);const p=S3.p;const st=S3.st;const ex=exc
  let h=rhHead('Ausflüge',`${ic('route',12,'#a7acb0')}<span>${esc(p.name)} · ${pl.length} geplant · ${un.length} ohne Tag${(()=>{const b=ex.filter(x=>x.tt&&x.tt.status==='gebucht').length;return b?' · '+b+' gebucht':''})()}</span>`,4,`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="attachOpen" data-id="${p.id}" aria-label="Ausflug hinzufügen">${ic('plus')}</button>`,null,{cc:ccVars(st.country),badge:`<span class="cn">${stageNo()[p.id]||''}</span>`});
  const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
  const exCard=x=>{const t=travel(x,p);const tt=x.tt;const M=tt?(TOUR_MODES[tt.mode]||TOUR_MODES.car):null;const n=excNo(x)||'';
-  let c=`<div class="f4card f4st" style="${ccVars(st.country)}">`+f4row({col:`<span class="f4pill">${n}</span>`,title:`<span>${esc(x.name)}</span>`,tCls:'f4tl',sub:`${ic('flag',13,'#9aa0a5')}<span>${[exDate(x),t&&t.min!=null?(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min)+' ab '+esc(p.name):''].filter(Boolean).join(' · ')}</span>`,sCls:'f4si',act:`data-a="stTour" data-id="${x.id}"`,big:true});
+  let c=`<div class="f4card f4mid" style="${ccVars(st.country)}">`+f4row({col:`<span class="f4pill">${n}</span>`,title:`<span>${esc(x.name)}</span>`,tCls:'f4tl',sub:`${ic('flag',13,'#9aa0a5')}<span>${[exDate(x),t&&t.min!=null?(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min)+' ab '+esc(p.name):''].filter(Boolean).join(' · ')}</span>`,sCls:'f4si',act:`data-a="stTour" data-id="${x.id}"`,big:true});
   if(tt){const ok=tt.status==='gebucht';c+=f4row({cls:'f4ft',col:`<span class="f4tb">T${n}</span>`,title:`<span>${M[1]}${tt.op?' · '+esc(tt.op):''}</span><span class="h5dot ${ok?'g':''}"></span>`,tCls:'f4tl',sub:`${ic(M[0],13,'#b7bbbf')}<span>${[tt.dep?'ab '+tt.dep:'',tt.ret&&tt.dir!=='there'?'zurück '+tt.ret:'',eurOf(tt)!=null?eur(eurOf(tt)):'',tt.portal?esc(tt.portal):''].filter(Boolean).join(' · ')||(ok?'gebucht':'offen')}</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`})}
   else c+=f4row({cls:'f4ft f4add',col:`<span class="f4tb" style="border-style:dashed;color:#a9d6cf">T${n}</span>`,title:'<span style="color:#a9d6cf">Transport hinzufügen</span>',sub:`${ic('plus',13,'#a9d6cf')}<span>Taxi, Roller, Boot, Tour …</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`});
   return c+`</div>`};
