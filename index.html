@@ -495,6 +495,19 @@ body.cmp .K{padding:14px 12px 10px}
 .f4card.f4arr{border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}
 .f4ft .f4tb{border-color:#4a4e53;color:#b7bbbf}
 .f4si{display:flex;align-items:center;gap:6px}
+.hero{border-radius:18px;padding:14px 14px 12px;margin:10px 0 6px;background:color-mix(in srgb,var(--cc,#8c9196) 16%,#26282b);border:1px solid color-mix(in srgb,var(--cc,#8c9196) 28%,#26282b)}
+.hero.faint{background:color-mix(in srgb,var(--cc,#8c9196) 8%,#1e1f21);border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}
+.heroh{display:flex;align-items:center;gap:12px}.hero .h5t{margin-top:0;font:600 21px/1.2 Poppins,"Segoe UI",sans-serif}.hero .h5s{margin:4px 0 0;color:#a7acb0;display:flex;align-items:flex-start;gap:6px;flex-wrap:nowrap}.hero .h5s svg{flex:none;margin-top:2px}
+.hero .hbar{width:5px;height:40px;border-radius:3px;background:var(--cc);flex:none}.hero .cn{width:38px;height:38px;border-radius:50%;background:var(--cc);color:#14201e;font:600 16px Poppins,sans-serif;display:flex;align-items:center;justify-content:center;flex:none}
+.herog{display:grid;grid-template-columns:1fr 1fr;margin:12px -4px 0;border-top:1px solid color-mix(in srgb,var(--cc,#8c9196) 26%,#26282b)}
+.herog .h5k{background:transparent!important;border:0!important;border-radius:0;min-height:0;padding:10px 10px 8px;width:auto}
+.herog .h5k:nth-child(odd){border-right:1px solid color-mix(in srgb,var(--cc,#8c9196) 26%,#26282b)!important}.herog .h5k:nth-child(n+3){border-top:1px solid color-mix(in srgb,var(--cc,#8c9196) 26%,#26282b)!important}
+.herog .h5k .v{font-size:16px;margin-top:3px}.herog .h5k .h5dot{top:12px;right:10px}
+.f4exs{background:color-mix(in srgb,var(--cc) 12%,#232527);border-top:1px solid color-mix(in srgb,var(--cc) 22%,#26282b);padding:4px 0}
+.f4exh{display:flex;align-items:center;gap:8px;padding:6px 12px 2px 14px;font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:#8c9196}
+.f4exr{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 14px;min-height:38px}
+.f4exr .f4pill{height:20px;min-width:32px;font-size:11px}.f4exr .en{flex:1;min-width:0;font-size:13.5px;color:#e3e4e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.f4exr .ed{font-size:12px;color:#8c9196;white-space:nowrap;flex:none}
+.f4bk{display:inline-flex;align-items:center;gap:3px;height:18px;padding:0 6px;border-radius:9px;background:rgba(140,199,154,.16);color:#9fd0aa;font-size:10.5px;font-weight:600;flex:none}
 .f4pill{min-width:34px;height:22px;padding:0 6px;border-radius:7px;background:var(--cc,#a9d6cf);color:#14201e;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .f4card.f4trc{background:color-mix(in srgb,var(--cc,#8c9196) 8%,#1e1f21);border-color:color-mix(in srgb,var(--cc,#8c9196) 22%,#26282b)}.f4trc .f4tb{border-color:#4a4e53;color:#b7bbbf}
 .h5g2.h5tint .h5k{background:color-mix(in srgb,var(--cc) 12%,#26282b);border-color:color-mix(in srgb,var(--cc) 24%,#26282b)}
@@ -543,9 +556,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_58';
+const APP_VERSION='0.80_59';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.80_59',d:'25.11.2026',items:['Seitenköpfe als Karte: Land, Etappe, Ausflüge, Kosten, Notiz und Transfer zeigen Titel, Datum und Kennzahlen gebündelt in einer Kopfkarte in Landesfarbe','Ausflug-Transport mit T-Nummer wie in der Route (z. B. T4.1) und im gleichen Kartenfuß-Stil','Gebuchte Ausflüge tragen das Kennzeichen „gebucht“','Route: Ausflüge stehen jetzt in der Etappenkarte – unter der Etappe, über dem Transport, als eigener Bereich mit Nummer, Name und Tag']},
  {v:'0.80_58',d:'25.11.2026',items:['Einheitliches Bild in allen Ebenen: Ausflüge als pastellige Karten mit gefüllter Nummer, Transport darunter im schwächeren Kartenfuß mit Symbol und Status-Punkt in einer Linie','Transfer-Seite: Teilstrecken als Transport-Karten, Kacheln in Landesfarbe; Land, Kosten und Etappe ebenso','Popups zu Unterkunft, Kosten, Analyse, Aufenthalt, Transfer, Teilstrecken, Ausflug-Transport und Ausflug einplanen zeigen oben die Karte, um die es geht – im gleichen Stil wie die Route']},
  {v:'0.80_57',d:'24.11.2026',items:['Plausibilitätsprüfung beim Einlesen: Ist der Name ein Ort der Reise statt eines Hotels? Klingt er nach Ausflug? Ist die Unterkunft online bekannt (Google/OpenStreetMap)? – mit grünem Haken, Hinweis oder Warnung','Bekannte Unterkünfte bringen Position und Google-Maps-Link gleich mit','Booking.com-Mails werden besser erkannt: Hotelname aus Betreff und „Die Unterkunft … erwartet Sie“, Lage, Zahlung vor Ort, Frühstück, Telefon, Stornofrist']},
  {v:'0.80_56',d:'24.11.2026',items:['Buchung einlesen: „Originaltext ansehen“ in der Vorschau – der Text lässt sich dort korrigieren und neu auswerten','Unplausible Zeiten wie Check-out 00:00 werden ignoriert','Ist der erkannte Name nur ein Ort der Reise (z. B. Phong Nha), sucht die App weiter nach dem eigentlichen Hotelnamen']},
@@ -2981,10 +2995,10 @@ function rhDot(on,c){return on?`<span class="h5dot ${c||''}"></span>`:''}
 function rhName(o){if(o.l==='c')return country(o.c).name;const i=rhSI(o.id);const st=S.stages[i];
  if(o.l==='s')return byId(st?.placeId)?.name||'Etappe';if(o.l==='ex')return 'Ausflüge';if(o.l==='cost')return 'Kosten';if(o.l==='note')return 'Notiz';
  if(o.l==='tr'){const lab=st?trLabel(st,0).replace(/\.\d+$/,''):'';return (i===0?'Anreise ':'Transfer ')+lab}return ''}
-function rhHead(title,sub,lvl,right,col){const st=UI.rh;const crumbs=[{n:0,t:'Route'}].concat(st.map((o,k)=>({n:k+1,t:rhName(o)})));const show=crumbs.slice(-3);
+function rhHead(title,sub,lvl,right,col,hero){const st=UI.rh;const crumbs=[{n:0,t:'Route'}].concat(st.map((o,k)=>({n:k+1,t:rhName(o)})));const show=crumbs.slice(-3);
  return `<div class="h5top">${st.length?`<button class="ib" data-a="rhBack" aria-label="Zurück">${ic('back')}</button>`:''}<span class="sp"></span>${right||''}<span class="h5lvl" ${col?`style="border-color:${hexA(col,.6)};color:${col}"`:''}>Ebene ${lvl}</span></div>
  ${st.length?`<div class="h5bc">${show.map((c,k)=>k===show.length-1?`<b>${esc(c.t)}</b>`:`<span class="click" data-a="rhTo" data-n="${c.n}">${esc(c.t)}</span>${ic('chev',11,'#5d6166')}`).join('')}</div>`:''}
- <div class="h5t">${title}</div>${sub?`<div class="h5s">${sub}</div>`:''}`}
+ ${hero?`<div class="hero ${hero.faint?'faint':''}" style="${hero.cc||''}"><div class="heroh">${hero.badge||''}<div class="sp" style="min-width:0"><div class="h5t">${title}</div>${sub?`<div class="h5s">${sub}</div>`:''}</div>${hero.right||''}</div><!--TILES--></div>`:`<div class="h5t">${title}</div>${sub?`<div class="h5s">${sub}</div>`:''}`}`}
 function rhTile(k,v,s,act,dot,extra){return `<div class="h5k ${act?'click':''}" ${act||''}>${dot?'<span class="h5dot"></span>':''}<div class="k">${k}</div><div class="v">${v}</div>${s?`<div class="s">${s}</div>`:''}${extra||''}</div>`}
 function rhSec(t,right){return `<div class="h5sec"><span>${t}</span>${right||''}</div>`}
 function rhCountryTodo(cid){return openItems().filter(x=>!x.booked&&x.c===cid).length}
@@ -3025,12 +3039,12 @@ function rhE2(c){const ds=stagesDated();const r=countryRange(c);const list=ds.ma
  const kc=idx.reduce((a,k)=>{const x=stageCost(k);return {c:a.c+(x.c||0),b:a.b+(x.budget||0)}},{c:0,b:0});
  const noStay=list.filter(s=>!s.gap&&S.stages[s.i].stay?.status!=='gebucht').length;
  const right=`<button class="ib" data-a="mapScope" data-k="${c}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageAdd" data-k="${c}" aria-label="Etappe hinzufügen">${ic('plus')}</button>`;
- let h=rhHead(`<span class="f4bar" style="background:${ccol(c)};height:28px;width:5px"></span>${esc(country(c).name)}`,`${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} Nächte${v&&vd?` · Visum ${vd} von ${v[0]} Tagen`:''}`,2,right);
+ let h=rhHead(esc(country(c).name),`${ic('cal',12,'#a7acb0')}<span>${fmtD(r.from)}–${fmtD(r.to)} · ${r.nights} Nächte${v&&vd?` · Visum ${vd} von ${v[0]} Tagen`:''}</span>`,2,right,null,{cc:ccVars(c),badge:'<span class="hbar"></span>'});
  const vc=v&&vd?(vd>v[0]?'r':vd/v[0]>=.9?'y':''):'';
- h+=`<div class="h5g2 h5tint" style="${ccVars(c)}">${rhTile('Etappen',list.filter(s=>!s.gap).length,noStay?`${noStay} ohne gebuchte Unterkunft`:'alle Unterkünfte gebucht','',noStay>0)}
+ h=h.replace('<!--TILES-->',`<div class="herog">${rhTile('Etappen',list.filter(s=>!s.gap).length,noStay?`${noStay} ohne gebuchte Unterkunft`:'alle Unterkünfte gebucht','',noStay>0)}
  ${rhTile('Kosten',eur(kc.c),kc.b?'von '+eur(kc.b):(tr||ho?`Transfers ${eur(tr)}`:'erfasst'),'',kc.b&&kc.c>kc.b,kc.b?`<div class="h5bar2"><i style="width:${Math.min(100,Math.round(kc.c/kc.b*100))}%"></i></div>`:'')}
  ${rhTile('Einreise',`${cp.d}/${cp.n}`,'Checkliste',`data-a="check" data-k="${c}"`,cp.d<cp.n)}
- ${rhTile('Status',pl?'geplant':'Entwurf',v&&vd?`Visum ${vd}/${v[0]} (${v[1]})`:'antippen zum Wechseln',`data-a="togCountry" data-k="${c}"`,!!vc)}</div>`;
+ ${rhTile('Status',pl?'geplant':'Entwurf',v&&vd?`Visum ${vd}/${v[0]} (${v[1]})`:'antippen zum Wechseln',`data-a="togCountry" data-k="${c}"`,!!vc)}</div>`);
  {const na=noAnchor().filter(x=>x.p.country===c&&!x.stage);if(na.length){const op=(UI.openPts||{})[c];
   h+=`<div class="h5list" style="margin-top:12px"><div class="h5row click" data-a="openPts" data-k="${c}"><span class="h5dot"></span><div class="sp"><div class="t">${na.length} ${na.length===1?'offener Punkt':'offene Punkte'} ohne Etappe</div></div>${ic(op?'up':'down',14,'#5d6166')}</div>${op?na.map(x=>`<div class="h5row"><div class="sp" style="min-width:0"><div class="t">${esc(x.p.name)}</div><div class="s">${ROLES[x.p.role]} · nächste Etappe ${esc(x.as.a.name)} ca. ${fmtMin(x.as.min)}</div></div><button class="btn sm" data-a="umh" data-id="${x.p.id}" data-m="replace">Zuordnen</button><button class="btn sm pri" data-a="addStage" data-id="${x.p.id}">Etappe</button></div>`).join(''):''}</div>`}}
  h+=rhSec('Ablauf');h+=rhStrip([c],'land');h+=rhFlow([c],'land');
@@ -3039,15 +3053,15 @@ function rhE2(c){const ds=stagesDated();const r=countryRange(c);const list=ds.ma
 
 // Ebene 3: Etappe
 function rhE4cost(i){const S3=stStatus(i);const ci=costItems().filter(x=>x.key==='h'+i||x.key.startsWith('l'+i+'_')||(x.key.startsWith('t')&&S3.days.includes(x.date)));const ex=(S.expenses||[]).map((e,k)=>({e,k})).filter(o=>S3.days.includes(o.e.date));
- let h=rhHead('Kosten',`${eur(S3.k.c)}${S3.k.budget?' von '+eur(S3.k.budget):''} · ${S3.miss?S3.miss+' ohne Betrag':'alle Beträge erfasst'}`,4);
+ let h=rhHead('Kosten',`${ic('wallet',12,'#a7acb0')}<span>${esc(S3.p.name)} · ${S3.miss?S3.miss+' ohne Betrag':'alle Beträge erfasst'}</span>`,4,'',null,{cc:ccVars(S.stages[i].country),badge:`<span class="cn">${stageNo()[S3.p.id]||''}</span>`});
  const paid=ci.filter(x=>x.amt!=null&&x.paid).reduce((a,x)=>a+x.amt,0);
- h+=`<div class="h5g2 h5tint" style="${ccVars(S.stages[i].country)}">${rhTile('Erfasst',eur(S3.k.c),S3.k.budget?'Budget '+eur(S3.k.budget):'kein Budget','',S3.k.budget&&S3.k.c>S3.k.budget,S3.k.budget?`<div class="h5bar2"><i style="width:${Math.min(100,Math.round(S3.k.c/S3.k.budget*100))}%"></i></div>`:'')}${rhTile('Bezahlt',eur(paid),S3.miss?S3.miss+' Posten ohne Betrag':'Fixkosten','',S3.miss>0)}</div>`;
+ h=h.replace('<!--TILES-->',`<div class="herog">${rhTile('Erfasst',eur(S3.k.c),S3.k.budget?'Budget '+eur(S3.k.budget):'kein Budget','',S3.k.budget&&S3.k.c>S3.k.budget,S3.k.budget?`<div class="h5bar2"><i style="width:${Math.min(100,Math.round(S3.k.c/S3.k.budget*100))}%"></i></div>`:'')}${rhTile('Bezahlt',eur(paid),S3.miss?S3.miss+' Posten ohne Betrag':'Fixkosten','',S3.miss>0)}</div>`);
  const row=(icn,t,s,dot,act)=>`<div class="h5row ${act?'click':''}" ${act||''}>${ic(icn,16,'#8c9196')}<div class="sp" style="min-width:0"><div class="t">${t}</div>${s?`<div class="s">${s}</div>`:''}</div>${rhDot(dot)}${act?ic('chev',14,'#5d6166'):''}</div>`;
  h+=rhSec('Fixkosten');h+=`<div class="h5list h5tint" style="${ccVars(S.stages[i].country)}">${ci.length?ci.map(x=>row(x.icn,`${x.no?x.no+' ':''}${esc(x.t)}`,x.amt!=null?eur(x.amt)+(x.paid?' · bezahlt':' · offen'):'kein Betrag',x.amt==null||!x.paid,x.open)).join(''):row('wallet','keine Posten','',false,'')}</div>`;
  h+=rhSec('Ausgaben vor Ort');h+=`<div class="h5list h5tint" style="${ccVars(S.stages[i].country)}">${ex.length?ex.map(o=>row('wallet',esc(o.e.txt||o.e.cat||'Ausgabe'),eur(eurOf(o.e,'amt')),o.e.paid===false,`data-a="exEdit" data-i="${o.k}"`)).join(''):row('wallet','noch keine','',false,'')}</div>`;
  h+=`<button class="h5add" data-a="exNew">${ic('plus',15)} Ausgabe erfassen</button><div class="h5note">Budget der Etappe = Fixkosten + Nächte × Tagesspielraum.</div>`;
  return h}
-function rhE4note(i){const p=byId(S.stages[i].placeId);return rhHead('Notiz',esc(p.name),4)+`<textarea class="fld h5ta" id="rhNote" rows="12" placeholder="Notizen zu ${esc(p.name)} …">${esc(p.note||'')}</textarea><div class="h5note">Wird automatisch gespeichert.</div>`}
+function rhE4note(i){const p=byId(S.stages[i].placeId);return rhHead('Notiz',esc(p.name),4,'',null,{cc:ccVars(S.stages[i].country),badge:`<span class="cn">${stageNo()[p.id]||''}</span>`})+`<textarea class="fld h5ta" id="rhNote" rows="12" placeholder="Notizen zu ${esc(p.name)} …">${esc(p.note||'')}</textarea><div class="h5note">Wird automatisch gespeichert.</div>`}
 
 // Ebene 4–5: Transfer
 function rhTr(i){const st=S.stages[i];const s={...stagesDated()[i],i};const L=legsOf(st);const pv=S.stages[i-1];const lab=trLabel(st,0).replace(/\.\d+$/,'');
@@ -3055,14 +3069,14 @@ function rhTr(i){const st=S.stages[i];const s={...stagesDated()[i],i};const L=le
  const I=L.map((l,j)=>trInfo(s,null,j));const km=I.reduce((a,x)=>a+(x.km||0),0);const dm=L.reduce((a,l,k)=>a+((+l.dur)||I[k].est||0),0);const dur=dm?((L.some(l=>!l.dur)?'ca. ':'')+fmtMin(dm)):'';
  const fromC=pv?pv.country:null;const pc=fromC&&fromC!==st.country;const nb=L.filter(l=>l.status==='gebucht').length;const cost=L.reduce((a,l)=>a+(eurOf(l)||0),0);const hasC=L.some(l=>eurOf(l)!=null);const allPaid=hasC&&L.every(l=>eurOf(l)==null||l.paid);
  const dt=L[0].date?new Date(L[0].date+'T12:00:00'):s.from;
- let h=rhHead(`${esc(I[0].from)} → ${esc(I[I.length-1].to)}`,[`${i===0?'Anreise':'Transfer'} ${lab}`,fmtDL(dt).slice(0,9),dur,km?km.toLocaleString('de-DE')+' km':'',pc?esc(country(fromC).name)+' → '+esc(country(st.country).name):''].filter(Boolean).join(' · '),'4–5');
+ let h=rhHead(`${esc(I[0].from)} → ${esc(I[I.length-1].to)}`,`${ic((MODES[L[0].mode]||MODES.car)[0],12,'#a7acb0')}<span>${[fmtDL(dt).slice(0,9),dur,km?km.toLocaleString('de-DE')+' km':'',pc?esc(country(fromC).name)+' → '+esc(country(st.country).name):''].filter(Boolean).join(' · ')}</span>`,'4–5','',null,{faint:true,cc:ccVars(st.country),badge:`<span class="f4tb" style="border-color:#4a4e53;color:#b7bbbf;height:24px;min-width:38px">${lab}</span>`});
  let tiles=rhTile('Status',`${nb} von ${L.length}`,'gebucht',`data-a="${L.length>1?'legAddAsk':'trEdit'}" data-i="${i}" data-j="0"`,nb<L.length);
  tiles+=rhTile('Kosten',hasC?eur(cost):'–',hasC?(allPaid?'bezahlt':'noch nicht bezahlt'):'kein Betrag erfasst',`data-a="trEdit" data-i="${i}" data-j="0"`,!allPaid);
  if(pc||i===0){const cp=chkProgress(st.country);tiles+=rhTile('Einreise',`${cp.d}/${cp.n}`,'Checkliste '+esc(country(st.country).name),`data-a="check" data-k="${st.country}"`,cp.d<cp.n)}
  if(pc){const v=visaOf(fromC);const vd=stayDaysOf(fromC);if(v&&vd)tiles+=rhTile('Visum '+esc(country(fromC).name),`${vd}/${v[0]}`,'Tage genutzt',`data-a="check" data-k="${fromC}"`,vd>v[0])}
  if(!pc)tiles+=rhTile('Abfahrt',L[0].dep||(L[0].depX?'unbekannt':'offen'),L[L.length-1].arr?'Ankunft '+L[L.length-1].arr:'Zeit eintragen',`data-a="trEdit" data-i="${i}" data-j="0"`,!L[0].dep&&!L[0].depX);
  if(!pc&&i>0)tiles+=rhTile('Strecke',km?km.toLocaleString('de-DE')+' km':'–',dur||'Dauer offen','',false);
- h+=`<div class="h5g2 h5tint" style="${ccVars(st.country)}">${tiles}</div>`;
+ h=h.replace('<!--TILES-->',`<div class="herog">${tiles}</div>`);
  h+=rhSec('Teilstrecken');
  h+='<div class="f4">'+L.map((l,j)=>{const M=MODES[l.mode]||MODES.car;const d=l.date?new Date(l.date+'T12:00:00'):s.from;return `<div class="f4card f4trc" style="${ccVars(st.country)}">`+f4row({col:`<span class="f4tb">${trLabel(st,j)}</span>`,title:`<span>${esc(I[j].from)} → ${esc(I[j].to)}</span><span class="h5dot ${legDone(l)?'g':''}"></span>`,tCls:'f4tl',sub:`${ic(M[0],13,'#b7bbbf')}<span>${[WD2[d.getDay()]+' '+fmtD(d)+(l.dep?' · '+l.dep+(l.arr?'–'+l.arr:''):''),l.no?esc(l.no):'',l.op?esc(l.op):'',legNeedDep(l)?'Abfahrt fehlt':'',eurOf(l)!=null?eur(eurOf(l)):'',l.portal?esc(l.portal):''].filter(Boolean).join(' · ')}</span>`,sCls:'f4si',act:`data-a="trEdit" data-i="${i}" data-j="${j}"`,big:true})+`</div>`}).join('<div class="f4ln"></div>')+`<div class="f4ln"></div><div class="f4card f4arr">${f4row({cls:'f4solo f4add',col:`<span class="f4tb" style="border-style:dashed;color:#a9d6cf">+</span>`,title:'<span style="color:#a9d6cf">Teilstrecke hinzufügen</span>',sub:'z. B. Taxi zum Flughafen, Fähre',act:`data-a="legAdd" data-i="${i}"`})}</div></div>`;
  const adv=trAdvice(i);
@@ -3580,6 +3594,7 @@ function rhFlow(cids,mode){const ds=stagesDated();const no=stageNo();let h='<div
   else{const todo=analyse(i).some(x=>x.lvl==='err');
    const bk=st.stay?.status==='gebucht',hn=st.stay?.name;
    h+=`<div class="f4card f4st"><div class="f4r click" data-a="rh" data-l="s" data-id="${st.id}"><div class="f4c"><span class="f4nr">${no[p.id]||''}</span></div><div class="sp" style="min-width:0"><div class="f4nm">${esc(p.name)}</div><div class="f4s f4si">${ic('cal',13,'#9aa0a5')}<span>${WD2[s.from.getDay()]} ${fmtD(s.from)} – ${WD2[s.to.getDay()]} ${fmtD(s.to)} · ${s.nights} N</span></div><div class="f4ht ${hn?'':'off'}">${ic('bed',14,hn?'#b7bbbf':'#7d8287')}<span>${esc(hn||'Unterkunft offen')}</span><span class="h5dot ${bk?'g':''}"></span></div></div><div class="f4rt">${todo?'<span class="h5dot r"></span>':''}${ic('chev',14,'#5d6166')}</div></div>`;
+   h+=f4exSec(i,p);
    const j=i+1,nx=S.stages[j];if(nx&&!nx.gap){const np=byId(nx.placeId);const border=nx.country!==st.country;const t=f4tr(j,'nach '+(np?.name||'')+(border?' · Grenze':''));
     if(t)h+=f4trRow(t);else if(nx.placeId!==st.placeId)h+=f4missing(j,'Weiterreise nach '+(np?.name||'')+' hinzufügen',`data-a="autoTr" data-i="${j}"`)}
    h+='</div></div>'}
@@ -3591,12 +3606,16 @@ function sheetCtx(o){return `<div class="ctx ${o.faint?'faint':''}" style="${o.c
 function ctxStage(i,extra){const ds=stagesDated()[i];const st=S.stages[i];if(!ds||!st)return '';const p=byId(st.placeId);return sheetCtx({cc:ccVars(st.country),badge:`<span class="cn">${stageNo()[p?.id]||'–'}</span>`,title:esc(p?.name||''),sub:`${ic('cal',12,'#a7acb0')}<span>${WD2[ds.from.getDay()]} ${fmtD(ds.from)} – ${WD2[ds.to.getDay()]} ${fmtD(ds.to)} · ${ds.nights} N</span>${extra?'<span>· '+extra+'</span>':''}`})}
 function ctxEx(x,extra){const aid=x.anchorId||(assign(x)?.a?.id);const st=S.stages.find(o=>o.placeId===aid);const cc=ccVars(st?st.country:x.country);const a=aid?byId(aid):null;return sheetCtx({cc,badge:`<span class="f4pill">${excNo(x)||'·'}</span>`,title:esc(x.name),sub:`${ic(CAT_IC[(x.cats||[])[0]]||'pin',12,'#a7acb0')}<span>${x.planned?WD2[new Date(x.planned+'T12:00:00').getDay()]+' '+fmtD(new Date(x.planned+'T12:00:00')):'ohne Tag'}${a?' · ab '+esc(a.name):''}${extra?' · '+extra:''}</span>`})}
 function ctxTr(i,j,txt,sub){const st=S.stages[i];return sheetCtx({faint:true,cc:ccVars(st?.country),badge:`<span class="f4tb" style="border-color:#4a4e53;color:#b7bbbf">${trLabel(st,j)||'T'}</span>`,title:txt,sub})}
+function f4exSec(i,p){const ex=excursions(p.id).map(x=>x.p);if(!ex.length)return '';const pl=ex.filter(x=>x.planned).sort((a,b)=>a.planned.localeCompare(b.planned)||(excNo(a)||'').localeCompare(excNo(b)||'',undefined,{numeric:true})),un=ex.filter(x=>!x.planned);const bk=ex.filter(x=>x.tt&&x.tt.status==='gebucht').length;
+ const row=x=>{const ok=x.tt&&x.tt.status==='gebucht';const d=x.planned?new Date(x.planned+'T12:00:00'):null;return `<div class="f4exr click" data-a="stTour" data-id="${x.id}"><span class="f4pill">${excNo(x)||'·'}</span><span class="en">${esc(x.name)}</span>${ok?`<span class="f4bk">${ic('check',10,'#9fd0aa')} gebucht</span>`:''}<span class="ed">${d?WD2[d.getDay()]+' '+fmtD(d):'ohne Tag'}</span></div>`};
+ const show=pl.slice(0,4);const rest=pl.length-show.length+un.length;
+ return `<div class="f4exs"><div class="f4exh click" data-a="rh" data-l="ex" data-id="${S.stages[i].id}">${ic('route',11,'#8c9196')}<span>Ausflüge · ${ex.length}${bk?' · '+bk+' gebucht':''}</span><span class="sp"></span>${ic('chev',12,'#5d6166')}</div>${show.map(row).join('')}${rest?`<div class="f4exr click" data-a="rh" data-l="ex" data-id="${S.stages[i].id}"><span class="en" style="color:#8c9196;font-size:12.5px">+ ${rest} ${pl.length>show.length?'weitere':'ohne Tag'}</span></div>`:''}</div>`}
 function f4row(o){const dot=o.dot==='r'?'<span class="h5dot r"></span>':o.dot?'<span class="h5dot"></span>':'<span style="width:7px;flex:none"></span>';
  return `<div class="f4r ${o.cls||''} ${o.act?'click':''}" ${o.act||''}><div class="f4c">${o.col||''}</div><div class="sp" style="min-width:0"><div class="${o.big?'f4nm':'f4tt'} ${o.tCls||''}">${o.title}</div>${o.sub?`<div class="f4s ${o.sCls||''}">${o.sub}</div>`:''}</div>${o.right||''}<div class="f4rt">${dot}${o.act?ic('chev',14,'#5d6166'):''}</div></div>`}
 function f4ico(n){return `<span class="f4ic">${ic(n,16,'#a9adb1')}</span>`}
 function rhE3(i){const S3=stStatus(i);const s={...S3.ds,i};const st=S3.st;const p=S3.p;const no=stageNo()[p.id]||'';const pr=prioOf(p);const nx=S.stages[i+1];const pv=S.stages[i-1];
  const right=`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="stageMenu" data-i="${i}" aria-label="Mehr">${ic('more')}</button>`;
- const cc3=ccol(st.country);let h=rhHead(`<span class="h5n lg" style="background:${cc3}">${no}</span>${esc(p.name)}`,`${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}`,3,right);
+ let h=rhHead(esc(p.name),`${ic('cal',12,'#a7acb0')}<span>${dRange(s,st)} · ${s.nights} ${s.nights===1?'Nacht':'Nächte'}${pr?' · '+(ROLES_SHORT[pr]||''):''}</span>`,3,right,null,{cc:ccVars(st.country),badge:`<span class="cn">${no}</span>`});
  h+='<div class="f4" style="margin-top:14px">';
  {const txt=i===0?'Anreise Frankfurt → '+p.name:'Anreise aus '+(pv.country!==st.country?country(pv.country).name+', ':'')+(byId(pv.placeId)?.name||'');const t=f4tr(i,txt);
   h+=`<div class="f4card f4arr" style="${ccVars(s.country)}">${t?f4trRow(t,'f4solo'):i===0?f4missing(i,'Anreise anlegen','data-a="t1Auto"','f4solo'):pv&&pv.placeId!==st.placeId?f4missing(i,'Anreise hinzufügen',`data-a="autoTr" data-i="${i}"`,'f4solo'):''}</div><div class="f4ln"></div>`}
@@ -3614,12 +3633,12 @@ function rhE3(i){const S3=stStatus(i);const s={...S3.ds,i};const st=S3.st;const 
  h+=`</div><div class="h5btns"><button class="btn sm gh sp" data-a="suggOpen" data-id="${p.id}">${ic('spark',14)} Vorschläge</button><button class="btn sm gh sp" data-a="mvBefore" data-i="${i}">${ic('route',14)} Verschieben</button></div>`;
  return h}
 function rhE4ex(i){const S3=stStatus(i);const p=S3.p;const st=S3.st;const ex=excursions(p.id).map(x=>x.p);const pl=ex.filter(x=>x.planned),un=ex.filter(x=>!x.planned);
- let h=rhHead('Ausflüge',`${esc(p.name)} · ${pl.length} geplant · ${un.length} ohne Tag`,4,`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="attachOpen" data-id="${p.id}" aria-label="Ausflug hinzufügen">${ic('plus')}</button>`);
+ let h=rhHead('Ausflüge',`${ic('route',12,'#a7acb0')}<span>${esc(p.name)} · ${pl.length} geplant · ${un.length} ohne Tag${(()=>{const b=ex.filter(x=>x.tt&&x.tt.status==='gebucht').length;return b?' · '+b+' gebucht':''})()}</span>`,4,`<button class="ib" data-a="mapFocus" data-id="${p.id}" aria-label="Auf Karte">${ic('map')}</button><button class="ib" data-a="attachOpen" data-id="${p.id}" aria-label="Ausflug hinzufügen">${ic('plus')}</button>`,null,{cc:ccVars(st.country),badge:`<span class="cn">${stageNo()[p.id]||''}</span>`});
  const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
  const exCard=x=>{const t=travel(x,p);const tt=x.tt;const M=tt?(TOUR_MODES[tt.mode]||TOUR_MODES.car):null;const n=excNo(x)||'';
-  let c=`<div class="f4card f4st" style="${ccVars(st.country)}">`+f4row({col:`<span class="f4pill">${n}</span>`,title:esc(x.name),sub:`${ic(CAT_IC[x.cats[0]]||'pin',13,'#9aa0a5')}<span>${[x.cats.join(', '),t&&t.min!=null?(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min)+' ab '+esc(p.name):'',gRateTxt(x)].filter(Boolean).join(' · ')}</span>`,sCls:'f4si',act:`data-a="stTour" data-id="${x.id}"`,big:true});
-  if(tt){const ok=tt.status==='gebucht';c+=f4row({cls:'f4ft',col:`<span class="f4tb">${n}</span>`,title:`<span>${M[1]}${tt.op?' · '+esc(tt.op):''}</span><span class="h5dot ${ok?'g':''}"></span>`,tCls:'f4tl',sub:`${ic(M[0],13,'#b7bbbf')}<span>${[tt.dep?'ab '+tt.dep:'',tt.ret&&tt.dir!=='there'?'zurück '+tt.ret:'',eurOf(tt)!=null?eur(eurOf(tt)):'',tt.portal?esc(tt.portal):''].filter(Boolean).join(' · ')||(ok?'gebucht':'offen')}</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`})}
-  else c+=f4row({cls:'f4ft f4add',col:`<span class="f4tb" style="border-style:dashed;color:#a9d6cf">${n}</span>`,title:'<span style="color:#a9d6cf">Transport hinzufügen</span>',sub:`${ic('plus',13,'#a9d6cf')}<span>Taxi, Roller, Boot, Tour …</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`});
+  let c=`<div class="f4card f4st" style="${ccVars(st.country)}">`+f4row({col:`<span class="f4pill">${n}</span>`,title:`<span>${esc(x.name)}</span>${tt&&tt.status==='gebucht'?`<span class="f4bk">${ic('check',10,'#9fd0aa')} gebucht</span>`:''}`,tCls:'f4tl',sub:`${ic(CAT_IC[x.cats[0]]||'pin',13,'#9aa0a5')}<span>${[x.cats.join(', '),t&&t.min!=null?(t.src==='Schätzung'?'ca. ':'')+fmtMin(t.min)+' ab '+esc(p.name):'',gRateTxt(x)].filter(Boolean).join(' · ')}</span>`,sCls:'f4si',act:`data-a="stTour" data-id="${x.id}"`,big:true});
+  if(tt){const ok=tt.status==='gebucht';c+=f4row({cls:'f4ft',col:`<span class="f4tb">T${n}</span>`,title:`<span>${M[1]}${tt.op?' · '+esc(tt.op):''}</span><span class="h5dot ${ok?'g':''}"></span>`,tCls:'f4tl',sub:`${ic(M[0],13,'#b7bbbf')}<span>${[tt.dep?'ab '+tt.dep:'',tt.ret&&tt.dir!=='there'?'zurück '+tt.ret:'',eurOf(tt)!=null?eur(eurOf(tt)):'',tt.portal?esc(tt.portal):''].filter(Boolean).join(' · ')||(ok?'gebucht':'offen')}</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`})}
+  else c+=f4row({cls:'f4ft f4add',col:`<span class="f4tb" style="border-style:dashed;color:#a9d6cf">T${n}</span>`,title:'<span style="color:#a9d6cf">Transport hinzufügen</span>',sub:`${ic('plus',13,'#a9d6cf')}<span>Taxi, Roller, Boot, Tour …</span>`,sCls:'f4si',act:`data-a="ttEdit" data-id="${x.id}"`});
   return c+`</div>`};
  h+='<div class="f4" style="margin-top:8px">';
  S3.days.forEach((d,k)=>{const dd=new Date(d+'T12:00:00');const list=pl.filter(x=>x.planned===d);
