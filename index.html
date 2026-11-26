@@ -248,6 +248,12 @@ button.wxcol.on{background:var(--chip)}
 .cainfo{margin:0 0 0 18px;padding:0;line-height:1.5;font-size:13px}.cainfo li{margin-bottom:8px}
 .cacard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px}
 .caprogb{height:6px;border-radius:3px;background:var(--chip);overflow:hidden;margin-top:10px}.caprogb i{display:block;height:100%;background:var(--ki);border-radius:3px;transition:width .9s linear}
+
+.btn.busy{position:relative;overflow:hidden;opacity:1;cursor:default}
+.btn.busy>*{position:relative}
+.btn.busy .bfill{position:absolute;left:0;top:0;bottom:0;background:color-mix(in srgb,var(--acct) 16%,transparent);transition:width 1s linear}
+.btn.p .spin{border-color:color-mix(in srgb,var(--acct) 28%,transparent);border-top-color:var(--acct);margin-right:0}
+.btn.busy .bclk{margin-left:auto;padding-left:6px;font-weight:500;opacity:.75}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1117,8 +1123,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_03';
+const APP_VERSION='0.91_04';
 const CHANGELOG=[
+ {v:'0.91_04',d:'26.11.2026',items:['Unterkünfte und Ausflüge suchen: Der Knopf „Vorschläge suchen“ zeigt während der Suche selbst den Spinner, die Laufzeit und einen geschätzten Fortschritt – die Anzeige unter dem Hinweistext entfällt']},
  {v:'0.91_03',d:'26.11.2026',items:['Kostenanalyse: Während Claude analysiert, zeigt eine Karte oben einen Fortschrittsbalken mit dem aktuellen Arbeitsschritt, der Laufzeit und der Zahl der Posten – auch auf der Karte unter Geld und im KI-Kasten; die Seite springt beim Start nach oben']},
  {v:'0.91_02',d:'26.11.2026',items:['Neu unter Geld: Kostenanalyse (KI) – ganze Reise oder je Land in drei Stufen: Low Budget, Ausgewogen, Oberes Segment','Vorher fragt die App die Annahmen ab: Höchstpreis pro Nacht je Stufe (der höchste Wert ist die absolute Obergrenze – teurer wird es nie) und Puffer','Gebuchtes zählt mit dem echten Betrag, geplante Beträge gelten für „Ausgewogen“, alles Offene schätzt Claude mit Websuche; die App rechnet hoch','Spielraum gesamt und pro Tag, Vergleich der drei Stufen, Zusammensetzung nach Unterkunft, Transport, Ausflügen und Tagesausgaben, Verlauf über die Reise mit Budget, wann bezahlt wird, Spielraum pro Tag je Land, alle Posten je Land (antippen öffnet das Formular)','Info-Knopf erklärt Schritt für Schritt, wie gerechnet wird']},
  {v:'0.91_01',d:'26.11.2026',items:['Neue Arbeitsversion auf Basis der Vollversion 0.91 (inhaltlich identisch)']},
@@ -2373,8 +2380,16 @@ Sonstiges: ${c.free||'–'}.${h0.name?`\nBisher eingetragen: ${h0.name} (${h0.st
 Booking-Suche mit Reisedaten: ${hBook(place+', '+cn,st)}`;
  const r=await hotCall(AI_HOTEL_SYS,msg,4);const J=aiJson(r.text);const opts=(Array.isArray(J.hotels)?J.hotels:[]).map(hotNorm).filter(x=>x.name).slice(0,6);if(!opts.length)throw new Error('keine passende Unterkunft gefunden');
  return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd:r.usd,crit:{min:c.min,max:c.max,am:c.am,ty:c.ty,pay:c.pay,rt:c.rt,free:c.free},from:iso(d.from),to:iso(d.to)}}
+// Suchknopf während der KI-Suche: Spinner, Laufzeit und geschätzter Fortschritt im Knopf selbst
+const bbPct=(s,tau)=>Math.min(95,Math.round(100*(1-Math.exp(-s/(tau||40)))));
+const bbClk=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function busyBtn(txt,t0,tau){const s=Math.max(0,(Date.now()-(t0||Date.now()))/1000);
+ return `<button class="btn p busy" style="flex:1" disabled data-bt0="${t0||Date.now()}" data-tau="${tau||40}"><i class="bfill" style="width:${bbPct(s,tau)}%"></i><span class="spin"></span><span>${txt}</span><span class="bclk num">${bbClk(s)}</span></button>`}
+let BB_TICK=null;function busyTick(){if(BB_TICK)return;BB_TICK=setInterval(()=>{const L=document.querySelectorAll('.btn.busy[data-bt0]');
+ if(!L.length&&!UI.hoBusy&&!UI.exBusy){clearInterval(BB_TICK);BB_TICK=null;return}
+ L.forEach(b=>{const s=(Date.now()-Number(b.dataset.bt0))/1000;const f=b.querySelector('.bfill');if(f)f.style.width=bbPct(s,Number(b.dataset.tau))+'%';const c=b.querySelector('.bclk');if(c)c.textContent=bbClk(s)})},1000)}
 async function hotRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];hcSync();const c=hcOf(st);hcSave();
- UI.hoBusy=st.id;UI.hoErr=null;hotRefresh();try{const R=await aiHotels(i,c);st.hsug=R;save()}catch(e){UI.hoErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.hoBusy=null;hotRefresh()}
+ UI.hoBusy=st.id;UI.hoT0=Date.now();UI.hoErr=null;hotRefresh();busyTick();try{const R=await aiHotels(i,c);st.hsug=R;save()}catch(e){UI.hoErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.hoBusy=null;hotRefresh()}
 // Einzelne Unterkunft: Preise je Portal für die Reisedaten und Zahlungsarten prüfen
 async function hotCheck(i,k){if(!aiKey())return kiNoKey();const st=S.stages[i];const R=st.hsug;const o=R&&R.opts[k];if(!o)return;const d=stagesDated()[i];const place=(byId(st.placeId)||{}).name||pname(st);
  UI.hoChk=st.id+':'+k;hotRefresh();
@@ -2416,10 +2431,9 @@ function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.s
  ${lbl('Art')}<div class="chips wrapc">${H_TY.map(a=>tg('ty',a,c.ty.includes(a))).join('')}</div>
  ${lbl('Bewertung')}<div class="seg">${H_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="hcRate" data-k="${k}">${v}</button>`).join('')}</div>
  ${fld('hcFree','Sonstiges (nur diese Etappe)',c.free,{ph:'z. B. nahe Altstadt, Meerblick, großes Bett',attr:chg})}
- <div class="act"><button class="btn p" style="flex:1" data-a="hcRun" data-k="${i}" ${UI.hoBusy===st.id?'disabled':''}>${ic('spark',16,2.2)}${R?'Neu suchen':'Vorschläge suchen'}</button></div></div>
+ <div class="act">${UI.hoBusy===st.id?busyBtn('Claude sucht Unterkünfte …',UI.hoT0,40):`<button class="btn p" style="flex:1" data-a="hcRun" data-k="${i}">${ic('spark',16,2.2)}${R?'Neu suchen':'Vorschläge suchen'}</button>`}</div></div>
  <div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Expedia, Hotels.com, Trip.com und Trivago und liest Preise, Bewertungen, Ausstattung und Zahlungsarten. „Preise & Zahlung prüfen“ holt für ein Hotel die Preise je Portal für eure Daten. Die Links öffnen die Portale mit euren Daten und 2 Personen. ca. 3–8 ct je Suche</div>`;
- if(UI.hoBusy===st.id)h+=`<div class="card kb"><div class="small mut"><span class="spin"></span>Claude sucht Unterkünfte … bis zu zwei Minuten</div></div>`;
- else if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
+ if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
  if(R&&R.opts){R.opts.forEach(o=>{o.prices=o.prices||[];o.pay=o.pay||[];o.links=o.links||{}});const M=hotMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
   h+=`<div class="small mut" style="display:flex;align-items:center;gap:8px;margin:0 2px 10px">${kib('KI')}<span class="sp">${esc(R.src||'Websuche')} · ${fmtD(new Date(R.ts))}${R.usd?' · '+cents(R.usd):''}</span></div>`;
   if(R.note||chg2)h+=`<div class="small ${chg2?'':'mut'}" style="margin:-2px 2px 10px;line-height:1.45;${chg2?'color:var(--warn)':''}">${chg2?'Die Reisedaten haben sich seit der Suche geändert. ':''}${esc(R.note||'')}</div>`;
@@ -2528,7 +2542,7 @@ Sonstiges: ${c.free||'–'}.`;
  catch(e){if(!(aiWsIsToolErr(e.message||'')||/fetch|beta|^tool$/i.test(e.message||'')))throw e;r=await aiCallWeb({system:AI_EX_SYS,max:5000,timeout:150000,messages:[{role:'user',content:msg}]},5)}
  const J=aiJson(r.text);const opts=(Array.isArray(J.items)?J.items:[]).map(x=>exNorm(x,days)).filter(x=>x.name).slice(0,8);if(!opts.length)throw new Error('keine passenden Ausflüge gefunden');
  return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd:r.usd,crit:{in:c.in,mob:c.mob,dur:c.dur,rt:c.rt,bud:c.bud,free:c.free},from:iso(d.from),to:iso(d.to)}}
-async function exRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];ecSync();const c=ecOf(st);ecSave();UI.exBusy=st.id;UI.exErr=null;UI.picks['ex:'+st.id]=null;exRefresh();
+async function exRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];ecSync();const c=ecOf(st);ecSave();UI.exBusy=st.id;UI.exT0=Date.now();UI.exErr=null;UI.picks['ex:'+st.id]=null;exRefresh();busyTick();
  try{const R=await aiEx(i,c);st.esug=R;save();exRate(i)}catch(e){UI.exErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.exBusy=null;exRefresh()}
 // fehlende Bewertungen nachholen, bevor übernommen wird
 async function exRate(i){const st=S.stages[i];const R=st.esug;if(!R||!aiKey()||!autoRate())return;const L=R.opts.filter(o=>o.gRating==null&&!o.gNone).slice(0,8);if(!L.length)return;const place=(byId(st.placeId)||{}).name||pname(st);
@@ -2560,10 +2574,9 @@ function vExFind(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.s
  ${lbl('Bewertung (Google)')}<div class="seg">${E_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="ecSeg" data-g="rt" data-k="${k}">${v}</button>`).join('')}</div>
  <div class="frow">${fld('ecBud','Budget pro Person (€)',c.bud,{half:1,num:1,ph:'egal',attr:chg})}</div>
  ${fld('ecFree','Sonstiges (nur diese Etappe)',c.free,{ph:'z. B. Sonnenaufgang, wenig Touristen, Kochkurs',attr:chg})}
- <div class="act"><button class="btn p" style="flex:1" data-a="ecRun" data-k="${i}" ${UI.exBusy===st.id?'disabled':''}>${ic('spark',16,2.2)}${R?'Neu suchen':'Vorschläge suchen'}</button></div></div>
+ <div class="act">${UI.exBusy===st.id?busyBtn('Claude sucht Ausflüge …',UI.exT0,40):`<button class="btn p" style="flex:1" data-a="ecRun" data-k="${i}">${ic('spark',16,2.2)}${R?'Neu suchen':'Vorschläge suchen'}</button>`}</div></div>
  <div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht Sehenswürdigkeiten und Touren mit Google-Bewertung, Preis (GetYourGuide, Klook, Viator, offizielle Seiten), Dauer und Weg ab eurer Unterkunft und verteilt sie auf die freien Tage. Mehrere antippen, dann übernehmen. ca. 3–8 ct je Suche</div>`;
- if(UI.exBusy===st.id)h+=`<div class="card kb"><div class="small mut"><span class="spin"></span>Claude sucht Ausflüge … bis zu zwei Minuten</div></div>`;
- else if(UI.exErr&&UI.exErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.exErr.m)}</div></div>`;
+ if(UI.exErr&&UI.exErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.exErr.m)}</div></div>`;
  if(R&&R.opts){const M=exMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
   h+=`<div class="small mut" style="display:flex;align-items:center;gap:8px;margin:0 2px 10px">${kib('KI')}<span class="sp">${esc(R.src||'Websuche')} · ${fmtD(new Date(R.ts))}${R.usd?' · '+cents(R.usd):''}</span></div>`;
   if(R.note||chg2)h+=`<div class="small ${chg2?'':'mut'}" style="margin:-2px 2px 10px;line-height:1.45;${chg2?'color:var(--warn)':''}">${chg2?'Die Reisedaten haben sich seit der Suche geändert. ':''}${esc(R.note||'')}</div>`;
