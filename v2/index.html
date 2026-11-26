@@ -87,11 +87,15 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inse
 .toast.on{opacity:1;transform:none}
 .fld{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-size:15px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.car{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -20px;padding:0 20px 2px}.car::-webkit-scrollbar{display:none}
+.car{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:20px;scrollbar-width:none;margin:0 -20px;padding:0 20px 2px}.car::-webkit-scrollbar{display:none}
 .car>*{scroll-snap-align:start;flex:none}
 .tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin:22px 0 16px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
 .tabs button{padding:0 0 10px;font-size:13px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tabs button.on{color:var(--ink);font-weight:600;border-color:var(--acc)}
+.fl{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;margin-right:5px;font-size:1.05em;line-height:1}
+.cc{width:156px;padding:12px 13px;text-align:left;border-radius:14px}
+.cc.on{border:1.5px solid var(--acc)}
+.st3{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpi{padding:12px 14px}.kpi .k{font-size:11.5px;color:var(--ink2)}.kpi .v{font-size:17px;font-weight:600;margin-top:3px}
 .tile{padding:12px 12px 11px;text-align:left}
 .empty{padding:28px 10px;text-align:center;color:var(--ink2)}
@@ -99,7 +103,7 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inse
 .kv span:first-child{color:var(--ink2)}
 .conv{font-size:28px;font-weight:600;letter-spacing:-.5px;border:0;background:transparent;width:100%;outline:none;padding:0}
 </style></head><body>
-<div class="proto"><span>Prototyp v2 · Stand 4 · nur ansehen</span><a href="../">heutige App</a></div>
+<div class="proto"><span>Prototyp v2 · Stand 5 · nur ansehen</span><a href="../">heutige App</a></div>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden></button>
 <nav id="nav"></nav>
@@ -194,6 +198,8 @@ const UI={tab:'home',stack:[],preview:null,view:'liste',q:'',of:'alle',focus:nul
 function ready(){return S&&Array.isArray(S.stages)&&S.stages.length}
 const byId=id=>S.places.find(p=>p.id===id);
 const country=id=>(S.countries||[]).find(c=>c.id===id)||{id,name:id};
+const flag=id=>/^[A-Z]{2}$/.test(id||'')?String.fromCodePoint(...[...id].map(ch=>127397+ch.charCodeAt(0))):'';
+const cname=id=>`${flag(id)?`<span class="fl">${flag(id)}</span>`:''}${esc(country(id).name)}`;
 const D0=()=>pd(S.settings.tripStart);
 const totalN=()=>S.stages.reduce((a,s)=>a+(s.nights||0),0);
 let DS=null;function stagesDated(){if(DS)return DS;let d=D0();DS=S.stages.map((s,i)=>{const f=d;d=addDays(d,s.nights||0);return{...s,i,from:f,to:d}});return DS}
@@ -294,18 +300,24 @@ function vOffen(){const op=openItems();return `<button class="back" data-a="back
 // ---------- Route ----------
 let MAP=null;
 function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage();const full=ds.filter(d=>!d.gap&&doneN(d.i)===5).length;
- let h=head('Route',`${totalN()+1} Tage · ${ds.filter(d=>!d.gap).length} Etappen · ${full} vollständig`,`<button class="ib" data-a="tab" data-k="orte">${ic('search',21)}</button>`);
+ const cs=[...new Set(ds.filter(d=>!d.gap).map(d=>d.country))];if(!UI.rc||(!cs.includes(UI.rc)&&UI.rc!=='all'))UI.rc=fi>=0?S.stages[fi].country:cs[0];
+ let h=head('Route',[`${totalN()+1} Tage`,`${ds.filter(d=>!d.gap).length} Etappen`,`${full} vollständig`],`<button class="ib" data-a="tab" data-k="orte">${ic('search',20)}</button>`);
+ // Länder-Karussell
+ const card=c=>{const l=ds.filter(d=>!d.gap&&d.country===c);const n=l.reduce((a,d)=>a+d.nights,0);const ok=l.filter(d=>doneN(d.i)===5).length;
+  return `<button class="card cc ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}" id="cc-${c}"><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cname(c)}</div><div class="st3">${fmtD(l[0].from)}–${fmtD(l[l.length-1].to)} · ${n} N</div><div style="display:flex;align-items:center;gap:8px;margin-top:9px"><div class="prog sp">${l.map(d=>`<i class="${doneN(d.i)===5?'f':''}" style="height:4px"></i>`).join('')}</div><span class="small mut num" style="font-size:11px">${ok}/${l.length}</span></div></button>`};
+ h+=`<div class="car" id="ccar" style="margin-bottom:14px">${cs.map(card).join('')}<button class="card cc ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all" style="width:110px"><div style="font-weight:600;font-size:13.5px">Alle Länder</div><div class="st3">${totalN()} Nächte</div></button></div>`;
  h+=`<div class="seg" style="margin-bottom:12px"><button class="${UI.view==='liste'?'on':''}" data-a="view" data-k="liste">Liste</button><button class="${UI.view==='karte'?'on':''}" data-a="view" data-k="karte">Karte</button></div><div id="map" class="${UI.view==='karte'?'big':''}"></div>`;
  if(UI.view==='karte')return h;
- const cs=[...new Set(ds.filter(d=>!d.gap).map(d=>d.country))];if(!UI.rc||!cs.includes(UI.rc)&&UI.rc!=='all')UI.rc=fi>=0?S.stages[fi].country:cs[0];
- h=h.replace('<div id="map"',`<div class="tabs" style="margin-top:4px">${cs.map(c=>`<button class="${UI.rc===c?'on':''}" data-a="rc" data-k="${c}">${esc(country(c).name)}</button>`).join('')}<button class="${UI.rc==='all'?'on':''}" data-a="rc" data-k="all">Alle</button></div><div id="map"`);
  let lastC=null;
  ds.forEach(d=>{if(d.gap)return;if(UI.rc!=='all'&&d.country!==UI.rc)return;const st=S.stages[d.i];const p=byId(st.placeId);
-  if(st.country!==lastC){const cs=ds.filter(x=>x.country===st.country&&!x.gap);const n=cs.reduce((a,x)=>a+x.nights,0);h+=`<div class="sec" style="margin-top:${lastC?22:4}px">${UI.rc==='all'?esc(country(st.country).name):'Etappen'}<span class="r">${fmtD(cs[0].from)}–${fmtD(cs[cs.length-1].to)} · ${n} Nächte</span></div>`;lastC=st.country}
-  const L=legsOf(st);if(d.i>0)L.forEach((l,j)=>{h+=`<button class="tr" data-a="step" data-k="${d.i}" data-s="anreise"><span class="tl">${trLabel(st,j)}</span>${ic((MODES[l.mode]||MODES.car)[0],15)}<span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''} · ${L.length>1&&l.to?esc(l.to):'nach '+esc(p?.name||'')}</span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?kib('Richtpreis'):''}<span class="dot ${l.status==='gebucht'?'g':''}"></span></button>`});
-  const n=doneN(d.i);const sub=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' N':'Durchreise'}${st.stay?.name&&d.nights?' · '+esc(st.stay.name):''}`;
-  if(d.i===fi){const S5=steps(d.i);const nx=S5.find(x=>!x.ok);h+=`<div class="pri" style="padding:14px;margin:4px 0"><button data-a="stage" data-k="${d.i}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left"><div class="stn a">${no[st.id]}</div><div class="sp"><div style="font-size:15px;font-weight:600">${esc(p?.name||'')}</div><div class="ss small">${sub}</div></div><span class="small num" style="color:var(--acc);font-weight:600">${n}/5</span></button><div class="prog" style="margin:12px 0 10px">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><div style="display:flex;align-items:center;gap:10px"><div class="sp small mut">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div></div>`}
-  else h+=`<div class="card" style="margin:4px 0">${row({left:`<div class="stn">${no[st.id]}</div>`,t:esc(p?.name||''),tb:1,s:sub,right:`<span class="small mut num" style="display:flex;align-items:center;gap:5px">${n===5?`<span style="color:var(--ok)">${ic('check',14,2.4)}</span>`:''}${n}/5</span>`,a:`data-a="stage" data-k="${d.i}"`})}</div>`});
+  if(UI.rc==='all'&&st.country!==lastC){h+=`<div class="sec" style="margin-top:${lastC?26:8}px">${cname(st.country)}</div>`;lastC=st.country}
+  // Transfers: zwei Zeilen, nichts abgeschnitten
+  const L=legsOf(st);if(d.i>0)L.forEach((l,j)=>{const pv=byId(S.stages[d.i-1].placeId);const fr=l.from||(j===0?pv?.name:'')||'',to=l.to||(j===L.length-1?p?.name:'')||'';const M=MODES[l.mode]||MODES.car;
+   h+=`<button class="tr" data-a="step" data-k="${d.i}" data-s="anreise" style="align-items:flex-start;padding-top:10px;padding-bottom:10px"><span class="tl" style="padding-top:1px">${trLabel(st,j)}</span><span style="padding-top:1px">${ic(M[0],15)}</span><span class="sp"><span style="display:block;color:var(--ink);font-weight:500">${M[1]} · ${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}</span><span style="display:block;margin-top:2px">${esc(fr)}${fr||to?' → ':''}${esc(to)}</span></span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?`<span class="ki" style="padding:3px 5px" title="Richtpreis">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}" style="margin-top:6px"></span></button>`});
+  const n=doneN(d.i);const dates=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`;
+  const hotel=d.nights?`<div class="st3">${ic('bed',13)}<span style="overflow:hidden;text-overflow:ellipsis">${st.stay?.name?esc(st.stay.name):'Unterkunft offen'}</span></div>`:'';
+  if(d.i===fi){const S5=steps(d.i);const nx=S5.find(x=>!x.ok);h+=`<div class="pri" style="padding:14px;margin:6px 0"><button data-a="stage" data-k="${d.i}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left"><div class="stn a">${no[st.id]}</div><div class="sp"><div style="font-size:15px;font-weight:600">${esc(p?.name||'')}</div><div class="st3">${dates}</div>${hotel}</div><span class="small num" style="color:var(--acc);font-weight:600;padding-top:2px">${n}/5</span></button><div class="prog" style="margin:14px 0 12px">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><div style="border-top:1px solid var(--line2);padding-top:12px;display:flex;align-items:center;gap:10px"><div class="sp small mut">Nächster Schritt<br><b style="color:var(--ink);font-weight:600;font-size:13px">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div></div>`}
+  else h+=`<button class="card" style="margin:6px 0;display:flex;align-items:flex-start;gap:12px;padding:13px 14px;width:100%;text-align:left" data-a="stage" data-k="${d.i}"><div class="stn">${no[st.id]}</div><div class="sp"><div class="tt" style="font-weight:600">${esc(p?.name||'')}</div><div class="st3">${dates}</div>${hotel}</div><span class="small mut num" style="display:flex;align-items:center;gap:4px;padding-top:2px">${n===5?`<span style="color:var(--ok)">${ic('check',13,2.4)}</span>`:''}${n}/5</span></button>`});
  return h}
 function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='<div class="empty small">Karte braucht Internet.</div>';return}
  if(MAP){MAP.remove();MAP=null}const dark=isDark();const big=UI.view==='karte';
@@ -319,7 +331,7 @@ function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='
  const sel=UI.rc&&UI.rc!=='all'?ds.filter(d=>d.country===UI.rc).map(d=>{const p=byId(d.placeId);return p?[p.lat,p.lon]:null}).filter(Boolean):pts;MAP.fitBounds(L.latLngBounds(sel.length?sel:pts),{padding:[22,22]})}
 // ---------- Etappe ----------
 function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const S5=steps(i);const n=S5.filter(x=>x.ok).length;const nxI=S5.findIndex(x=>!x.ok);
- let h=`<button class="back" data-a="back">${ic('back',18)}Route · ${esc(country(st.country).name)}</button>`;
+ let h=`<button class="back" data-a="back">${ic('back',18)}Route · ${cname(st.country)}</button>`;
  h+=head(esc(p?.name||''),`Etappe ${no} · ${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`,`<button class="ib" data-a="toast" data-k="Karte mit Fokus auf diese Etappe (im echten Bau).">${ic('map',21)}</button><button class="ib" data-a="ki" data-k="s" data-i="${i}" style="color:var(--ki)">${ic('spark',21,2.1)}</button>`);
  h+=`<div style="display:flex;align-items:center;gap:10px;margin:-4px 0 14px"><div class="prog sp">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><span class="small mut num">${n} von 5</span></div>`;
  const stepRow=(x,k,now)=>{const m=x.ok?`<div class="stepm ok">${ic('check',15,2.6)}</div>`:`<div class="stepm ${now?'now':'open'}">${k+1}</div>`;
@@ -349,7 +361,7 @@ function vOrte(){const all=S.places.filter(p=>p.country!=='_ext');const q=UI.q.t
  let h=head('Orte',`${cnt('Idee')} Ideen · ${cnt('Eingeplant')} eingeplant · ${cnt('Etappe')} Etappen`);
  h+=`<div class="card" style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-color:var(--ink3)">${ic('search',19)}<input id="q" value="${esc(UI.q)}" placeholder="Orte suchen …" style="flex:1;border:0;background:transparent;outline:none;font-size:15px;min-width:0"></div>`;
  h+=`<div class="chips" style="margin-top:12px;margin-bottom:2px">${[['alle','Alle'],['Etappe','Etappen'],['Eingeplant','Eingeplant'],['Idee','Ideen']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-a="of" data-k="${k}">${l}</button>`).join('')}</div>`;
- const grp=['Etappe','Eingeplant','Idee'];grp.forEach(g=>{const l=list.filter(p=>pState(p)===g);if(!l.length)return;h+=`<div class="sec">${g==='Etappe'?'Etappen':g==='Idee'?'Ideen':g}<span class="r">${l.length}</span></div><div class="card">${l.slice(0,30).map(p=>row({icn:g==='Etappe'?'bed':'pin',t:esc(p.name),s:`${p.gRating?`★ <b style="color:var(--ink);font-weight:600">${String(p.gRating).replace('.',',')}</b>${p.gCount?' ('+p.gCount.toLocaleString('de-DE')+')':''} · `:''}${esc(country(p.country).name)}${g==='Eingeplant'&&p.planned?' · '+dl(pd(p.planned)):''}`,a:`data-a="place" data-k="${p.id}"`})).join('')}${l.length>30?`<div class="row small mut">+ ${l.length-30} weitere</div>`:''}</div>`});
+ const grp=['Etappe','Eingeplant','Idee'];grp.forEach(g=>{const l=list.filter(p=>pState(p)===g);if(!l.length)return;h+=`<div class="sec">${g==='Etappe'?'Etappen':g==='Idee'?'Ideen':g}<span class="r">${l.length}</span></div><div class="card">${l.slice(0,30).map(p=>row({icn:g==='Etappe'?'bed':'pin',t:esc(p.name),s:`${p.gRating?`★ <b style="color:var(--ink);font-weight:600">${String(p.gRating).replace('.',',')}</b>${p.gCount?' ('+p.gCount.toLocaleString('de-DE')+')':''} · `:''}${cname(p.country)}${g==='Eingeplant'&&p.planned?' · '+dl(pd(p.planned)):''}`,a:`data-a="place" data-k="${p.id}"`})).join('')}${l.length>30?`<div class="row small mut">+ ${l.length-30} weitere</div>`:''}</div>`});
  if(!list.length)h+='<div class="empty">Nichts gefunden.</div>';
  if(q)h+=`<div class="sec">Google und OpenStreetMap</div><div class="card">${row({icn:'globe',t:'Weitere Treffer aus Google und OpenStreetMap',s:'kommen im echten Bau in dieselbe Liste'})}</div>`;
  h+=`<div class="card" style="margin-top:16px">${row({icn:'spark',kic:1,t:'Claude fragen',s:q?`Was ist „${esc(UI.q)}“ – lohnt es sich?`:'Was lohnt sich in der Nähe?',a:'data-a="tab" data-k="ki"'})}</div>`;
@@ -360,7 +372,7 @@ function placeSheet(id){const p=byId(id);if(!p)return;const st=pState(p);const k
 // ---------- Geld ----------
 function tripCurs(){const l=[...new Set(S.stages.map(s=>curDefault(s.country)))];['USD','EUR'].forEach(c=>{if(!l.includes(c))l.push(c)});return l}
 function vGeld(){const t=iso(today());const cur=stageAt(t)||stagesDated()[0];const b=budget();if(!UI.cur)UI.cur=curDefault(cur.country);const c=UI.cur;const a=numOf(UI.amt)||0;const gt=UI.gt||'heute';
- let h=head('Geld',[b?'Budget '+eur(b.B)+' für zwei':'kein Budget',esc(country(cur.country).name)]);
+ let h=head('Geld',[b?'Budget '+eur(b.B)+' für zwei':'kein Budget',cname(cur.country)]);
  h+=`<div class="pri" style="padding:12px 14px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Umrechnen${S.fx?.ts?' · Kurs '+new Date(S.fx.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}):' · Startkurse'}</span><button class="small" style="color:var(--acc);font-weight:600;display:flex;align-items:center;gap:4px" data-a="swap">${ic('route',13,2)}tauschen</button></div>
   <div style="display:flex;align-items:center;gap:10px;margin-top:6px"><input id="amt" class="conv num" inputmode="decimal" value="${esc(UI.amt)}" style="flex:1;font-size:24px"><span class="mut" style="font-size:13px;font-weight:600">${UI.dir===1?esc(c):'EUR'}</span></div>
   <div style="display:flex;align-items:baseline;gap:8px" id="convOut">${convOut(a,c)}</div>
@@ -384,7 +396,7 @@ function vKosten(){const ds=stagesDated().filter(d=>!d.gap);const no=stageNo();r
 function vKI(){const bal=(()=>{try{return JSON.parse(localStorage.getItem('auszeit27_abal')||'null')}catch(e){return null}})();const key=!!localStorage.getItem('auszeit27_akey');const model=(localStorage.getItem('auszeit27_amodel')||'haiku')==='sonnet'?'Sonnet 5.5':'Haiku 5.5';
  const fi=UI.focus!=null?UI.focus:focusStage();const fs=fi>=0?S.stages[fi]:null;const fName=fs?`E${stageNo()[fs.id]} ${byId(fs.placeId)?.name||''}`:'';const cs=[...new Set(S.stages.map(s=>s.country))];
  const sc=UI.kiScope;let h=head('KI-Assistent',`Claude · ${model}${bal?' · Guthaben ca. '+bal.usd.toLocaleString('de-DE',{maximumFractionDigits:3})+' $':key?'':' · noch kein Schlüssel'}`,`<button class="ib" data-a="toast" data-k="Protokoll: was die KI geändert hat, mit Rückgängig (im echten Bau).">${ic('clock',21)}</button>`);
- h+=`<div class="chips" style="margin-bottom:12px"><button class="chip ${sc==='all'?'on':''}" data-a="kisc" data-k="all">Ganze Reise</button>${fs?`<button class="chip ${sc==='s'?'on':''}" data-a="kisc" data-k="s">${esc(fName)}</button>`:''}${cs.map(c=>`<button class="chip ${sc===c?'on':''}" data-a="kisc" data-k="${c}">${esc(country(c).name)}</button>`).join('')}</div>`;
+ h+=`<div class="chips" style="margin-bottom:12px"><button class="chip ${sc==='all'?'on':''}" data-a="kisc" data-k="all">Ganze Reise</button>${fs?`<button class="chip ${sc==='s'?'on':''}" data-a="kisc" data-k="s">${esc(fName)}</button>`:''}${cs.map(c=>`<button class="chip ${sc===c?'on':''}" data-a="kisc" data-k="${c}">${cname(c)}</button>`).join('')}</div>`;
  const lab=sc==='all'?'zur Reise':sc==='s'?'zu '+(byId(fs?.placeId)?.name||''):'zu '+country(sc).name;
  h+=`<div class="card" style="display:flex;align-items:center;gap:10px;height:50px;padding:0 6px 0 14px"><input placeholder="Frag ${esc(lab)} …" style="flex:1;border:0;background:transparent;outline:none;font-size:14px;min-width:0" id="kiq"><button data-a="kiask" style="width:38px;height:38px;border-radius:11px;background:var(--ki);color:var(--kit);display:flex;align-items:center;justify-content:center">${ic('spark',19,2.2)}</button></div>`;
  const T=[['alert',sc==='s'?'Etappe prüfen':'Reise prüfen','Fehler, Risiken'],['pin','Ausflüge vorschlagen','mit Tag'],['wallet','Richtpreise','offene Transfers'],['star','Bewertungen holen','Unterkünfte, Orte'],['cal','Tagesplan','freie Tage'],['flag','Einreise prüfen','Checklisten']];
@@ -408,7 +420,7 @@ function render(){DS=null;const m=$('#main');if(!ready()){m.innerHTML=head('Prot
  const fab=$('#fab');fab.innerHTML=ic('plus',26,2.2);fab.hidden=!!top||!['route','orte','geld'].includes(UI.tab)||UI.tab==='geld';
  const it=[['home','home','Übersicht'],['route','route','Route'],['ki','spark','KI'],['orte','pin','Orte'],['geld','wallet','Geld']];
  $('#nav').innerHTML=it.map(([k,i,l])=>k==='ki'?`<button class="nv kin" data-a="tab" data-k="ki"><div class="kib">${ic('spark',24,2.1)}</div>KI</button>`:`<button class="nv ${UI.tab===k&&!top?'on':''}" data-a="tab" data-k="${k}">${ic(i,23,UI.tab===k?2:1.8)}<span>${l}</span></button>`).join('');
- if(UI.tab==='route'&&!top)setTimeout(drawMap,0);
+ if(UI.tab==='route'&&!top){setTimeout(drawMap,0);const cc=document.getElementById('cc-'+UI.rc);const car=document.getElementById('ccar');if(cc&&car)car.scrollLeft=Math.max(0,cc.offsetLeft-20)}
  const q=$('#q');if(q){q.oninput=()=>{UI.q=q.value;const pos=q.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(pos,pos)}}
  const am=$('#amt');if(am){am.oninput=()=>{UI.amt=am.value;$('#convOut').innerHTML=convOut(numOf(am.value)||0,UI.cur)}}}
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,k=el.dataset.k;
@@ -440,6 +452,6 @@ window.addEventListener('resize',()=>{if(MAP)MAP.invalidateSize()});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();render()});
 applyTheme();render();
 // Neuester Stand: GitHub Pages und Browser halten Seiten zwischengespeichert – Version prüfen und ggf. frisch laden
-const V2_STAND='4';
+const V2_STAND='5';
 fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&j.v!==V2_STAND){const q='s='+j.v;if(!location.search.includes(q))location.replace(location.pathname+'?'+q)}}).catch(()=>{});
 </script></body></html>
