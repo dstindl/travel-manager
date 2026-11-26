@@ -1080,8 +1080,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90_19';
+const APP_VERSION='0.90_20';
 const CHANGELOG=[
+ {v:'0.90_20',d:'26.11.2026',items:['Neu: Abgleich zwischen euren Handys (Einstellungen → Abgleich) über ein privates GitHub-Repository – auf dem Handy verschlüsselt (AES-256) mit gemeinsamem Passwort oder PIN, auf Wunsch auf dem Gerät gemerkt','Abgeglichen werden Reise, Ausgaben, Checklisten, Einstellungen, KI-Verlauf und die per Teilen eingelesenen Buchungsbestätigungen samt Original-PDF oder Screenshot','Gleicht beim Start, beim Zurückkehren in die App und 15 Sekunden nach jeder Änderung ab; nie während ein Formular offen ist','Gleichzeitige Änderungen werden pro Etappe, Ort und Ausgabe zusammengeführt; wurde dasselbe Feld auf beiden Handys geändert, gilt die neuere Änderung','Zweites Handy: Stand von GitHub übernehmen (bisheriger Stand bleibt als Sicherung) oder zusammenführen','Nur private Repositories; Token und Passwort bleiben auf dem Gerät und sind nie im Export']},
  {v:'0.90_19',d:'26.11.2026',items:['Route: vor jedem Landeswechsel eine Karte „Einreise …“ mit Checkliste, Visum, nächster Frist und KI-Prüfstand – antippen öffnet die Checkliste des Landes','Einreise-Checklisten: Die KI prüft im Hintergrund alle 14 Tage die aktuellen Bestimmungen (Auswärtiges Amt, offizielle Portale) für Länder mit Einreise in den nächsten 6 Monaten; geänderte, neue und entfallene Punkte sind markiert, „Aktualisieren“ in der Checkliste','Erinnerung beim Start: fällige Punkte der nächsten Tage (Standard 7) mit „nicht mehr erinnern“; Tage und Ein/Aus unter Einstellungen → Erinnerungen','Neu: „In den Kalender“ (Einstellungen → Daten) – Unterkünfte, Transfers, Ausflüge und Fristen als .ics mit Erinnerungen','Ausflüge: ein KI-Weg „Ausflüge finden“ – auch im nächsten Schritt der Etappe; der Tagesplan für einen einzelnen freien Tag bleibt im KI-Chat','Unterkunft: im nächsten Schritt der Etappe direkt „Vorschläge (KI)“','Aufgeräumt: alter Richtpreis-Kasten entfällt (Verbindungen ersetzt ihn), „Anreise“ heißt überall „Transport“']},
  {v:'0.90_18',d:'26.11.2026',items:['Neu: „Ausflüge finden (KI)“ im Schritt Ausflüge – wie bei Unterkunft und Verbindungen: Interessen, Dauer, Unterwegs, Budget und Mindestbewertung wählen (letzte Einstellungen vorausgewählt), Vorschläge mit Google-Bewertung, Preis für zwei, Dauer, Weg und Vorschlagstag, mehrere antippen, Tag je Ausflug in der Rückfrage ändern','Ist eine andere Karte ausgewählt, hat die KI-Empfehlung nur noch einen leichten Rahmen','„Geschätzt“ wird direkt an der Karte erklärt; bei geschätzten Hotelpreisen heißt der Knopf „Echten Preis holen“']},
  {v:'0.90_17',d:'26.11.2026',items:['Unterkunft finden: Gesamtkosten für den ganzen Zeitraum groß auf jeder Karte, bei jedem Portalpreis (pro Nacht = gesamt), in der Auswahl-Leiste und in der Rückfrage','Beim Preisrahmen pro Nacht rechnet die App den Gesamtrahmen für die Nächte der Etappe gleich mit']},
@@ -1226,6 +1227,7 @@ function vSettings(){const st=S.settings;const ds=stagesDated();const end=ds[ds.
  h+=`<div class="sec">Reise</div><div class="card">${r('flag','Checklisten',chkStat().d+' von '+chkStat().n,'Einreise und Vorbereitung je Land','data-a="page" data-k="chk"')}${r('cal','Reisebeginn',dl(D0())+' '+D0().getFullYear(),`bis ${fmtDY(end)} · ${totalN()} Nächte, ergibt sich aus den Etappen`,'data-a="startEdit"')}${r('globe','Länder',String([...new Set(S.stages.map(x=>x.country))].length),[...new Set(S.stages.map(x=>country(x.country).name))].join(', '))}${r('wallet','Budget',b?eur(b.B):'nicht festgelegt',b?`${st.budgetMode==='total'?'Gesamtbetrag':'Tagessatz '+eur(st.dailyBudget)} · für zwei`:'Tagessatz oder Gesamtbetrag','data-a="budgetEdit"')}${r('layers','Währungen',curs.length+'',`${curs.join(', ')} · Kurse ${S.fx?.ts?'vom '+new Date(S.fx.ts).toLocaleDateString('de-DE'):'Startwerte'}`,'data-a="fxLoad"')}</div>`;
  h+=remSettings();
  h+=`<div class="sec">KI und Dienste</div><div class="card">${r('spark','Claude',k?'aktiv':'aus',k?`${mdl}${bal?' · Guthaben ca. '+bal.usd.toLocaleString('de-DE',{maximumFractionDigits:2})+' $':''}`:'Schlüssel eintragen','data-a="keyEdit" data-k="ai"')}${r('spark','Alle Bewertungen aktualisieren',UI.ra&&UI.ra.run?UI.ra.done+'/'+UI.ra.n:(raState()&&raState().done?fmtD(new Date(raState().ts)):''),UI.ra&&UI.ra.run?'läuft · '+esc(raLine()):'alle Orte und Unterkünfte einmal über Claude (ca. 1 ct je Ort)','data-a="rateAll"')}${r('star','Bewertungen automatisch',autoRate()?'an':'aus','Claude holt die Google-Bewertung bei Suche und beim Hinzufügen (je Anfrage ca. 1–3 ct)','data-a="autoRate"')}${r('search','Google-Suche',g?'aktiv':'aus','Orte und Adressen','data-a="keyEdit" data-k="gpl"')}</div><div class="small mut" style="margin:8px 4px 0">Schlüssel bleiben nur auf diesem Gerät und gelten für beide Apps.</div>`;
+ h+=gsSettings();
  h+=`<div class="sec">Daten</div><div class="card">${r('cal','In den Kalender','','Unterkünfte, Transfers, Ausflüge und Fristen mit Erinnerungen (.ics)','data-a="icsExport"')}${r('dl','Sichern (Export)','','alle Reisedaten als Datei','data-a="export"')}${r('ul','Wiederherstellen (Import)','','aus einer Sicherungsdatei','data-a="importAsk"')}${r('undo','Tagessicherung',bk?new Date(bk.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'noch keine',bk?'Stand vor der ersten Änderung des Tages · zurückholen':'entsteht automatisch vor der ersten Änderung eines Tages',bk?'data-a="bakAsk"':'')}</div>`;
  h+=`<div class="sec">Über</div><div class="card">${r('info','Version',APP_VERSION,'Was ist neu · Updates laden automatisch','data-a="verAll"')}${r('link','Vorherige App 0.81','','gleiche Daten · für Wetter, Live-Fahrzeiten, Sicherheitslage','data-a="oldApp"')}</div>`;
  return h}
@@ -1891,7 +1893,7 @@ function bkApply2(){const B=UI.bk,b=B.b;const i=+($('#bkSt')?.value??B.st);const
   h.note=[...new Set(notes)].join(' · ').slice(0,300)||h.note;Object.keys(h).forEach(k=>{if(h[k]==null||h[k]==='')delete h[k]});fixRate(h);st.stay=h;save();bkDocSave(st.id,h);closeSheet();render();staySheet(i);rateSoon(null,[st.id]);
   if(!h.ll&&(h.name||h.addr)){const p=byId(st.placeId);liveFind([h.name,h.addr].filter(Boolean).join(', '),p,40,{}).then(r=>{const x=Array.isArray(r)&&r.find(x=>x.lat!=null&&(!p||hav(p,x)<40));if(x&&st.stay===h&&!h.ll){h.ll={lat:x.lat,lon:x.lon};if(x.gUri&&!h.maps)h.maps=x.gUri;save()}}).catch(()=>{})}}
  UI.undo=undo;toast(`Buchung übernommen – bitte kurz prüfen. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
-async function docOpen(key){try{const v=await bkGet(key);if(!v){toast('Bestätigung ist nicht auf diesem Gerät gespeichert.');return}
+async function docOpen(key){try{const v=await bkGet(key);if(!v){toast(typeof gsOn==='function'&&gsOn()?'Bestätigung ist noch nicht auf diesem Gerät – der Abgleich holt sie beim nächsten Durchlauf.':'Bestätigung ist nur auf dem Gerät gespeichert, auf dem sie geteilt wurde. Mit dem Abgleich (Einstellungen) kommt sie auf alle Handys.',5000);return}
  if(v.blob){const u=URL.createObjectURL(v.blob);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';if(!/pdf|html|text|image/.test(v.type||''))a.download=v.name||'buchung';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return}
  sheet(`<div class="sht">Bestätigung</div><div class="mut" style="margin:4px 0 12px">${esc(v.prov||'Buchungsmail')} · gespeichert ${fmtD(new Date(v.ts))}</div><div class="card" style="padding:12px 14px;white-space:pre-wrap;font-size:12.5px;line-height:1.5;max-height:60vh;overflow:auto">${esc(v.text)}</div>`)}catch(e){toast('Öffnen nicht möglich.')}}
 const docBtn=(key,o)=>o&&o.doc?`<button class="btn gh sm" data-a="docOpen" data-k="${esc(key)}">${ic('book',15)}Bestätigung</button>`:'';
@@ -2631,6 +2633,185 @@ async function icsExport(){const {text,n}=icsBuild();const name='Asien-Auszeit-2
  try{const f=new File([blob],name,{type:'text/calendar'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Asien-Auszeit 2027'});toast(`${n} Termine geteilt.`);return}}catch(e){if(e&&e.name==='AbortError')return}
  const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);toast(`${n} Termine als Kalenderdatei gespeichert – öffnen, um sie in den Kalender zu übernehmen.`,6000)}
 Object.assign(window.KIA=window.KIA||{},{icsExport:()=>icsExport()});
+// ===================== Abgleich zwischen den Handys: privates GitHub-Repository, auf dem Gerät verschlüsselt =====================
+// Im Repo: meta.json (Salz + Passwortprüfung, kein Inhalt), data.bin (Reise, Einstellungen, KI-Verlauf), docs/*.bin (geteilte Buchungsbestätigungen).
+// Token, Passwort und Schlüssel bleiben nur auf dem Gerät und werden nie exportiert.
+const GS_CFG='auszeit27_gs',GS_KEY='auszeit27_gsk',GS_ST='auszeit27_gsst',GS_ITER=310000,GS_OK='auszeit27-ok';
+const GS_PREFS=['auszeit27_v2hpref','auszeit27_v2epref','auszeit27_v2rem','auszeit27_v2remoff','auszeit27_v2crit','auszeit27_v2ent','auszeit27_v2autorate','auszeit27_v2later','auszeit27_achat','auszeit27_amodel','auszeit27_aauto','auszeit27_gmax'];
+const GS={key:null,busy:false,t:null,err:null,applying:false,pend:false,again:false};
+const gsCfg=()=>{try{return JSON.parse(localStorage.getItem(GS_CFG)||'null')}catch(e){return null}};
+const gsOn=()=>{const c=gsCfg();return !!(c&&c.on&&c.repo&&c.token)};
+const gsSt=()=>{try{return JSON.parse(localStorage.getItem(GS_ST)||'{}')}catch(e){return {}}};
+const gsStSet=o=>{try{localStorage.setItem(GS_ST,JSON.stringify(Object.assign(gsSt(),o)))}catch(e){}};
+const gsTE=new TextEncoder(),gsTD=new TextDecoder();
+const gsB64=u8=>{let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)};
+const gsUnB64=b=>{const s=atob(String(b).replace(/\s/g,''));const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
+const gsGuessDev=()=>{const u=navigator.userAgent||'';if(/iPhone/.test(u))return 'iPhone';if(/iPad/.test(u))return 'iPad';if(/Android/.test(u)){const m=(u.match(/Android[^;)]*;\s*([^;)]+)/)||[])[1];return m&&m.trim().length>2?m.replace(/Build.*/,'').trim():'Android'}return /Mac/.test(u)?'Mac':/Windows/.test(u)?'Windows-PC':'Gerät'};
+const gsSecOk=s=>/^\d{6,}$/.test(s)||String(s).length>=8;
+// ---------- kleiner Speicher für den letzten gemeinsamen Stand ----------
+function gsDb(){return new Promise((res,rej)=>{const r=indexedDB.open('auszeit27-sync',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function gsKv(k){const db=await gsDb();return new Promise((res,rej)=>{const r=db.transaction('kv').objectStore('kv').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function gsKvSet(k,v){const db=await gsDb();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');if(v===undefined||v===null)tx.objectStore('kv').delete(k);else tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+// ---------- Verschlüsselung (AES-256-GCM, Schlüssel aus Passwort/PIN per PBKDF2) ----------
+async function gsDerive(secret,salt,iter){const base=await crypto.subtle.importKey('raw',gsTE.encode(secret),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:gsUnB64(salt),iterations:iter||GS_ITER,hash:'SHA-256'},base,{name:'AES-GCM',length:256},true,['encrypt','decrypt'])}
+async function gsEnc(key,u8){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,u8));const o=new Uint8Array(13+ct.length);o[0]=1;o.set(iv,1);o.set(ct,13);return o}
+async function gsDec(key,u8){if(u8[0]!==1)throw new Error('unbekanntes Format');return new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:u8.subarray(1,13)},key,u8.subarray(13)))}
+async function gsPipe(u8,T){return new Uint8Array(await new Response(new Blob([u8]).stream().pipeThrough(new T('gzip'))).arrayBuffer())}
+async function gsPack(obj){const raw=gsTE.encode(JSON.stringify(obj));let f=0,b=raw;if(typeof CompressionStream!=='undefined'){try{b=await gsPipe(raw,CompressionStream);f=1}catch(e){b=raw}}const o=new Uint8Array(b.length+1);o[0]=f;o.set(b,1);return o}
+async function gsUnpack(u8){let b=u8.subarray(1);if(u8[0]===1)b=await gsPipe(b,DecompressionStream);return JSON.parse(gsTD.decode(b))}
+async function gsGetKey(){if(GS.key)return GS.key;const c=gsCfg();let r=null;try{r=JSON.parse(localStorage.getItem(GS_KEY)||'null')}catch(e){}
+ if(r&&c&&r.repo===c.repo&&r.k){try{GS.key=await crypto.subtle.importKey('raw',gsUnB64(r.k),'AES-GCM',true,['encrypt','decrypt'])}catch(e){GS.key=null}}return GS.key}
+async function gsRemember(key,repo){localStorage.setItem(GS_KEY,JSON.stringify({repo,k:gsB64(new Uint8Array(await crypto.subtle.exportKey('raw',key)))}))}
+// ---------- GitHub ----------
+const gsErrTxt=(s,j)=>{const m=(j&&j.message)||'';return s===401?'Token ungültig oder abgelaufen':s===403?(/rate limit/i.test(m)?'GitHub-Limit erreicht – später erneut':'Token darf das nicht (Berechtigung „Contents: Read and write“ für dieses Repository?)'):s===404?'Repository nicht gefunden oder Token hat keinen Zugriff':s===409||s===422?'Stand auf GitHub hat sich gerade geändert':'GitHub-Fehler '+s+(m?': '+m:'')};
+async function gsApi(method,path,body,c){c=c||gsCfg();let r;try{r=await fetch('https://api.github.com/repos/'+c.repo+path,{method,cache:'no-store',headers:Object.assign({Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'},body?{'Content-Type':'application/json'}:{}),body:body?JSON.stringify(body):undefined})}catch(e){const x=new Error(navigator.onLine===false?'offline':'GitHub nicht erreichbar');x.net=true;throw x}
+ let j=null;try{j=await r.json()}catch(e){}if(!r.ok){const e=new Error(gsErrTxt(r.status,j));e.status=r.status;e.conflict=r.status===409||(r.status===422&&/sha/i.test((j&&j.message)||''));throw e}return j}
+async function gsGet(path,c){try{const j=await gsApi('GET','/contents/'+path,null,c);if(Array.isArray(j))return {dir:j};let b=j.content&&j.encoding==='base64'?gsUnB64(j.content):null;
+  if(!b||(!b.length&&j.size)){const bl=await gsApi('GET','/git/blobs/'+j.sha,null,c);b=gsUnB64(bl.content)}return {sha:j.sha,bytes:b}}catch(e){if(e.status===404)return null;throw e}}
+async function gsPut(path,bytes,sha,msg,c){const j=await gsApi('PUT','/contents/'+path,Object.assign({message:msg,content:gsB64(bytes)},sha?{sha}:{}),c);return j.content.sha}
+// ---------- Stand dieses Geräts ----------
+function gsPrefs(){const o={};GS_PREFS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)o[k]=v}catch(e){}});return o}
+function gsLocal(){let ch=false;(S.expenses||[]).forEach(e=>{if(e&&!e.id){e.id='x'+uid().slice(1);ch=true}});if(ch){GS.applying=true;try{save()}finally{GS.applying=false}}return {s:JSON.parse(JSON.stringify(S)),p:gsPrefs()}}
+// ---------- Zusammenführen (drei Stände: gemeinsam zuletzt, hier, anderes Gerät) ----------
+const gsJ=v=>v===undefined?'§u':JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.keys(x).sort().reduce((o,k2)=>(o[k2]=x[k2],o),{}):x);
+const gsEq=(a,b)=>a===b||gsJ(a)===gsJ(b);
+const gsIsO=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
+function gsMerge(b,l,r,newer,cnt){if(gsEq(l,r))return l;if(gsEq(b,l))return r;if(gsEq(b,r))return l;if(l===undefined)return r;if(r===undefined)return l;
+ if(gsIsO(l)&&gsIsO(r)){const bb=gsIsO(b)?b:{};const o={};new Set([...Object.keys(l),...Object.keys(r)]).forEach(k=>{const v=k==='nextPid'?Math.max(+l[k]||0,+r[k]||0):gsMerge(bb[k],l[k],r[k],newer,cnt);if(v!==undefined)o[k]=v});return o}
+ if(Array.isArray(l)&&Array.isArray(r)){const bb=Array.isArray(b)?b:[];const idA=a=>a.every(x=>gsIsO(x)&&x.id!=null);const strA=a=>a.every(x=>typeof x==='string');
+  if(idA(l)&&idA(r)&&idA(bb))return gsMergeIds(bb,l,r,newer,cnt);
+  if(strA(l)&&strA(r)&&strA(bb)){const B=new Set(bb),R=new Set(r),L=new Set(l);const out=l.filter(x=>!(B.has(x)&&!R.has(x)));r.forEach(x=>{if(!B.has(x)&&!L.has(x))out.push(x)});return out}}
+ cnt.c++;return newer==='r'?r:l}
+function gsMergeIds(b,l,r,newer,cnt){const M=a=>new Map(a.map(x=>[String(x.id),x]));const B=M(b),L=M(l),R=M(r);
+ const cs=new Set([...L.keys()].filter(k=>R.has(k)&&B.has(k)));const seq=a=>a.map(x=>String(x.id)).filter(k=>cs.has(k)).join('|');const sb=seq(b),sl=seq(l),sr=seq(r);
+ if(sl!==sb&&sr!==sb&&sl!==sr)cnt.c++;const useR=sr!==sb&&(sl===sb||newer==='r');const sk=useR?r:l,ot=useR?l:r;
+ const pick=id=>gsMerge(B.get(id),L.get(id),R.get(id),newer,cnt);const out=[],seen=new Set();
+ sk.forEach(x=>{const id=String(x.id);if(seen.has(id))return;seen.add(id);const v=pick(id);if(v!==undefined)out.push(v)});
+ ot.forEach((x,i)=>{const id=String(x.id);if(seen.has(id))return;seen.add(id);const v=pick(id);if(v===undefined)return;let pos=0;
+  for(let k=i-1;k>=0;k--){const pid=String(ot[k].id);const at=out.findIndex(y=>String(y.id)===pid);if(at>=0){pos=at+1;break}}out.splice(pos,0,v)});
+ return out}
+function gsDiffN(a,b,n){n=n||{c:0};if(n.c>99||gsEq(a,b))return n.c;
+ if(gsIsO(a)&&gsIsO(b)){new Set([...Object.keys(a),...Object.keys(b)]).forEach(k=>gsDiffN(a[k],b[k],n));return n.c}
+ if(Array.isArray(a)&&Array.isArray(b)&&a.concat(b).every(x=>gsIsO(x)&&x.id!=null)){const A=new Map(a.map(x=>[String(x.id),x])),B=new Map(b.map(x=>[String(x.id),x]));new Set([...A.keys(),...B.keys()]).forEach(k=>gsDiffN(A.get(k),B.get(k),n));return n.c}
+ n.c++;return n.c}
+// ---------- Übernehmen ----------
+const gsTyping=()=>{const a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest('#main,#sheet'))};
+function gsApply(M){GS.applying=true;try{S=JSON.parse(JSON.stringify(M.s));S.settings=Object.assign(seed().settings,S.settings);S.sugg=S.sugg||{};S.rejected=S.rejected||[];S.wiki=S.wiki||{};migrate();save();
+  const P=M.p||{};GS_PREFS.forEach(k=>{try{if(k in P)localStorage.setItem(k,P[k]);else if(localStorage.getItem(k)!=null)localStorage.removeItem(k)}catch(e){}});
+  try{UI.later=JSON.parse(localStorage.getItem('auszeit27_v2later')||'[]')}catch(e){}}finally{GS.applying=false}
+ const t=UI.stack[UI.stack.length-1];if(t&&t.i!=null&&(t.k==='stage'||t.k==='hotels'||t.k==='exfind'||t.k==='conn')&&!S.stages[t.i]){go('route',[]);return}
+ if(!sheetOpen()){UI.keepY=true;render()}}
+// ---------- Ablauf ----------
+async function gsPutData(c,key,obj,sha,ts){const body=await gsEnc(key,await gsPack({v:1,app:APP_VERSION,sv:S.v||0,ts:ts||Date.now(),dev:c.dev||'',s:obj.s,p:obj.p}));
+ return gsPut('data.bin',body,sha,`Abgleich · ${c.dev||'Gerät'} · ${new Date().toLocaleString('de-DE')}`,c)}
+async function gsOnce(c,key){const st=gsSt();const loc=gsLocal();const base=await gsKv('base');const rem=await gsGet('data.bin',c);const lt=st.lt||Date.now();
+ if(!rem){const sha=await gsPutData(c,key,loc,null,lt);await gsKvSet('base',loc);gsStSet({sha,mode:null});return {ok:1,n:0,up:1}}
+ if(base&&rem.sha===st.sha){if(gsEq(base,loc))return {ok:1,n:0};try{const sha=await gsPutData(c,key,loc,rem.sha,lt);await gsKvSet('base',loc);gsStSet({sha});return {ok:1,n:0,up:1}}catch(e){if(e.conflict)return {ok:0};throw e}}
+ let R;try{R=await gsUnpack(await gsDec(key,rem.bytes))}catch(e){throw new Error('Der Stand auf GitHub lässt sich mit diesem Passwort oder dieser PIN nicht öffnen.')}
+ if((R.sv||0)>(S.v||0))throw new Error('Das andere Gerät nutzt eine neuere App-Version – bitte erst diese App aktualisieren.');
+ const RS={s:R.s,p:R.p||{}};const cnt={c:0};const newer=(R.ts||0)>lt?'r':'l';let M;
+ if(!base&&st.mode==='adopt'){await gsKvSet('pre',{ts:Date.now(),raw:JSON.stringify(S),p:gsPrefs()});gsStSet({pre:Date.now()});M=RS}
+ else if(base&&gsEq(base,loc))M=RS;
+ else M={s:gsMerge(base?base.s:undefined,loc.s,RS.s,newer,cnt),p:gsMerge(base?base.p:undefined,loc.p,RS.p,newer,cnt)};
+ const n=gsEq(M,loc)?0:gsDiffN(loc,M);if(n)gsApply(M);let up=0;
+ if(!gsEq(M,RS)){try{const sha=await gsPutData(c,key,M,rem.sha,Math.max(lt,R.ts||0));gsStSet({sha});up=1}catch(e){if(e.conflict){await gsKvSet('base',RS);gsStSet({sha:rem.sha,mode:null});return {ok:0,n}}throw e}}
+ else gsStSet({sha:rem.sha});
+ await gsKvSet('base',M);gsStSet({mode:null});return {ok:1,n,c:cnt.c,dev:R.dev,up}}
+// Geteilte Buchungsbestätigungen (IndexedDB) – einzeln verschlüsselt, nur fehlende werden übertragen
+const gsDocName=k=>gsB64(gsTE.encode(k)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')+'.bin';
+const gsDocKey=n=>{let b=n.replace(/\.bin$/,'').replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';return gsTD.decode(gsUnB64(b))};
+async function gsDocKeys(){const db=await bkDb();return new Promise((res,rej)=>{const r=db.transaction('docs').objectStore('docs').getAllKeys();r.onsuccess=()=>res(r.result.map(String));r.onerror=()=>rej(r.error)})}
+async function gsDocPack(v){const meta={ts:v.ts,prov:v.prov||'',text:v.text||'',name:v.name||'',type:v.type||''};const mj=gsTE.encode(JSON.stringify(meta));const bl=v.blob?new Uint8Array(await v.blob.arrayBuffer()):new Uint8Array(0);
+ const o=new Uint8Array(4+mj.length+bl.length);new DataView(o.buffer).setUint32(0,mj.length);o.set(mj,4);o.set(bl,4+mj.length);return o}
+function gsDocUnpack(u8){const n=new DataView(u8.buffer,u8.byteOffset,u8.byteLength).getUint32(0);const v=JSON.parse(gsTD.decode(u8.subarray(4,4+n)));const bl=u8.subarray(4+n);if(bl.length)v.blob=new Blob([bl],{type:v.type||'application/octet-stream'});return v}
+async function gsDocs(c,key){const ls=await gsGet('docs',c);const remote=new Map();((ls&&ls.dir)||[]).forEach(x=>{if(x.type==='file'&&/\.bin$/.test(x.name)){try{remote.set(gsDocKey(x.name),x)}catch(e){}}});
+ const local=await gsDocKeys();const L=new Set(local);let up=0,down=0;
+ for(const k of local){if(remote.has(k))continue;const v=await bkGet(k);if(!v)continue;try{await gsPut('docs/'+gsDocName(k),await gsEnc(key,await gsDocPack(v)),null,'Dokument',c);up++}catch(e){if(!e.conflict)throw e}}
+ for(const [k,x] of remote){if(L.has(k))continue;const g=await gsGet('docs/'+x.name,c);if(!g)continue;try{await bkPut(k,gsDocUnpack(await gsDec(key,g.bytes)));down++}catch(e){}}
+ return {up,down}}
+async function gsRun(why){if(!gsOn())return;if(GS.busy){GS.again=true;return}const c=gsCfg();
+ if(navigator.onLine===false){GS.err='offline';gsUi();return}
+ const key=await gsGetKey();if(!key){GS.err='locked';gsUi();if(why==='manual')gsUnlockSheet();else if(why==='start')toast(`Abgleich ist gesperrt <button class="btn sm" data-a="gsUnlockOpen">Entsperren</button>`,9000);return}
+ if(sheetOpen()||gsTyping()){GS.pend=true;clearTimeout(GS.t);GS.t=setTimeout(()=>gsRun('retry'),20000);return}
+ GS.busy=true;GS.err=null;gsUi();let res={n:0},dr={up:0,down:0};
+ try{for(let i=0;i<4;i++){res=await gsOnce(c,key);if(res.ok)break}if(!res.ok)throw new Error('Stand auf GitHub ändert sich gerade – gleich nochmal');
+  dr=await gsDocs(c,key);gsStSet({ts:Date.now()});GS.err=null;
+  const parts=[res.n?`${res.n} Änderung${res.n===1?'':'en'} übernommen`:'',dr.down?`${dr.down} Bestätigung${dr.down===1?'':'en'} geladen`:'',(why==='manual'||why==='setup')&&(res.up||dr.up)?'eigene Änderungen hochgeladen':''].filter(Boolean);
+  const cf=res.c?`${res.c}× auf beiden Geräten dasselbe geändert – die neuere Änderung gilt`:'';
+  if(parts.length||cf)toast(`Abgleich${res.dev&&(res.n||res.c)?' mit „'+esc(res.dev)+'“':''}: ${[parts.join(', '),cf].filter(Boolean).join(' · ')}.`,res.c?7000:5000);
+  else if(why==='manual')toast('Abgleich: alles auf dem gleichen Stand.')}
+ catch(e){GS.err=e.message==='offline'?'offline':(e.message||String(e));if(why==='manual'||why==='setup')toast('Abgleich: '+esc(GS.err),7000)}
+ finally{GS.busy=false;gsUi();if(GS.again){GS.again=false;setTimeout(()=>gsRun('again'),1500)}}}
+function gsDirty(){if(!gsOn())return;gsStSet({lt:Date.now()});clearTimeout(GS.t);GS.t=setTimeout(()=>gsRun('edit'),15000)}
+{const s0=save;save=function(){const r=s0.apply(this,arguments);if(!GS.applying)gsDirty();return r}}
+{const c0=closeSheet;closeSheet=function(){const r=c0.apply(this,arguments);if(GS.pend&&gsOn()){GS.pend=false;clearTimeout(GS.t);GS.t=setTimeout(()=>gsRun('pend'),900)}return r}}
+function gsUi(){const t=UI.stack&&UI.stack[UI.stack.length-1];if(t&&t.k==='settings'&&!sheetOpen()){UI.keepY=true;render()}}
+setTimeout(()=>{gsRun('start')},2500);
+document.addEventListener('visibilitychange',()=>{if(!gsOn())return;if(document.visibilityState==='visible'){if(Date.now()-(gsSt().ts||0)>60000)gsRun('focus')}else if(GS.t&&!GS.busy){clearTimeout(GS.t);GS.t=null;gsRun('hide')}});
+window.addEventListener('online',()=>{if(gsOn()&&GS.err==='offline')gsRun('online')});
+// ---------- Einrichten, Entsperren, Einstellungen ----------
+const gsCk=(id,l,on)=>`<label class="ck" style="display:flex;gap:8px;align-items:center;margin:12px 2px 0;font-size:14px"><input type="checkbox" id="${id}" ${on?'checked':''}>${l}</label>`;
+function gsSetupSheet(){const c=gsCfg()||{};
+ sheet(`<div class="sht">Abgleich einrichten</div><div class="mut" style="margin:4px 0 10px;line-height:1.45">Reise, Einstellungen, KI-Verlauf und die geteilten Buchungsbestätigungen liegen verschlüsselt in einem privaten GitHub-Repository. Jedes Handy bekommt denselben Token und dasselbe Passwort oder dieselbe PIN.</div>
+ ${fld('gsRepo','Repository (Besitzer/Name)',c.repo||'',{ph:'dstindl/auszeit-daten',attr:'autocomplete="off" autocapitalize="off" spellcheck="false"'})}
+ ${fld('gsTok','Token','',{type:'password',ph:c.token?'gespeichert – zum Ändern neu eingeben':'github_pat_…',attr:'autocomplete="off"'})}
+ ${fld('gsSec','Passwort oder PIN','',{type:'password',ph:'mind. 8 Zeichen oder 6 Ziffern',attr:'autocomplete="new-password"'})}
+ ${fld('gsDev','Name dieses Geräts',c.dev||gsGuessDev(),{attr:'autocomplete="off"'})}
+ ${gsCk('gsRem','Passwort auf diesem Gerät merken',true)}
+ <div class="small mut" style="margin:6px 2px 0;line-height:1.45">Gemerkt: kein Eingeben beim Start. Nicht gemerkt: einmal pro App-Start eingeben. Eine PIN schützt weniger als ein langes Passwort; zusammen mit dem privaten Repository reicht sie für eure Reisedaten.</div>
+ <details style="margin-top:12px"><summary class="small" style="font-weight:600;cursor:pointer">So legst du Repository und Token an</summary><ol class="small" style="margin:8px 0 0 18px;padding:0;line-height:1.55">
+ <li><a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>: Name z. B. <b>auszeit-daten</b>, <b>Private</b> wählen, erstellen.</li>
+ <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained Token anlegen</a>: Ablauf nach Reiseende, „Only select repositories“ → das neue Repository, unter Permissions „Contents: Read and write“.</li>
+ <li>Token kopieren und hier einfügen. Auf dem zweiten Handy dasselbe Repository, denselben Token und dasselbe Passwort eintragen.</li></ol></details>
+ <div id="gsMsg" class="small" style="color:var(--err);margin-top:10px;min-height:1px"></div>
+ ${btns(`<button class="btn p" style="flex:1" data-a="gsConnect">Verbinden</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}`)}
+async function gsCheckSecret(c,sec){const m=await gsGet('meta.json',c);if(!m)return {meta:null};const meta=JSON.parse(gsTD.decode(m.bytes));const key=await gsDerive(sec,meta.salt,meta.iter);
+ try{if(gsTD.decode(await gsDec(key,gsUnB64(meta.chk)))!==GS_OK)throw 0}catch(e){throw new Error('Passwort oder PIN passt nicht zum Stand auf GitHub.')}return {meta,key}}
+async function gsConnect(){const old=gsCfg()||{};const repo=($('#gsRepo').value||'').trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/+$/,'');const tok=($('#gsTok').value||'').trim()||old.token||'';
+ const sec=$('#gsSec').value||'';const dev=($('#gsDev').value||'').trim()||gsGuessDev();const rem=$('#gsRem').checked;const msg=t=>{const e=$('#gsMsg');if(e)e.textContent=t};
+ if(!/^[\w.-]+\/[\w.-]+$/.test(repo))return msg('Repository bitte als Besitzer/Name angeben, z. B. dstindl/auszeit-daten.');if(!tok)return msg('Token fehlt.');if(!gsSecOk(sec))return msg('Passwort mit mindestens 8 Zeichen oder PIN mit mindestens 6 Ziffern.');
+ const c={repo,token:tok,dev,on:true};const b=$('#sheet [data-a=gsConnect]');const bh=b?b.innerHTML:'';if(b){b.disabled=true;b.innerHTML='<span class="spin"></span>Verbinde …'}
+ try{const info=await gsApi('GET','',null,c);if(!info||info.private!==true)throw new Error('Dieses Repository ist öffentlich. Bitte ein privates Repository verwenden – sonst wären die Daten für alle sichtbar.');
+  let {meta,key}=await gsCheckSecret(c,sec);
+  if(!meta){const salt=gsB64(crypto.getRandomValues(new Uint8Array(16)));key=await gsDerive(sec,salt,GS_ITER);meta={v:1,app:'Asien-Auszeit 2027',kdf:'PBKDF2-SHA256',iter:GS_ITER,salt,chk:gsB64(await gsEnc(key,gsTE.encode(GS_OK)))};
+   await gsPut('meta.json',gsTE.encode(JSON.stringify(meta,null,1)),null,'Abgleich eingerichtet',c)}
+  const same=old.repo===repo&&old.on;localStorage.setItem(GS_CFG,JSON.stringify(c));GS.key=key;GS.err=null;if(rem)await gsRemember(key,repo);else localStorage.removeItem(GS_KEY);
+  if(!same){localStorage.setItem(GS_ST,JSON.stringify({lt:Date.now()}));await gsKvSet('base',null)}
+  const d=same?null:await gsGet('data.bin',c);
+  if(d){let R=null;try{R=await gsUnpack(await gsDec(key,d.bytes))}catch(e){}gsFirstSheet(R);return}
+  closeSheet();toast('Abgleich eingerichtet – lade hoch …');gsRun('setup')}
+ catch(e){msg(e.message||String(e));if(b){b.disabled=false;b.innerHTML=bh}}}
+function gsFirstSheet(R){const when=R&&R.ts?new Date(R.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+ sheet(`<div class="sht">Stand auf GitHub gefunden</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Auf GitHub liegt schon ein Stand${R&&R.dev?` von „${esc(R.dev)}“`:''}${when?` (${when})`:''}. Was soll mit den Daten auf diesem Gerät passieren?</div>
+ <button class="row" data-a="gsFirst" data-k="adopt" style="align-items:flex-start"><div class="ic0">${ic('dl',17)}</div><div class="sp"><div class="tt">Stand von GitHub übernehmen</div><div class="ss wrap" style="margin-top:3px">Empfohlen für das zweite Handy. Die bisherigen Daten hier bleiben als Sicherung und lassen sich zurückholen.</div></div></button>
+ <button class="row" data-a="gsFirst" data-k="merge" style="align-items:flex-start"><div class="ic0">${ic('layers',17)}</div><div class="sp"><div class="tt">Zusammenführen</div><div class="ss wrap" style="margin-top:3px">Wenn auf beiden Geräten schon unterschiedlich geplant wurde. Doppelte Einträge sind dann möglich.</div></div></button>
+ ${btns(`<button class="btn" style="flex:1" data-a="close">Später entscheiden</button>`)}`)}
+function gsUnlockSheet(){sheet(`<div class="sht">Abgleich entsperren</div><div class="mut" style="margin:4px 0 10px;line-height:1.45">Passwort oder PIN für den Abgleich mit ${esc((gsCfg()||{}).repo||'GitHub')}.</div>
+ ${fld('gsSec2','Passwort oder PIN','',{type:'password',attr:'autocomplete="current-password"'})}${gsCk('gsRem2','Auf diesem Gerät merken',false)}<div id="gsMsg" class="small" style="color:var(--err);margin-top:10px;min-height:1px"></div>
+ ${btns(`<button class="btn p" style="flex:1" data-a="gsUnlock">Entsperren</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}`);setTimeout(()=>{const e=$('#gsSec2');if(e)e.focus()},250)}
+async function gsUnlock(){const c=gsCfg();const sec=($('#gsSec2')||{}).value||'';const rem=($('#gsRem2')||{}).checked;const msg=t=>{const e=$('#gsMsg');if(e)e.textContent=t};if(!c)return closeSheet();
+ try{const {key}=await gsCheckSecret(c,sec);if(!key)throw new Error('Auf GitHub fehlt meta.json – Abgleich bitte neu einrichten.');GS.key=key;if(rem)await gsRemember(key,c.repo);GS.err=null;closeSheet();gsRun('manual')}catch(e){msg(e.message||String(e))}}
+function gsSettings(){const c=gsCfg();const st=gsSt();
+ const row=(icn,t,v,s,a,red)=>`<button class="row" style="align-items:flex-start" ${a||''}><div class="ic0" ${red?'style="color:var(--err)"':''}>${ic(icn,17)}</div><div class="sp"><div style="display:flex;align-items:baseline;gap:10px"><div class="tt sp" ${red?'style="color:var(--err)"':''}>${t}</div>${v?`<span class="small" style="color:var(--ink);font-weight:500;white-space:nowrap">${v}</span>`:''}</div>${s?`<div class="ss wrap" style="margin-top:3px">${s}</div>`:''}</div>${a?`<span class="chev" style="padding-top:2px">${ic('chev',16)}</span>`:''}</button>`;
+ if(!gsOn())return `<div class="sec">Abgleich</div><div class="card">${row('lock','Abgleich zwischen euren Handys','aus','Privates GitHub-Repository, auf dem Handy verschlüsselt · mit Reise, Einstellungen, KI-Verlauf und geteilten Buchungsbestätigungen','data-a="gsSetup"')}</div>`;
+ const fmt=t=>new Date(t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+ const stat=GS.busy?'gleicht ab …':GS.err==='locked'?'gesperrt – Passwort oder PIN eingeben':GS.err==='offline'?'offline – gleicht ab, sobald Netz da ist':GS.err?'Fehler: '+esc(GS.err):st.ts?'zuletzt '+fmt(st.ts):'noch nicht abgeglichen';
+ const remd=(()=>{try{const r=JSON.parse(localStorage.getItem(GS_KEY)||'null');return !!(r&&r.repo===c.repo)}catch(e){return false}})();
+ return `<div class="sec">Abgleich</div><div class="card">${row(GS.err&&GS.err!=='offline'?'alert':'undo','Jetzt abgleichen',GS.busy?'<span class="spin"></span>':'',stat,GS.err==='locked'?'data-a="gsUnlockOpen"':'data-a="gsNow"')}
+ ${row('lock',esc(c.repo),'privat','Gerät „'+esc(c.dev||'')+'“ · verschlüsselt mit AES-256 · ändern','data-a="gsSetup"')}
+ ${row('key','Passwort auf diesem Gerät',remd?'gemerkt':'nicht gemerkt',remd?'Antippen, um es hier zu vergessen – dann einmal pro App-Start eingeben':'Antippen, um es hier zu merken','data-a="gsRemTog"')}
+ ${st.pre?row('undo','Stand vor dem ersten Abgleich','',fmt(st.pre)+' · zurückholen','data-a="gsPreAsk"'):''}
+ ${row('x','Abgleich trennen','','Daten auf diesem Gerät bleiben, GitHub bleibt unverändert','data-a="gsOffAsk"',true)}</div>
+ <div class="small mut" style="margin:8px 4px 0">Gleicht beim Start, beim Zurückkehren in die App und 15 Sekunden nach jeder Änderung ab. Token und Passwort bleiben nur auf diesem Gerät.</div>`}
+Object.assign(window.KIA=window.KIA||{},{
+ gsSetup:()=>gsSetupSheet(),gsConnect:()=>gsConnect(),gsNow:()=>gsRun('manual'),gsUnlockOpen:()=>gsUnlockSheet(),gsUnlock:()=>gsUnlock(),
+ gsFirst:(el)=>{gsStSet({mode:el.dataset.k==='adopt'?'adopt':'merge'});closeSheet();GS.pend=false;toast(el.dataset.k==='adopt'?'Übernehme den Stand von GitHub …':'Führe zusammen …');setTimeout(()=>gsRun('setup'),300)},
+ gsRemTog:async()=>{const c=gsCfg();let remd=false;try{const r=JSON.parse(localStorage.getItem(GS_KEY)||'null');remd=!!(r&&r.repo===c.repo)}catch(e){}
+  if(remd){localStorage.removeItem(GS_KEY);toast('Passwort hier vergessen – ab dem nächsten Start fragt die App danach.');gsUi()}else if(GS.key){await gsRemember(GS.key,c.repo);toast('Passwort auf diesem Gerät gemerkt.');gsUi()}else gsUnlockSheet()},
+ gsOffAsk:()=>sheet(`<div class="sht">Abgleich trennen?</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Die Daten auf diesem Gerät bleiben, der Stand auf GitHub auch. Token und gemerktes Passwort werden hier gelöscht.</div>${btns(`<button class="btn p" style="flex:1;background:var(--err)" data-a="gsOff">Trennen</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}`),
+ gsOff:async()=>{[GS_CFG,GS_KEY,GS_ST].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});GS.key=null;GS.err=null;clearTimeout(GS.t);try{await gsKvSet('base',null)}catch(e){}closeSheet();toast('Abgleich getrennt.');gsUi()},
+ gsPreAsk:()=>sheet(`<div class="sht">Stand vor dem ersten Abgleich zurückholen?</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Ersetzt die Reisedaten auf diesem Gerät durch den Stand, den es vor der Übernahme von GitHub hatte. Beim nächsten Abgleich geht dieser Stand auch an die anderen Geräte.</div>${btns(`<button class="btn p" style="flex:1" data-a="gsPre">Zurückholen</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}`),
+ gsPre:async()=>{const p=await gsKv('pre');if(!p||!p.raw){toast('Keine Sicherung gefunden.');return closeSheet()}gsApply({s:JSON.parse(p.raw),p:p.p||{}});gsStSet({lt:Date.now()});closeSheet();UI.keepY=true;render();toast('Früherer Stand zurückgeholt.');gsDirty()}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
