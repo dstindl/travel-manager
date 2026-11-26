@@ -10,12 +10,13 @@ Reiseplanungs-App (PWA). Live: https://dstindl.github.io/travel-manager/
 
 Eine Vollversion lässt sich jederzeit wiederherstellen: Datei aus `releases/` öffnen oder als `index.html` einsetzen.
 
-**Arbeitsversionen** (0.90_01, 0.90_02, …) bauen auf der letzten Vollversion auf und werden laufend gepusht. Im Hauptordner liegt nur die jeweils aktuelle Kopie (`Asien-Auszeit-v0_90_XX.html`).
+**Arbeitsversionen** (z. B. 0.91_01, 0.91_02, …) bauen auf der letzten Vollversion auf und werden laufend gepusht. Im Hauptordner liegt nur die jeweils aktuelle Kopie (derzeit `Asien-Auszeit-v0_91_XX.html`).
 
 | Vollversion | Datum | Datei | Tag |
 |---|---|---|---|
 | 0.81 | 26.11.2026 | releases/Asien-Auszeit-v0_81.html | Commit d372a3a |
 | 0.90 | 26.11.2026 | releases/Asien-Auszeit-v0_90.html | Commit e26ce6b · Neuaufbau: neue Oberfläche, gleicher Datenbestand |
+| 0.91 | 26.11.2026 | releases/Asien-Auszeit-v0_91.html | Commit 9405024 · Verbindungen mit echten Angeboten, Unterkunft/Ausflüge finden (KI), Einreise-Karten, Erinnerungen, Kalender, verschlüsselter Abgleich, Reisehinweise, Wetter, Fahrzeiten, Sicherheitslage, Google-Maps-Import, Testmodus |
 
 ## Aufbau der App (ab 0.90)
 
