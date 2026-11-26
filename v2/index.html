@@ -31,7 +31,7 @@ main{padding:4px 20px 24px;max-width:560px;margin:0 auto}
 .sec{font-size:12.5px;font-weight:600;color:var(--ink2);margin:30px 2px 10px;display:flex;align-items:center;gap:8px}
 .sec .r{margin-left:auto;color:var(--ink2);font-weight:500;font-size:12.5px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
-.row{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left}
+.row{display:flex;align-items:center;gap:12px;padding:13px 14px;width:100%;text-align:left}
 .row+.row{border-top:1px solid var(--line2)}
 .ic0{width:32px;height:32px;border-radius:10px;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--ink2);flex:none}
 .tt{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -87,13 +87,19 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inse
 .toast.on{opacity:1;transform:none}
 .fld{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-size:15px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.car{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -20px;padding:0 20px 2px}.car::-webkit-scrollbar{display:none}
+.car>*{scroll-snap-align:start;flex:none}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin:22px 0 16px;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tabs button{padding:0 0 10px;font-size:13px;font-weight:500;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button.on{color:var(--ink);font-weight:600;border-color:var(--acc)}
+.kpi{padding:12px 14px}.kpi .k{font-size:11.5px;color:var(--ink2)}.kpi .v{font-size:17px;font-weight:600;margin-top:3px}
 .tile{padding:12px 12px 11px;text-align:left}
 .empty{padding:28px 10px;text-align:center;color:var(--ink2)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line2);font-size:13px}.kv:first-child{border-top:0}
 .kv span:first-child{color:var(--ink2)}
 .conv{font-size:28px;font-weight:600;letter-spacing:-.5px;border:0;background:transparent;width:100%;outline:none;padding:0}
 </style></head><body>
-<div class="proto"><span>Prototyp v2 · Stand 3 · nur ansehen</span><a href="../">heutige App</a></div>
+<div class="proto"><span>Prototyp v2 · Stand 4 · nur ansehen</span><a href="../">heutige App</a></div>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden></button>
 <nav id="nav"></nav>
@@ -249,23 +255,25 @@ function vUebersicht(){const ds=stagesDated();const end=ds[ds.length-1].to;const
  let h=head('Asien-Auszeit 2027',[`${ic('cal',13)}${dl(D0())} – ${dl(end)}`,`${totalN()+1} Tage`,`${cs.length} Länder`],`<button class="ib" data-a="page" data-k="settings">${ic('gear',21)}</button>`);
  h+=`<div class="card" style="display:flex;padding:14px 16px"><div class="sp"><div class="small mut">Abflug in</div><div class="num" style="font-size:18px;font-weight:600;margin-top:2px">${days>0?days+' Tagen':'–'}</div></div><div style="width:1px;background:var(--line2);margin:0 16px"></div><div class="sp"><div class="small mut">Gebucht</div><div class="num" style="font-size:18px;font-weight:600;margin-top:2px">${st.b} <span class="mut" style="font-size:14px;font-weight:500">von ${st.n}</span></div><div style="height:4px;background:var(--line2);border-radius:2px;margin-top:8px"><div style="width:${Math.round(st.b/Math.max(1,st.n)*100)}%;height:4px;background:var(--ink2);border-radius:2px"></div></div></div></div>`;
  if(nx)h+=`<div class="pri" style="margin-top:16px;padding:14px 16px 16px"><div class="lab">Als Nächstes</div><div style="font-size:15.5px;font-weight:600;margin-top:4px;letter-spacing:-.2px">${esc(nx.t)}</div><div class="mut" style="margin-top:4px;display:flex;align-items:center;gap:6px">${ic('cal',14)}${esc(dueTxt(nx.date))} · ${esc(nx.s)}</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="openIt" data-k="0">${nx.i!=null?'Öffnen':'Erledigen'}</button><button class="btn" data-a="toast" data-k="Später: rückt in der Liste nach hinten (im echten Bau).">Später</button></div></div>`;
- h+=`<div class="sec">Offen<span class="r"><button data-a="page" data-k="offen">alle ${op.length} ›</button></span></div><div class="card">${op.slice(1,5).map((x,k)=>row({icn:x.icn,t:esc(x.t),s:esc(x.s)+(x.price?' · '+kib('Richtpreis'):''),dot:x.date-new Date()<7*864e5?'r':'',a:`data-a="openIt" data-k="${k+1}"`})).join('')}</div>`;
- const C=S.aiChecks&&S.aiChecks.all;if(C){const o=C.items.filter(x=>!x.st);const f=o.filter(x=>x.level==='fehler').length,w=o.filter(x=>x.level==='warnung').length;
-  h+=`<div class="card" style="margin-top:16px">${row({icn:'spark',kic:1,t:'Reise geprüft',s:`${f} Fehler · ${w} Warnungen · ${o.length-f-w} Optimierungen`,a:'data-a="tab" data-k="ki"'})}</div>`}
- h+=`<div class="card" style="margin-top:16px">${row({icn:'sun',t:'Vorschau: unterwegs',s:'So sieht die Startseite während der Reise aus',a:'data-a="preview"'})}</div>`;
+ h+=`<div class="sec">Offen<span class="r"><button data-a="page" data-k="offen">alle ${op.length} ›</button></span></div><div class="card">${op.slice(1,4).map((x,k)=>row({icn:x.icn,t:esc(x.t),s:esc(x.s)+(x.price?' · '+kib('Richtpreis'):''),dot:x.date-new Date()<7*864e5?'r':'',a:`data-a="openIt" data-k="${k+1}"`})).join('')}</div>`;
+ const C=S.aiChecks&&S.aiChecks.all;const cards=[];
+ if(C){const o=C.items.filter(x=>!x.st);const f=o.filter(x=>x.level==='fehler').length,w=o.filter(x=>x.level==='warnung').length;cards.push(`<button class="card" style="width:200px;padding:14px;text-align:left" data-a="tab" data-k="ki"><div style="color:var(--ki)">${ic('spark',18,2.1)}</div><div style="font-weight:600;margin-top:10px">Reise geprüft</div><div class="small mut" style="margin-top:3px">${f} Fehler · ${w} Warnungen</div></button>`)}
+ cards.push(`<button class="card" style="width:200px;padding:14px;text-align:left" data-a="preview"><div style="color:var(--ink2)">${ic('sun',18)}</div><div style="font-weight:600;margin-top:10px">Vorschau unterwegs</div><div class="small mut" style="margin-top:3px">So sieht „Heute“ aus</div></button>`);
+ const fi=focusStage();if(fi>=0){const st=S.stages[fi];cards.push(`<button class="card" style="width:200px;padding:14px;text-align:left" data-a="stage" data-k="${fi}"><div style="color:var(--acc)">${ic('route',18,2)}</div><div style="font-weight:600;margin-top:10px">Etappe ${stageNo()[st.id]} vervollständigen</div><div class="small mut" style="margin-top:3px">${esc(byId(st.placeId)?.name||'')} · ${doneN(fi)} von 5</div></button>`)}
+ h+=`<div class="sec">Mehr</div><div class="car">${cards.join('')}</div>`;
  return h}
 function dayItems(t){const out=[];const ds=stagesDated();ds.forEach(d=>{if(d.gap)return;const st=S.stages[d.i];legsOf(st).forEach((l,j)=>{const ld=l.date||iso(d.from);if(ld===t){const pv=d.i>0?byId(S.stages[d.i-1].placeId):null;out.push({time:l.dep||'',icn:(MODES[l.mode]||MODES.car)[0],t:`${l.from||pv?.name||''} → ${l.to||byId(st.placeId)?.name||''}`,s:`${trLabel(st,j)} · ${(MODES[l.mode]||MODES.car)[1]} · ${l.status==='gebucht'?'gebucht':'offen'}`,dot:l.status==='gebucht'?'g':'',a:`data-a="stage" data-k="${d.i}"`})}})});
  S.places.forEach(p=>{if(p.planned===t&&p.role!=='anchor')out.push({time:p.time||'',icn:'pin',t:p.name,s:`Ausflug ${excNo(p)}${p.tt?.status==='gebucht'?' · gebucht':''}`,dot:p.tt?.status==='gebucht'?'g':'n',a:`data-a="place" data-k="${p.id}"`})});
  return out.sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'))}
 function vHeute(){const T=today();const t=iso(T);const ds=stagesDated();const cur=stageAt(t);const p=cur?byId(cur.placeId):null;const dayN=Math.round((T-D0())/864e5)+1;const items=dayItems(t);const nx=items[0];const b=budget();
  let h=head(UI.preview?'Heute <span class="ki" style="vertical-align:middle;font-size:10.5px">Vorschau</span>':'Heute',`Tag ${dayN} von ${totalN()+1} · ${dl(T)} · ${esc(p?.name||'')}`,(UI.preview?`<button class="chip" data-a="preview">Ende</button>`:'')+`<button class="ib" data-a="page" data-k="settings">${ic('gear',21)}</button>`);
- h+=`<div class="qa"><button class="p" data-a="expense">${ic('plus',20,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',20,2)}Beleg lesen</button><button data-a="tab" data-k="geld">${ic('wallet',20,2)}Umrechnen</button></div>`;
+ h+=`<div class="qa"><button class="p" data-a="expense">${ic('plus',20,2.2)}<span>Ausgabe${b?` <span style="font-weight:500;opacity:.8">· ${eur(b.tod)}</span>`:''}</span></button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',20,2)}Beleg lesen</button><button data-a="tab" data-k="geld">${ic('wallet',20,2)}Umrechnen</button></div>`;
  if(nx)h+=`<div class="pri" style="padding:14px 16px 16px"><div class="lab">Als Nächstes${nx.time?' · '+esc(nx.time):''}</div><div style="font-size:15.5px;font-weight:600;margin-top:4px;letter-spacing:-.2px">${esc(nx.t)}</div><div class="mut" style="margin-top:3px">${esc(nx.s)}</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="toast" data-k="Navigieren öffnet Google Maps (im echten Bau).">${ic('nav',17,2)}Navigieren</button><button class="btn" ${nx.a}>Details</button></div></div>`;
  else h+=`<div class="pri" style="padding:14px 16px 16px"><div class="lab">Heute</div><div style="font-size:15.5px;font-weight:600;margin-top:4px">Freier Tag in ${esc(p?.name||'')}</div><div class="mut" style="margin-top:3px">Nichts geplant</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="tab" data-k="orte">Ideen ansehen</button><button class="btn k" data-a="tab" data-k="ki">${ic('spark',16,2.2)}Tagesplan</button></div></div>`;
  h+=`<div class="sec">Tagesablauf</div><div class="card">${items.map(x=>row({left:`<div class="num" style="width:44px;font-weight:600;color:var(--ink2)">${esc(x.time||'–')}</div>`,t:esc(x.t),s:esc(x.s),dot:x.dot,a:x.a})).join('')}`;
  if(cur&&cur.nights){const st=S.stages[cur.i];const k=Math.round((T-cur.from)/864e5)+1;h+=row({left:`<div style="width:44px;color:var(--ink3)">${ic('bed',18)}</div>`,t:esc(st.stay?.name||'Unterkunft offen'),s:`Nacht ${k} von ${cur.nights}${st.stay?.status==='gebucht'?' · gebucht':' · offen'}`,a:`data-a="stage" data-k="${cur.i}"`})}
  h+='</div>';
- if(b)h+=`<div class="card" style="margin-top:16px;padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Ausgaben heute</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)}</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div></div>`;
+
  const tm=dayItems(iso(addDays(T,1)));if(tm.length)h+=`<div class="card" style="margin-top:16px">${row({icn:tm[0].icn,t:`<span class="lab" style="display:block;font-weight:500">Morgen</span>${esc(tm[0].t)}`,s:esc(tm[0].s)+(tm.length>1?` · +${tm.length-1}`:''),dot:tm[0].dot,a:tm[0].a})}</div>`;
  return h}
 function themePref(){try{return localStorage.getItem('auszeit27_v2theme')||'auto'}catch(e){return 'auto'}}
@@ -289,9 +297,11 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
  let h=head('Route',`${totalN()+1} Tage · ${ds.filter(d=>!d.gap).length} Etappen · ${full} vollständig`,`<button class="ib" data-a="tab" data-k="orte">${ic('search',21)}</button>`);
  h+=`<div class="seg" style="margin-bottom:12px"><button class="${UI.view==='liste'?'on':''}" data-a="view" data-k="liste">Liste</button><button class="${UI.view==='karte'?'on':''}" data-a="view" data-k="karte">Karte</button></div><div id="map" class="${UI.view==='karte'?'big':''}"></div>`;
  if(UI.view==='karte')return h;
+ const cs=[...new Set(ds.filter(d=>!d.gap).map(d=>d.country))];if(!UI.rc||!cs.includes(UI.rc)&&UI.rc!=='all')UI.rc=fi>=0?S.stages[fi].country:cs[0];
+ h=h.replace('<div id="map"',`<div class="tabs" style="margin-top:4px">${cs.map(c=>`<button class="${UI.rc===c?'on':''}" data-a="rc" data-k="${c}">${esc(country(c).name)}</button>`).join('')}<button class="${UI.rc==='all'?'on':''}" data-a="rc" data-k="all">Alle</button></div><div id="map"`);
  let lastC=null;
- ds.forEach(d=>{if(d.gap)return;const st=S.stages[d.i];const p=byId(st.placeId);
-  if(st.country!==lastC){const cs=ds.filter(x=>x.country===st.country&&!x.gap);const n=cs.reduce((a,x)=>a+x.nights,0);h+=`<div class="sec" style="margin-top:${lastC?14:6}px">${esc(country(st.country).name)}<span class="r">${fmtD(cs[0].from)}–${fmtD(cs[cs.length-1].to)} · ${n} Nächte</span></div>`;lastC=st.country}
+ ds.forEach(d=>{if(d.gap)return;if(UI.rc!=='all'&&d.country!==UI.rc)return;const st=S.stages[d.i];const p=byId(st.placeId);
+  if(st.country!==lastC){const cs=ds.filter(x=>x.country===st.country&&!x.gap);const n=cs.reduce((a,x)=>a+x.nights,0);h+=`<div class="sec" style="margin-top:${lastC?22:4}px">${UI.rc==='all'?esc(country(st.country).name):'Etappen'}<span class="r">${fmtD(cs[0].from)}–${fmtD(cs[cs.length-1].to)} · ${n} Nächte</span></div>`;lastC=st.country}
   const L=legsOf(st);if(d.i>0)L.forEach((l,j)=>{h+=`<button class="tr" data-a="step" data-k="${d.i}" data-s="anreise"><span class="tl">${trLabel(st,j)}</span>${ic((MODES[l.mode]||MODES.car)[0],15)}<span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''} · ${L.length>1&&l.to?esc(l.to):'nach '+esc(p?.name||'')}</span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?kib('Richtpreis'):''}<span class="dot ${l.status==='gebucht'?'g':''}"></span></button>`});
   const n=doneN(d.i);const sub=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' N':'Durchreise'}${st.stay?.name&&d.nights?' · '+esc(st.stay.name):''}`;
   if(d.i===fi){const S5=steps(d.i);const nx=S5.find(x=>!x.ok);h+=`<div class="pri" style="padding:14px;margin:4px 0"><button data-a="stage" data-k="${d.i}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left"><div class="stn a">${no[st.id]}</div><div class="sp"><div style="font-size:15px;font-weight:600">${esc(p?.name||'')}</div><div class="ss small">${sub}</div></div><span class="small num" style="color:var(--acc);font-weight:600">${n}/5</span></button><div class="prog" style="margin:12px 0 10px">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><div style="display:flex;align-items:center;gap:10px"><div class="sp small mut">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div></div>`}
@@ -306,7 +316,7 @@ function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='
   const m=L.marker(ll,{icon:L.divIcon({className:'',html:`<div class="pinl ${a?'a':''}">${no[d.id]}</div>`,iconSize:a?[28,28]:[22,22],iconAnchor:a?[14,14]:[11,11]}),zIndexOffset:a?1000:0}).addTo(MAP);if(big)m.on('click',()=>openStage(d.i))});
  const ink=getComputedStyle(document.body).getPropertyValue('--ink2').trim()||'#5F6368';
  L.polyline(pts,{color:ink,weight:1.6,dashArray:'5 6',opacity:.8}).addTo(MAP);
- if(!big&&fi>=0){const k=Math.max(0,fi-2);MAP.fitBounds(L.latLngBounds(pts.slice(k,fi+3)),{padding:[18,18]})}else MAP.fitBounds(L.latLngBounds(pts),{padding:[24,24]})}
+ const sel=UI.rc&&UI.rc!=='all'?ds.filter(d=>d.country===UI.rc).map(d=>{const p=byId(d.placeId);return p?[p.lat,p.lon]:null}).filter(Boolean):pts;MAP.fitBounds(L.latLngBounds(sel.length?sel:pts),{padding:[22,22]})}
 // ---------- Etappe ----------
 function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const S5=steps(i);const n=S5.filter(x=>x.ok).length;const nxI=S5.findIndex(x=>!x.ok);
  let h=`<button class="back" data-a="back">${ic('back',18)}Route · ${esc(country(st.country).name)}</button>`;
@@ -349,21 +359,23 @@ function placeSheet(id){const p=byId(id);if(!p)return;const st=pState(p);const k
  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="btn p" style="flex:1" data-a="toast" data-k="In Etappe planen: Etappe und Tag wählen (im echten Bau).">${st==='Idee'?'In Etappe planen':'Tag ändern'}</button>${!p.gRating?`<button class="btn k" data-a="toast" data-k="Bewertung holen: Google-Note plus Claude-Zusammenfassung (im echten Bau).">${ic('spark',16,2.2)}Bewertung</button>`:''}<a class="btn" href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">${ic('map',16)}Maps</a></div>`)}
 // ---------- Geld ----------
 function tripCurs(){const l=[...new Set(S.stages.map(s=>curDefault(s.country)))];['USD','EUR'].forEach(c=>{if(!l.includes(c))l.push(c)});return l}
-function vGeld(){const t=iso(today());const cur=stageAt(t)||stagesDated()[0];const b=budget();if(!UI.cur)UI.cur=curDefault(cur.country);const c=UI.cur;const a=numOf(UI.amt)||0;
- const toE=UI.dir===1?toEUR(a,c):a;const fromC=UI.dir===1?a:a*(rateOf(c)||1);const usd=(toE||0)*(rateOf('USD')||1);
- let h=head('Geld',`${b?'Budget '+eur(b.B)+' für zwei · ':''}${esc(country(cur.country).name)}`);
- h+=`<div class="pri" style="padding:14px 16px 16px"><div style="display:flex;align-items:center"><span class="lab sp">Umrechnen${S.fx?.ts?' · Kurs '+new Date(S.fx.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}):' · Startkurse'}</span><button class="small" style="color:var(--acc);font-weight:600;display:flex;align-items:center;gap:4px" data-a="swap">${ic('route',14,2)}tauschen</button></div>
-  <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><input id="amt" class="conv num" inputmode="decimal" value="${esc(UI.amt)}" style="flex:1"><span class="mut" style="font-size:15px;font-weight:600">${UI.dir===1?esc(c):'EUR'}</span></div>
-  <div style="display:flex;align-items:baseline;gap:8px;margin-top:2px" id="convOut">${convOut(a,c)}</div>
-  <div class="chips" style="margin-top:12px">${tripCurs().filter(x=>x!=='EUR').map(x=>`<button class="chip ${x===c?'on':''}" data-a="cur" data-k="${x}">${esc(x)}</button>`).join('')}</div></div>`;
- h+=`<div class="qa" style="margin-top:16px"><button class="p" data-a="expense">${ic('plus',20,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',20,2)}Beleg lesen</button></div>`;
- if(b)h+=`<div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Heute</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)} frei</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div>
-  <div style="display:flex;margin-top:12px">${[['Budget übrig',b.rest],['pro Tag frei',b.daily],['Fixkosten',b.fix]].map(([k,v])=>`<div class="sp"><div class="small mut">${k}</div><div class="num" style="font-size:15.5px;font-weight:600;margin-top:2px">${eur(v)}</div></div>`).join('')}</div></div>`;
- else h+=`<div class="card">${row({icn:'wallet',t:'Budget festlegen',s:'noch kein Budget eingetragen'})}</div>`;
- const ex=(S.expenses||[]).slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,5);
- h+=`<div class="sec">Letzte Ausgaben<span class="r">${(S.expenses||[]).length}</span></div><div class="card">${ex.length?ex.map(e=>row({icn:/Essen/.test(e.cat)?'food':/Transport/.test(e.cat)?'car':/Unterkunft/.test(e.cat)?'bed':'wallet',t:esc(e.txt||e.cat),s:`${dl(pd(e.date))} · ${esc(e.cat||'')}`,right:`<span class="num" style="font-weight:600">${(numOf(e.amt)||0).toLocaleString('de-DE')} ${esc(curSym(e.cur||'EUR'))}</span>`})).join(''):'<div class="empty small">Noch keine Ausgaben.</div>'}</div>`;
- const miss=stagesDated().filter(d=>!d.gap).reduce((a,d)=>a+steps(d.i)[4].miss.length,0);
- h+=`<div class="card" style="margin-top:16px">${row({icn:'layers',t:'Kosten je Etappe',s:miss?`${miss} Posten ohne Betrag`:'alle Beträge erfasst',dot:miss?'':'g',a:'data-a="page" data-k="kosten"'})}</div>`;
+function vGeld(){const t=iso(today());const cur=stageAt(t)||stagesDated()[0];const b=budget();if(!UI.cur)UI.cur=curDefault(cur.country);const c=UI.cur;const a=numOf(UI.amt)||0;const gt=UI.gt||'heute';
+ let h=head('Geld',[b?'Budget '+eur(b.B)+' für zwei':'kein Budget',esc(country(cur.country).name)]);
+ h+=`<div class="pri" style="padding:12px 14px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Umrechnen${S.fx?.ts?' · Kurs '+new Date(S.fx.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}):' · Startkurse'}</span><button class="small" style="color:var(--acc);font-weight:600;display:flex;align-items:center;gap:4px" data-a="swap">${ic('route',13,2)}tauschen</button></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-top:6px"><input id="amt" class="conv num" inputmode="decimal" value="${esc(UI.amt)}" style="flex:1;font-size:24px"><span class="mut" style="font-size:13px;font-weight:600">${UI.dir===1?esc(c):'EUR'}</span></div>
+  <div style="display:flex;align-items:baseline;gap:8px" id="convOut">${convOut(a,c)}</div>
+  <div class="chips" style="margin-top:10px">${tripCurs().filter(x=>x!=='EUR').map(x=>`<button class="chip ${x===c?'on':''}" style="height:26px;font-size:11.5px;padding:0 9px" data-a="cur" data-k="${x}">${esc(x)}</button>`).join('')}</div></div>`;
+ h+=`<div class="qa" style="margin-top:16px;margin-bottom:0"><button class="p" data-a="expense">${ic('plus',19,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',19,2)}Beleg lesen</button></div>`;
+ h+=`<div class="tabs">${[['heute','Heute'],['budget','Budget'],['ausgaben','Ausgaben']].map(([k,l])=>`<button class="${gt===k?'on':''}" data-a="gt" data-k="${k}">${l}</button>`).join('')}</div>`;
+ const all=(S.expenses||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
+ const erow=e=>row({icn:/Essen/.test(e.cat)?'food':/Transport/.test(e.cat)?'car':/Unterkunft/.test(e.cat)?'bed':'wallet',t:esc(e.txt||e.cat||'Ausgabe'),s:`${dl(pd(e.date))}${e.txt&&e.cat?' · '+esc(e.cat):''}`,right:`<span class="num" style="font-weight:600">${(numOf(e.amt)||0).toLocaleString('de-DE')} ${esc(curSym(e.cur||'EUR'))}</span>`});
+ if(gt==='heute'){const td=all.filter(e=>e.date===t);
+  h+=b?`<div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">${dl(today())}</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)}</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div></div>`:'';
+  h+=td.length?`<div class="card" style="margin-top:16px">${td.map(erow).join('')}</div>`:`<div class="empty small">Heute noch keine Ausgaben.</div>`}
+ if(gt==='budget'){h+=b?`<div class="grid2">${[['Budget übrig',b.rest],['pro Tag frei',b.daily],['Fixkosten',b.fix],['ausgegeben',b.past+b.tod]].map(([k,v])=>`<div class="card kpi"><div class="k">${k}</div><div class="v num">${eur(v)}</div></div>`).join('')}</div>`:`<div class="card">${row({icn:'wallet',t:'Budget festlegen',s:'noch kein Budget eingetragen'})}</div>`;
+  const miss=stagesDated().filter(d=>!d.gap).reduce((x,d)=>x+steps(d.i)[4].miss.length,0);
+  h+=`<div class="card" style="margin-top:16px">${row({icn:'layers',t:'Kosten je Etappe',s:miss?`${miss} Posten ohne Betrag`:'alle Beträge erfasst',dot:miss?'':'g',a:'data-a="page" data-k="kosten"'})}</div>`}
+ if(gt==='ausgaben'){h+=all.length?`<div class="card">${all.slice(0,30).map(erow).join('')}</div>`:'<div class="empty small">Noch keine Ausgaben.</div>'}
  return h}
 function convOut(a,c){const e=UI.dir===1?toEUR(a,c):a;const o=UI.dir===1?null:a*(rateOf(c)||1);const usd=(e||0)*(rateOf('USD')||1);const f=v=>v==null?'–':v.toLocaleString('de-DE',{maximumFractionDigits:v<100?2:0});
  return UI.dir===1?`<span class="num" style="font-size:18px;font-weight:600;color:var(--acc)">= ${f(e)} €</span>${c!=='USD'?`<span class="small mut">· ${f(usd)} $</span>`:''}`:`<span class="num" style="font-size:18px;font-weight:600;color:var(--acc)">= ${f(o)} ${esc(c)}</span>`}
@@ -376,7 +388,7 @@ function vKI(){const bal=(()=>{try{return JSON.parse(localStorage.getItem('ausze
  const lab=sc==='all'?'zur Reise':sc==='s'?'zu '+(byId(fs?.placeId)?.name||''):'zu '+country(sc).name;
  h+=`<div class="card" style="display:flex;align-items:center;gap:10px;height:50px;padding:0 6px 0 14px"><input placeholder="Frag ${esc(lab)} …" style="flex:1;border:0;background:transparent;outline:none;font-size:14px;min-width:0" id="kiq"><button data-a="kiask" style="width:38px;height:38px;border-radius:11px;background:var(--ki);color:var(--kit);display:flex;align-items:center;justify-content:center">${ic('spark',19,2.2)}</button></div>`;
  const T=[['alert',sc==='s'?'Etappe prüfen':'Reise prüfen','Fehler, Risiken'],['pin','Ausflüge vorschlagen','mit Tag'],['wallet','Richtpreise','offene Transfers'],['star','Bewertungen holen','Unterkünfte, Orte'],['cal','Tagesplan','freie Tage'],['flag','Einreise prüfen','Checklisten']];
- h+=`<div class="sec">Aufgaben</div><div class="grid2">${T.map(([i,t,s])=>`<button class="card tile" data-a="toast" data-k="${esc(t)}: läuft wie in der heutigen App, Ergebnis kommt als Vorschlag (im echten Bau)."><div style="color:var(--ki)">${ic(i,18,2)}</div><div style="font-size:13px;font-weight:600;margin-top:8px">${t}</div><div class="small mut" style="margin-top:2px">${s}</div></button>`).join('')}</div>`;
+ h+=`<div class="sec">Aufgaben</div><div class="car">${T.map(([i,t,s])=>`<button class="card tile" style="width:150px" data-a="toast" data-k="${esc(t)}: läuft wie in der heutigen App, Ergebnis kommt als Vorschlag (im echten Bau)."><div style="color:var(--ki)">${ic(i,18,2)}</div><div style="font-size:13px;font-weight:600;margin-top:8px">${t}</div><div class="small mut" style="margin-top:2px">${s}</div></button>`).join('')}</div>`;
  const ck=S.aiChecks&&(S.aiChecks[sc==='s'?fs?.country:sc]||(sc==='all'?null:null));const C=S.aiChecks&&(sc==='all'?S.aiChecks.all:S.aiChecks[sc==='s'?fs?.country:sc]);const it=C?C.items.filter(x=>!x.st):[];
  const LV={fehler:['Fehler','var(--err)'],warnung:['Warnung','var(--warn)'],optimierung:['Optimierung','var(--ki)']};
  h+=`<div class="sec">Vorschläge<span class="r">${it.length} offen</span></div>`;
@@ -409,6 +421,8 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   place:()=>placeSheet(k),
   openIt:()=>{const x=openItems()[+k];if(!x)return;if(x.i!=null){UI.tab='route';UI.stack=[{k:'stage',i:x.i}];render()}else toast('Checkliste öffnen und abhaken (im echten Bau).')},
   view:()=>{UI.view=k;render()},
+  rc:()=>{UI.rc=k;render()},
+  gt:()=>{UI.gt=k;render()},
   of:()=>{UI.of=k;render()},
   cur:()=>{UI.cur=k;render()},
   swap:()=>{UI.dir=UI.dir===1?-1:1;render()},
@@ -426,6 +440,6 @@ window.addEventListener('resize',()=>{if(MAP)MAP.invalidateSize()});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();render()});
 applyTheme();render();
 // Neuester Stand: GitHub Pages und Browser halten Seiten zwischengespeichert – Version prüfen und ggf. frisch laden
-const V2_STAND='3';
+const V2_STAND='4';
 fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&j.v!==V2_STAND){const q='s='+j.v;if(!location.search.includes(q))location.replace(location.pathname+'?'+q)}}).catch(()=>{});
 </script></body></html>
