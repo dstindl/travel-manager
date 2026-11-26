@@ -173,6 +173,17 @@ html.dark .leaflet-control-attribution{background:rgba(0,0,0,.45)!important;colo
 .rpin.idea{border-style:dashed;opacity:.9}
 .hpin{position:relative}.rlab{position:absolute;left:22px;top:2px;background:var(--card);border-radius:6px;padding:0 4px;font:600 10px Inter,sans-serif;color:var(--ink);white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2)}
 #rabar{position:fixed;left:0;top:0;height:3px;background:var(--ki);z-index:70;transition:width .4s;border-radius:0 2px 2px 0}
+.mtools.bot{top:auto;bottom:calc(18px + env(safe-area-inset-bottom))}
+.xpin{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;pointer-events:auto}
+.xn{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:18px;padding:0 4px;border-radius:9px;background:var(--card);border:1.5px solid var(--ink2);font:600 10px Inter,sans-serif;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.xpin.idea .xn{border-style:dashed;color:var(--ink2);font-weight:500}
+.xl{font:500 11px Inter,sans-serif;color:var(--ink);background:var(--card);padding:1px 5px;border-radius:5px;box-shadow:0 1px 2px rgba(0,0,0,.18);opacity:.95}
+.xl b{font-weight:600}
+.hpin .xl{position:absolute;left:24px;top:14px}
+.zlow .xl{display:none}
+.hpin .hno{position:absolute;left:-8px;top:-9px;min-width:15px;height:14px;padding:0 3px;border-radius:5px;background:var(--acc);color:var(--acct);font:700 9px Inter,sans-serif;line-height:14px;text-align:center;white-space:nowrap}
+.hpin.est{border-style:dashed!important;opacity:.85}
+.hpin .hq{position:absolute;right:-6px;bottom:-5px;width:12px;height:12px;border-radius:6px;background:var(--warn);color:#fff;font:700 8.5px Inter,sans-serif;line-height:12px;text-align:center}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -289,6 +300,7 @@ function ensureExcNos(aid,list){let max=Math.max(0,...list.filter(x=>x.p.excAnch
 function excursions(aid){const l=excursionsRaw(aid);ensureExcNos(aid,l);return l.sort((a,b)=>a.p.excNo-b.p.excNo)}
 function renumber(aid){excursions(aid).forEach((x,i)=>x.p.excNo=i+1);save()}
 function ensurePids(){let mx=S.nextPid||Math.max(0,...S.places.map(p=>p.pid||0));let ch=false;S.places.forEach(p=>{if(!p.pid){p.pid=++mx;ch=true}});S.nextPid=mx;return ch}
+const pidTxt=p=>p&&p.pid?'#'+String(p.pid).padStart(3,'0'):''
 function attachTo(p,aid){if(p.role==='anchor'){if(S.stages.some(s=>s.placeId===p.id))return false;unAnchor(p)}if(p.role==='inbox')p.role='wei';{const cs=UI._exStage&&S.stages.find(o=>o.id===UI._exStage);if(cs&&cs.placeId===aid)p.stageId=cs.id;else if(p.anchorId!==aid)delete p.stageId}p.anchorId=aid;p.attached=true;p.manualMin=null;delete p.detachedFrom;p.attachedAt=Date.now();return true}
 function stageNo(){const m={};let n=0;S.stages.forEach(s=>{if(s.gap)return;n++;m[s.id]=n;if(!m[s.placeId])m[s.placeId]=n});return m}
 let EXC_CACHE=null;
@@ -1041,8 +1053,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90_05';
+const APP_VERSION='0.90_06';
 const CHANGELOG=[
+ {v:'0.90_06',d:'26.11.2026',items:['„Alle“ bzw. „Alle Länder“ steht in den Auswahlleisten immer vorn','Karte: Ausflüge mit Nummer und Namen, Ideen mit Ortsnummer und Namen (Namen ab mittlerer Zoomstufe)','Karte: Unterkünfte mit Etappennummer, mehrere am selben Ort zusammengefasst, fehlende Position gestrichelt mit „?“','Karte: Ausschnitt bleibt nach dem Bearbeiten erhalten; Knöpfe für „Ausschnitt zurücksetzen“ und „Mein Standort“','Transfers zeigen beim Antippen oder Überfahren Nummer, Verkehrsmittel und Status']},
  {v:'0.90_05',d:'26.11.2026',items:['KI: Aufgaben-Karussell steht immer oben, direkt unter dem Fragefeld und über dem Gespräch']},
  {v:'0.90_04',d:'26.11.2026',items:['Bewertung steht in den Listen hinter Land und Flagge','Einmalig alle Bewertungen aktualisieren (Orte und Unterkünfte, über Claude) – läuft nach dem Update automatisch an, mit Fortschritt und Stopp; später erneut unter Einstellungen']},
  {v:'0.90_03',d:'26.11.2026',items:['Google-Bewertungen automatisch über Claude: bei Suchtreffern, beim Hinzufügen von Orten, Ausflügen (auch aus KI-Vorschlägen und Buchungen) und bei neuen Unterkünften','Bewertung je Ort und je Unterkunft auf Knopfdruck neu holen; Quelle wird angezeigt','Karte: Bewertungen einblendbar und Mindestbewertung (ab 4,0 oder 4,5) für Ausflüge und Ideen','Einstellung „Bewertungen automatisch“ zum Abschalten']},
@@ -1183,7 +1196,7 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
  let h=head('Route',[`${totalN()+1} Tage`,`${ds.filter(d=>!d.gap).length} Etappen`,`${full} vollständig`],`<button class="ib" data-a="tab" data-k="orte" aria-label="Orte">${ic('search',20)}</button>`);
  const card=c=>{const l=ds.filter(d=>!d.gap&&d.country===c);const n=l.reduce((a,d)=>a+d.nights,0);const ok=l.filter(d=>doneN(d.i)===5).length;
   return `<button class="card cc ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}" id="cc-${c}"><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cname(c)}</div><div class="st3">${fmtD(l[0].from)}–${fmtD(l[l.length-1].to)} · ${n} N</div><div style="display:flex;align-items:center;gap:8px;margin-top:9px"><div class="prog sp">${l.map(d=>`<i class="${doneN(d.i)===5?'f':''}" style="height:4px"></i>`).join('')}</div><span class="small mut num" style="font-size:11px">${ok}/${l.length}</span></div></button>`};
- h+=`<div class="car" id="ccar" style="margin-bottom:14px">${cs.map(card).join('')}<button class="card cc ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all" style="width:110px"><div style="font-weight:600;font-size:13.5px">Alle Länder</div><div class="st3">${totalN()} Nächte</div></button></div>`;
+ h+=`<div class="car" id="ccar" style="margin-bottom:14px"><button class="card cc ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all" id="cc-all" style="width:110px"><div style="font-weight:600;font-size:13.5px">Alle Länder</div><div class="st3">${totalN()} Nächte</div></button>${cs.map(card).join('')}</div>`;
  h+=`<div class="seg" style="margin-bottom:12px"><button class="${UI.view==='liste'?'on':''}" data-a="view" data-k="liste">Liste</button><button class="${UI.view==='karte'?'on':''}" data-a="view" data-k="karte">Karte</button></div><div class="mapw"><div id="map" class="${UI.view==='karte'?'big':''}"></div>${mapTools()}</div>`;
  if(UI.view==='karte')return h;
  let lastC=null;
@@ -1224,12 +1237,16 @@ function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='
  const ink=getComputedStyle(document.body).getPropertyValue('--ink2').trim()||'#5F6368';
  let sel=UI.rc&&UI.rc!=='all'?ds.filter(d=>d.country===UI.rc).map(d=>stageLL(d.i)).filter(okLL):pts.slice();
  if(big){try{sel=sel.concat(mapDetail(MAP,ds,P).filter(okLL))}catch(e){console.warn(e)}}else if(pts.length>1)L.polyline(pts,{color:ink,weight:1.6,dashArray:'5 6',opacity:.8}).addTo(MAP);
- const B=sel.length?sel:pts;if(!B.length)return;const fit=()=>{try{MAP.invalidateSize();if(B.length===1)MAP.setView(B[0],big?11:9);else MAP.fitBounds(L.latLngBounds(B),{padding:[26,26],maxZoom:big?13:11})}catch(e){}};fit();setTimeout(fit,60)}
-function mapTools(){return `<div class="mtools">${UI.view==='karte'?`<button class="mtb" data-a="mapFilter" aria-label="Filter">${ic('layers',18)}</button>`:''}<button class="mtb" data-a="mapFull" aria-label="Vollbild">${ic('full',18)}</button></div>`}
+ const zl=()=>{try{el.classList.toggle('zlow',MAP.getZoom()<9)}catch(e){}};if(MAP.on)MAP.on('zoomend',zl);
+ if(UI.me&&big){try{UI.meMk=L.circleMarker(UI.me,{radius:7,color:'#fff',weight:2.5,fillColor:'#2F80ED',fillOpacity:1}).addTo(MAP)}catch(e){}}
+ const vk=(full?'f':big?'b':'s')+'|'+UI.rc;const B=sel.length?sel:pts;if(!B.length)return;
+ const fit=()=>{try{MAP.invalidateSize();const V=UI.mapView;if(V&&V.key===vk)MAP.setView([V.lat,V.lng],V.z);else if(B.length===1)MAP.setView(B[0],big?11:9);else MAP.fitBounds(L.latLngBounds(B),{padding:[26,26],maxZoom:big?13:11})}catch(e){}zl()};fit();setTimeout(fit,60);
+ setTimeout(()=>{if(MAP&&MAP.on)MAP.on('moveend',()=>{try{const c=MAP.getCenter();UI.mapView={key:vk,lat:c.lat,lng:c.lng,z:MAP.getZoom()}}catch(e){}})},150)}
+function mapTools(){const big=UI.view==='karte';return `<div class="mtools">${big?`<button class="mtb" data-a="mapFilter" aria-label="Filter">${ic('layers',18)}</button>`:''}<button class="mtb" data-a="mapFull" aria-label="Vollbild">${ic('full',18)}</button>${big?`<button class="mtb" data-a="mapFit" aria-label="Ausschnitt zurücksetzen">${ic('route',17)}</button><button class="mtb" data-a="mapLocate" aria-label="Mein Standort">${ic('locate',18)}</button>`:''}</div>`}
 function vMapFull(){const cs=[...new Set(stagesDated().filter(d=>!d.gap).map(d=>d.country))];
- return `<div class="mapfull"><div id="map" class="full"></div><div class="mapbar"><button class="mtb" data-a="back" aria-label="Zurück">${ic('back',19)}</button><div class="chips" style="margin:0;padding:0 4px;flex:1">${cs.map(c=>`<button class="chip ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}">${cname(c)}</button>`).join('')}<button class="chip ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all">Alle</button></div><button class="mtb" data-a="mapFilter" aria-label="Filter">${ic('layers',18)}</button></div></div>`}
+ return `<div class="mapfull"><div id="map" class="full"></div><div class="mapbar"><button class="mtb" data-a="back" aria-label="Zurück">${ic('back',19)}</button><div class="chips" style="margin:0;padding:0 4px;flex:1"><button class="chip ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all">Alle</button>${cs.map(c=>`<button class="chip ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}">${cname(c)}</button>`).join('')}</div><button class="mtb" data-a="mapFilter" aria-label="Filter">${ic('layers',18)}</button></div><div class="mtools bot"><button class="mtb" data-a="mapFit" aria-label="Ausschnitt zurücksetzen">${ic('route',17)}</button><button class="mtb" data-a="mapLocate" aria-label="Mein Standort">${ic('locate',18)}</button></div></div>`}
 function mapFilterSheet(){const P=mapPref();const t=(k,l,ico)=>`<button class="chip ${P[k]?'on':''}" data-a="mapT" data-k="${k}">${ic(ico,14)}${l}</button>`;
- sheet(`<div class="sht">Karte</div><div class="mut" style="margin:4px 0 6px">Was angezeigt wird</div>${lbl('Ebenen')}<div class="chips wrapc">${t('stay','Unterkünfte','bed')}${t('tr','Transfers','route')}${t('ex','Ausflüge','pin')}${t('idea','Ideen','globe')}${t('rate','Bewertungen','star')}</div>${lbl('Mindestbewertung für Ausflüge und Ideen')}<div class="seg">${[[0,'alle'],[4,'ab ★ 4,0'],[4.5,'ab ★ 4,5']].map(([v,l])=>`<button class="${(P.min||0)===v?'on':''}" data-a="mapMin" data-k="${v}">${l}</button>`).join('')}</div>${lbl('Kartenstil')}<div class="seg">${Object.entries(TILES2).map(([k,v])=>`<button class="${P.tiles===k?'on':''}" data-a="mapStyle" data-k="${k}">${v.name}</button>`).join('')}</div><div class="small mut" style="margin:12px 2px 0;line-height:1.45">Etappen sind immer sichtbar. Gebuchte Transfers durchgezogen, offene gestrichelt. Antippen öffnet Etappe, Unterkunft, Transfer oder Ort.</div>`)}
+ sheet(`<div class="sht">Karte</div><div class="mut" style="margin:4px 0 6px">Was angezeigt wird</div>${lbl('Ebenen')}<div class="chips wrapc">${t('stay','Unterkünfte','bed')}${t('tr','Transfers','route')}${t('ex','Ausflüge','pin')}${t('idea','Ideen','globe')}${t('rate','Bewertungen','star')}</div>${lbl('Mindestbewertung für Ausflüge und Ideen')}<div class="seg">${[[0,'alle'],[4,'ab ★ 4,0'],[4.5,'ab ★ 4,5']].map(([v,l])=>`<button class="${(P.min||0)===v?'on':''}" data-a="mapMin" data-k="${v}">${l}</button>`).join('')}</div>${lbl('Kartenstil')}<div class="seg">${Object.entries(TILES2).map(([k,v])=>`<button class="${P.tiles===k?'on':''}" data-a="mapStyle" data-k="${k}">${v.name}</button>`).join('')}</div><div class="small mut" style="margin:12px 2px 0;line-height:1.45">Etappen sind immer sichtbar. Ausflüge tragen ihre Nummer (z. B. 6.1), Ideen ihre Ortsnummer (#012); die Namen erscheinen beim Hineinzoomen. Gebuchte Transfers durchgezogen, offene gestrichelt; Unterkünfte ohne Position gestrichelt mit „?“. Antippen öffnet Etappe, Unterkunft, Transfer oder Ort.</div>`)}
 // ---------- Etappe ----------
 function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const S5=steps(i);const n=S5.filter(x=>x.ok).length;const nxI=S5.findIndex(x=>!x.ok);
  let h=backBtn();
@@ -1817,19 +1834,33 @@ function chkSheet2(id){const x=chkFind(id);if(!x)return;if(!x.custom&&x.custom!=
  sheet(`<div class="sht" style="line-height:1.3">${esc(x.t)}</div><div class="mut" style="margin:6px 0 12px">Eigener Punkt · ${x.c==='_g'?'Allgemein':cname(x.c)}${done?' · erledigt':''}</div>${btns(done?`<button class="btn" style="flex:1" data-a="chkUndo" data-k="${esc(id)}">Wieder offen</button>`:`<button class="btn p" style="flex:1" data-a="chkDone" data-k="${esc(id)}">Erledigt</button>`,`<button class="btn gh" style="color:var(--err)" data-a="chkDel" data-k="${esc(x.c)}" data-i="${x.custom}">${ic('trash',15)}Löschen</button>`)}`)}
 
 // ---------- Karte: Unterkünfte, Transfers, Ausflüge (große Karte) ----------
-function mapDetail(M,ds,P){P=P||mapPref();const rOk=x=>!P.min||(x.gRating!=null&&x.gRating>=P.min);const rIcon=(x,idea)=>L.divIcon({className:'',html:`<div class="rpin ${idea?'idea':''}">★ ${r1(x.gRating)}</div>`,iconSize:[40,18],iconAnchor:[20,9]});const css=getComputedStyle(document.body);const ink=css.getPropertyValue('--ink2').trim()||'#5F6368',warn=css.getPropertyValue('--warn').trim()||'#C68A1E',ok=css.getPropertyValue('--ok').trim()||'#3E8E5A',card=css.getPropertyValue('--card').trim()||'#fff';
- const inSel=c=>!UI.rc||UI.rc==='all'||c===UI.rc;const pts=[];
+function mapDetail(M,ds,P){P=P||mapPref();const css=getComputedStyle(document.body);const ink=css.getPropertyValue('--ink2').trim()||'#5F6368',warn=css.getPropertyValue('--warn').trim()||'#C68A1E',ok=css.getPropertyValue('--ok').trim()||'#3E8E5A',card=css.getPropertyValue('--card').trim()||'#fff';
+ const inSel=c=>!UI.rc||UI.rc==='all'||c===UI.rc;const pts=[];const no=stageNo();const rOk=x=>!P.min||(x.gRating!=null&&x.gRating>=P.min);
+ const rl=o=>P.rate&&o.gRating!=null?` · ★ ${r1(o.gRating)}`:'';
+ // Transfers: gebucht durchgezogen, offen gestrichelt; Antippen öffnet den Transfer
  if(P.tr)ds.forEach(d=>{const st=S.stages[d.i];const LG=legsOf(st);if(!LG.length)return;const pv=d.i>0?S.stages[d.i-1]:null;const pp=pv?byId(pv.placeId):null;const p=byId(st.placeId);if(!p)return;
   if(!inSel(st.country)&&!(pv&&inSel(pv.country)))return;
-  const A=pv&&pv.stay?.ll?[pv.stay.ll.lat,pv.stay.ll.lon]:pp?[pp.lat,pp.lon]:null;const B=st.stay?.ll?[st.stay.ll.lat,st.stay.ll.lon]:[p.lat,p.lon];if(!A)return;
-  let cur=A;LG.forEach((l,j)=>{const f=l.fromLL?[l.fromLL.lat,l.fromLL.lon]:cur;let t=l.toLL?[l.toLL.lat,l.toLL.lon]:j===LG.length-1?B:(LG[j+1].fromLL?[LG[j+1].fromLL.lat,LG[j+1].fromLL.lon]:legGuess(LG,j,pp,p,pv?.country,st.country,f,B));if(!t)t=B;
-   const bk=l.status==='gebucht';const fl=l.mode==='flight';const pl=L.polyline([f,t],{color:bk?ink:warn,weight:fl?1.4:2.6,opacity:fl?.5:.9,dashArray:bk?null:'6 6'}).addTo(M);if(pl.on)pl.on('click',()=>legSheet(d.i,j));cur=t})});
- ds.forEach(d=>{const st=S.stages[d.i];if(!inSel(st.country))return;const h=st.stay;
-  if(P.stay&&h&&h.ll&&d.nights){const bk=h.status==='gebucht';const m=L.marker([h.ll.lat,h.ll.lon],{icon:L.divIcon({className:'',html:`<div class="hpin" style="border-color:${bk?ok:warn};background:${card}">${ic('bed',12,2.2)}${P.rate&&h.gRating!=null?`<span class="rlab">★ ${r1(h.gRating)}</span>`:''}</div>`,iconSize:[22,22],iconAnchor:[11,11]}),zIndexOffset:400}).addTo(M);if(m.on)m.on('click',()=>staySheet(d.i));pts.push([h.ll.lat,h.ll.lon])}
-  if(P.ex)exOf(d.i).forEach(x=>{if(x.lat==null||!rOk(x))return;const m=P.rate&&x.gRating!=null?L.marker([x.lat,x.lon],{icon:rIcon(x,false),zIndexOffset:300}).addTo(M):L.circleMarker([x.lat,x.lon],{radius:4.5,color:ink,weight:1.5,fillColor:card,fillOpacity:1}).addTo(M);if(m.on)m.on('click',()=>placeSheet(x.id))})});
- if(P.idea)S.places.forEach(x=>{if(x.lat==null||pState(x)!=='Idee'||!inSel(x.country)||!rOk(x))return;const m=P.rate&&x.gRating!=null?L.marker([x.lat,x.lon],{icon:rIcon(x,true),zIndexOffset:200}).addTo(M):L.circleMarker([x.lat,x.lon],{radius:4,color:ink,weight:1.2,dashArray:'2 2',fillColor:card,fillOpacity:.6}).addTo(M);if(m.on)m.on('click',()=>placeSheet(x.id))});
+  const A=pv?stageLL(d.i-1):null;const B=stageLL(d.i);if(!okLL(A)||!okLL(B))return;
+  let cur=A;LG.forEach((l,j)=>{const f=l.fromLL?[l.fromLL.lat,l.fromLL.lon]:cur;let t=l.toLL?[l.toLL.lat,l.toLL.lon]:j===LG.length-1?B:(LG[j+1].fromLL?[LG[j+1].fromLL.lat,LG[j+1].fromLL.lon]:legGuess(LG,j,pp,p,pv?.country,st.country,f,B));if(!okLL(t))t=B;
+   const bk=l.status==='gebucht';const fl=l.mode==='flight';const pl=L.polyline([f,t],{color:bk?ink:warn,weight:fl?1.4:2.6,opacity:fl?.5:.9,dashArray:bk?null:'6 6'}).addTo(M);
+   if(pl.bindTooltip)pl.bindTooltip(`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]} · ${bk?'gebucht':'offen'}`,{sticky:true});if(pl.on)pl.on('click',()=>legSheet(d.i,j));cur=t})});
+ // Unterkünfte: gleiche Position zusammengefasst, ohne Position geschätzt (gestrichelt, „?“)
+ if(P.stay){const G={};ds.forEach(d=>{const st=S.stages[d.i];const h=st.stay;if(!inSel(st.country)||!d.nights||!h||!h.name)return;const p=byId(st.placeId);if(!p)return;
+   const has=h.ll&&p&&hav(p,h.ll)<120;const ll=has?[h.ll.lat,h.ll.lon]:[p.lat-0.012,p.lon+0.016];const key=has?ll[0].toFixed(4)+','+ll[1].toFixed(4):'x'+d.i;(G[key]=G[key]||{ll,est:!has,items:[]}).items.push({i:d.i,h,n:no[st.id]})});
+  Object.values(G).forEach(g=>{const f=g.items[0];const bk=g.items.every(x=>x.h.status==='gebucht');const nums=g.items.map(x=>x.n).join('+');
+   const m=L.marker(g.ll,{icon:L.divIcon({className:'',html:`<div class="hpin ${g.est?'est':''}" style="border-color:${bk?ok:warn};background:${card}">${ic('bed',12,2.2)}<span class="hno">${nums}</span>${g.est?'<span class="hq">?</span>':''}${P.rate&&f.h.gRating!=null?`<span class="rlab">★ ${r1(f.h.gRating)}</span>`:''}<span class="xl">${esc(f.h.name)}</span></div>`,iconSize:[22,22],iconAnchor:[11,11]}),zIndexOffset:400}).addTo(M);
+   if(m.bindTooltip)m.bindTooltip(`${nums} · ${g.items.map(x=>x.h.name).filter((v,k,a)=>a.indexOf(v)===k).join(' / ')}${g.est?' · Position fehlt':''}`,{direction:'top',offset:[0,-12]});
+   if(m.on)m.on('click',()=>g.items.length>1?hotelPick(g.items):staySheet(f.i));if(!g.est)pts.push(g.ll)})}
+ // Ausflüge mit Nummer (z. B. 6.1) und Namen
+ if(P.ex)ds.forEach(d=>{if(!inSel(S.stages[d.i].country))return;exOf(d.i).forEach(x=>{if(x.lat==null||!rOk(x))return;const n=excNo(x);
+  const m=L.marker([x.lat,x.lon],{icon:L.divIcon({className:'',html:`<div class="xpin"><span class="xn">${esc(n||'•')}${rl(x)}</span><span class="xl">${esc(x.name)}</span></div>`,iconSize:[0,0],iconAnchor:[11,10]}),zIndexOffset:300}).addTo(M);if(m.on)m.on('click',()=>placeSheet(x.id));pts.push([x.lat,x.lon])})});
+ // Ideen mit Ortsnummer (#012) und Namen
+ if(P.idea)S.places.forEach(x=>{if(x.lat==null||pState(x)!=='Idee'||!inSel(x.country)||!rOk(x))return;
+  const m=L.marker([x.lat,x.lon],{icon:L.divIcon({className:'',html:`<div class="xpin idea"><span class="xn">${esc(pidTxt(x)||'•')}${rl(x)}</span><span class="xl">${esc(x.name)}</span></div>`,iconSize:[0,0],iconAnchor:[11,10]}),zIndexOffset:200}).addTo(M);if(m.on)m.on('click',()=>placeSheet(x.id))});
  return pts}
-
+function hotelPick(items){sheet(`<div class="sht">Unterkünfte an diesem Ort</div><div class="mut" style="margin:4px 0 12px">mehrere Etappen</div><div class="card">${items.map(x=>{const d=stagesDated()[x.i];return row({left:`<div class="stn">${x.n}</div>`,t:esc(x.h.name),s:`${fmtD(d.from)}–${fmtD(d.to)} · ${x.h.status==='gebucht'?'gebucht':'offen'}`,a:`data-a="stay" data-k="${x.i}"`})}).join('')}</div>`)}
+function mapLocate(){if(!navigator.geolocation)return toast('Standort ist auf diesem Gerät nicht verfügbar.');toast('Suche Standort …',4000);
+ navigator.geolocation.getCurrentPosition(pos=>{const ll=[pos.coords.latitude,pos.coords.longitude];if(!MAP)return;try{if(UI.meMk)UI.meMk.remove()}catch(e){}UI.me=ll;UI.meMk=L.circleMarker(ll,{radius:7,color:'#fff',weight:2.5,fillColor:'#2F80ED',fillOpacity:1}).addTo(MAP);MAP.setView(ll,Math.max(12,MAP.getZoom()));hideToast()},e=>toast('Standort nicht verfügbar ('+(e.code===1?'nicht freigegeben':'kein Signal')+').',5000),{enableHighAccuracy:true,timeout:12000,maximumAge:60000})}
 // ---------- Teilen aus anderen Apps (Buchung, Ort aus Google Maps) ----------
 async function shareIn(){const q=new URLSearchParams(location.search);const sh=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n').trim();
  if(q.get('shared')){history.replaceState(history.state,'',location.pathname);try{const c=await caches.open('auszeit-share');const m=await c.match('./share-meta');if(!m)return;const meta=await m.json();await c.delete('./share-meta');const files=[];
@@ -1866,6 +1897,7 @@ function pwaInit(){if(!/^https?:/.test(location.protocol))return;
  setTimeout(chk,3000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()})}
 
 Object.assign(window.KIA=window.KIA||{},{
+ mapFit:()=>{UI.mapView=null;drawMap()},mapLocate:()=>mapLocate(),
  mapFilter:()=>mapFilterSheet(),mapFull:()=>go(UI.tab,[...UI.stack,{k:'map'}]),
  mapT:(el)=>{const k=el.dataset.k;mapPrefSet(k,!mapPref()[k]);mapFilterSheet();drawMap()},mapStyle:(el)=>{mapPrefSet('tiles',el.dataset.k);mapFilterSheet();drawMap()},
  chkC:(el)=>{UI.chkC=el.dataset.k;UI.keepY=true;render()},
