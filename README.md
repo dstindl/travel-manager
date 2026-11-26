@@ -10,18 +10,18 @@ Reiseplanungs-App (PWA). Live: https://dstindl.github.io/travel-manager/
 
 Eine Vollversion lässt sich jederzeit wiederherstellen: Datei aus `releases/` öffnen oder als `index.html` einsetzen.
 
-**Arbeitsversionen** (0.81_01, 0.81_02, …) bauen auf der letzten Vollversion auf und werden laufend gepusht. Im Hauptordner liegt nur die jeweils aktuelle Kopie (`Asien-Auszeit-v0_81_XX.html`).
+**Arbeitsversionen** (0.90_01, 0.90_02, …) bauen auf der letzten Vollversion auf und werden laufend gepusht. Im Hauptordner liegt nur die jeweils aktuelle Kopie (`Asien-Auszeit-v0_90_XX.html`).
 
 | Vollversion | Datum | Datei | Tag |
 |---|---|---|---|
 | 0.81 | 26.11.2026 | releases/Asien-Auszeit-v0_81.html | Commit d372a3a |
+| 0.90 | 26.11.2026 | releases/Asien-Auszeit-v0_90.html | Neuaufbau: neue Oberfläche, gleicher Datenbestand |
 
-## Neue App (Neuaufbau, `/v2/`)
+## Aufbau der App (ab 0.90)
 
-Live: https://dstindl.github.io/travel-manager/v2/
-
-- Läuft parallel zur heutigen App und arbeitet mit **denselben Reisedaten** (gleicher Speicher im Browser). Änderungen sind sofort in beiden Apps sichtbar; beide laden Änderungen der jeweils anderen automatisch nach.
-- Vor der ersten Änderung eines Tages legt die neue App eine **Tagessicherung** an (Einstellungen → Daten → Tagessicherung).
-- Aufbau: `v2/index.html` enthält einen **Kern** (Datenmodell und Logik, übernommen aus App 0.81_02) und darunter die **neue Oberfläche**.
-- Zählung als **Stand** (Stand 9, 10, …); `v2/version.json` sorgt dafür, dass Handys den neuesten Stand laden.
-- Beim Umstieg wird die neue App zur Vollversion **0.90** (`index.html`), die heutige App bleibt dann als Vollversion 0.81 in `releases/`.
+- `index.html` ist die App (installierbar, offline nutzbar). Sie besteht aus einem **Kern** (Datenmodell und Logik, übernommen aus 0.81 – gleiche Reisedaten) und der **neuen Oberfläche** (Übersicht, Route, KI, Orte, Geld).
+- Updates: `version.json` nennt die aktuelle Version. Die App prüft beim Start und beim Zurückwechseln, lädt sich selbst neu und zeigt danach „Neu in Version …“.
+- `service-worker.js`: Netz zuerst, offline aus dem Speicher; nimmt geteilte Dateien und Texte entgegen (Teilen-Ziel aus `manifest.json`).
+- Vor der ersten Änderung eines Tages legt die App eine **Tagessicherung** an (Einstellungen → Daten).
+- `alt/` enthält die vorherige App 0.81 (gleiche Daten) für Funktionen, die noch nicht übernommen sind; erreichbar unter Einstellungen → „Vorherige App 0.81“.
+- `v2/` leitet auf die App um (früherer Prototyp-Link).

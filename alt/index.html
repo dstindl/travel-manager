@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1c1d1f">
-<title>Asien-Auszeit 2027</title>
-<link rel="manifest" href="manifest.json">
+<title>Asien-Auszeit 2027 · vorherige App 0.81</title>
+
 <meta name="theme-color" content="#1c1d1f">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="../icon-192.png">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap" rel="stylesheet">
@@ -562,7 +562,7 @@ body.cmp .K{padding:14px 12px 10px}
 .aiib{background:#c9c6ee14!important;border:1px solid #c9c6ee44!important}
 </style>
 </head>
-<body>
+<body><div style="position:sticky;top:0;z-index:999;background:#1F6F6B;color:#fff;font:500 12px system-ui,sans-serif;padding:calc(6px + env(safe-area-inset-top)) 14px 6px;display:flex;gap:10px;align-items:center"><span style="flex:1">Vorherige App 0.81 · gleiche Daten wie die neue App</span><a href="../" style="color:#fff;font-weight:600">Zur neuen App</a></div>
 <div id="app">
  <div id="main">
   <div id="v-reise" class="view"></div>
@@ -3493,7 +3493,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  };if(H[a]){e.preventDefault();H[a]()}});
 // PWA: Service Worker, Update-Hinweis, Teilen-Ziel
 (function(){if(!/^https?:/.test(location.protocol))return;
- if('serviceWorker' in navigator)navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+ if('serviceWorker' in navigator)Promise.resolve().catch(()=>{});
  const chk=async()=>{try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});const j=await r.json();if(j.version&&j.version!==APP_VERSION)verReload(j.version)}catch(e){}};
  setTimeout(chk,3000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chk()});
  const q=new URLSearchParams(location.search);const sh=[q.get('title'),q.get('text'),q.get('url')].filter(Boolean).join('\n').trim();
@@ -3586,7 +3586,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
  };if(A[a]){e.preventDefault();A[a]()}});
 
 // ---------- 0.80_35: Automatisches Update und „Neu in dieser Version“ ----------
-const VER_SEEN='auszeit27_seen';
+const VER_SEEN='auszeit27_seen_alt';
 function verNews(){let seen=null;try{seen=localStorage.getItem(VER_SEEN)}catch(e){}if(seen===APP_VERSION)return;
  const k=seen?CHANGELOG.findIndex(c=>c.v===seen):-1;const list=(k>0?CHANGELOG.slice(0,k):CHANGELOG.slice(0,1)).slice(0,5);if(!list.length){try{localStorage.setItem(VER_SEEN,APP_VERSION)}catch(e){}return}
  setTimeout(()=>{if(document.getElementById('sheet').classList.contains('open'))return;verSheet(list,true)},900)}
@@ -3929,7 +3929,7 @@ async function bkGet(k){const db=await bkDb();return new Promise((res,rej)=>{con
 async function bkDel(k){const db=await bkDb();return new Promise(res=>{const tx=db.transaction('docs','readwrite');tx.objectStore('docs').delete(k);tx.oncomplete=()=>res()})}
 // PDF
 let BK_PDF=null;
-async function bkPdfLib(){if(BK_PDF)return BK_PDF;const m=await import(new URL('lib/pdf.min.mjs',location.href).href);m.GlobalWorkerOptions.workerSrc=new URL('lib/pdf.worker.min.mjs',location.href).href;BK_PDF=m;return m}
+async function bkPdfLib(){if(BK_PDF)return BK_PDF;const m=await import(new URL('../lib/pdf.min.mjs',location.href).href);m.GlobalWorkerOptions.workerSrc=new URL('../lib/pdf.worker.min.mjs',location.href).href;BK_PDF=m;return m}
 async function bkPdfText(buf){const P=await bkPdfLib();const doc=await P.getDocument({data:new Uint8Array(buf)}).promise;const pages=[],links=[];
  for(let n=1;n<=Math.min(doc.numPages,12);n++){const pg=await doc.getPage(n);const tc=await pg.getTextContent();const rows=[];
   tc.items.forEach(it=>{if(!('str' in it))return;const x=it.transform[4],y=it.transform[5];let r=rows.find(r=>Math.abs(r.y-y)<3);if(!r){r={y,it:[]};rows.push(r)}r.it.push({x,w:it.width||0,s:it.str})});
