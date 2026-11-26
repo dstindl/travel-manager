@@ -579,9 +579,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.80_81';
+const APP_VERSION='0.81';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.81',d:'26.11.2026',items:['Vollversion 0.81 – dauerhaft gesichert (releases/ und Git-Tag v0.81)','Stand: Route mit Teilstrecken und Zeitverlauf, Karte mit allen Unterkünften und Transfers, Buchungen einlesen (Mail, PDF, Screenshot), Claude-Assistent (Fragen, Reise prüfen, Belege, Richtpreise, Websuche), Guthaben-Zählung']},
  {v:'0.80_81',d:'25.11.2026',items:['Frag deine Reise: Claude bekommt bei jeder Anfrage gesagt, ob es eine Websuche hat; alte „kein Internet“-Antworten im Verlauf gelten als überholt','Bei Fragen zu Einreise, Visa, Fahrplänen, Preisen, Öffnungszeiten, Wetter oder Sicherheit ist die Websuche jetzt verpflichtend']},
  {v:'0.80_80',d:'25.11.2026',items:['Frag deine Reise: bei Einreise, Visa, Fahrplänen, Öffnungszeiten und Preisen sucht Claude jetzt immer im Web (bevorzugt Auswärtiges Amt) und nennt die Quelle']},
  {v:'0.80_79',d:'25.11.2026',items:['Websuche: App probiert mehrere Werkzeug-Versionen und merkt sich die funktionierende','Einstellungen → Suche und KI: Status der Websuche mit genauer Meldung und Knopf „Websuche testen“','Chat: Kopf zeigt „Websuche an/aus“; ist sie nicht verfügbar, steht der Grund unter der Antwort']},
