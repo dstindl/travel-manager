@@ -15,7 +15,7 @@ Eine Vollversion lässt sich jederzeit wiederherstellen: Datei aus `releases/` �
 | Vollversion | Datum | Datei | Tag |
 |---|---|---|---|
 | 0.81 | 26.11.2026 | releases/Asien-Auszeit-v0_81.html | Commit d372a3a |
-| 0.90 | 26.11.2026 | releases/Asien-Auszeit-v0_90.html | Neuaufbau: neue Oberfläche, gleicher Datenbestand |
+| 0.90 | 26.11.2026 | releases/Asien-Auszeit-v0_90.html | Commit e26ce6b · Neuaufbau: neue Oberfläche, gleicher Datenbestand |
 
 ## Aufbau der App (ab 0.90)
 

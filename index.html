@@ -1025,8 +1025,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90';
+const APP_VERSION='0.90_01';
 const CHANGELOG=[
+ {v:'0.90_01',d:'26.11.2026',items:['Neue Arbeitsversion auf Basis der Vollversion 0.90 (inhaltlich identisch)']},
  {v:'0.90',d:'26.11.2026',items:['Neue App mit klarem Aufbau: Übersicht, Route, KI, Orte und Geld','Etappen-Assistent mit fünf Schritten je Etappe; „Als Nächstes“ und offene Punkte auf der Übersicht','Etappen, Transfers, Unterkunft, Ausflüge, Ausgaben und Budget direkt bearbeiten – mit Ziehen, Wischen, Menü und Rückgängig','KI-Zentrale: Fragen mit Übernehmen, Reise prüfen, Richtpreise, Bewertungen, Tagesplan, Einreise; Buchung einlesen und Beleg lesen','Checklisten für Einreise und Vorbereitung je Land','Karte mit Etappen, Unterkünften, Transfers und Ausflügen','Zurück-Taste geht immer genau eine Ebene zurück','Darstellung hell, dunkel oder automatisch','Gleiche Reisedaten wie bisher, Tagessicherung vor der ersten Änderung eines Tages; die vorherige App 0.81 bleibt unter Einstellungen erreichbar']}];
 function ic(n,s=18,a,b){const c=typeof a==='string'?a:'currentColor';const w=typeof a==='number'?a:(typeof b==='number'?b:1.9);return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block">${IC[n]||''}</svg>`}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
