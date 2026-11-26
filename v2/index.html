@@ -425,4 +425,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
 window.addEventListener('resize',()=>{if(MAP)MAP.invalidateSize()});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();render()});
 applyTheme();render();
+// Neuester Stand: GitHub Pages und Browser halten Seiten zwischengespeichert – Version prüfen und ggf. frisch laden
+const V2_STAND='2';
+fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&j.v!==V2_STAND){const q='s='+j.v;if(!location.search.includes(q))location.replace(location.pathname+'?'+q)}}).catch(()=>{});
 </script></body></html>
