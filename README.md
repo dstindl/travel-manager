@@ -6,7 +6,7 @@ Reiseplanungs-App (PWA). Live: https://dstindl.github.io/travel-manager/
 
 **Vollversionen** (0.81, 0.82, …) sind feste, geprüfte Stände und dienen als dauerhaftes Backup:
 - als eigene Datei in `releases/` (z. B. `releases/Asien-Auszeit-v0_81.html`) – wird nie gelöscht oder überschrieben,
-- zusätzlich als Git-Tag (`v0.81`, …).
+- optional zusätzlich als Git-Tag/GitHub-Release (`v0.81`, …), angelegt auf github.com unter Releases → „Draft a new release“.
 
 Eine Vollversion lässt sich jederzeit wiederherstellen: Datei aus `releases/` öffnen oder als `index.html` einsetzen.
 
@@ -14,4 +14,4 @@ Eine Vollversion lässt sich jederzeit wiederherstellen: Datei aus `releases/` �
 
 | Vollversion | Datum | Datei | Tag |
 |---|---|---|---|
-| 0.81 | 26.11.2026 | releases/Asien-Auszeit-v0_81.html | v0.81 |
+| 0.81 | 26.11.2026 | releases/Asien-Auszeit-v0_81.html | Commit d372a3a |
