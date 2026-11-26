@@ -579,9 +579,10 @@ body.cmp .K{padding:14px 12px 10px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_VERSION='0.81_02';
+const APP_VERSION='0.81_03';
 function nowD(){try{const d=S&&S.settings&&S.settings.debug;if(d&&d.on&&d.date)return new Date(d.date+'T'+new Date().toTimeString().slice(0,8))}catch(e){}return new Date()}
 const CHANGELOG=[
+ {v:'0.81_03',d:'26.11.2026',items:['Neue App unter /v2/ speichert jetzt echt in dieselben Reisedaten','Die heutige App lädt Änderungen aus der neuen App automatisch nach (beim Zurückwechseln oder sofort, wenn beide offen sind), damit nichts überschrieben wird']},
  {v:'0.81_02',d:'26.11.2026',items:['Klick-Prototyp der neuen App unter /v2/ erreichbar (liest dieselben Daten, ändert nichts); Offline-Speicher der heutigen App lässt /v2/ unberührt']},
  {v:'0.81_01',d:'26.11.2026',items:['Neue Arbeitsversion auf Basis der Vollversion 0.81 (inhaltlich identisch)']},
  {v:'0.81',d:'26.11.2026',items:['Vollversion 0.81 – dauerhaft gesichert unter releases/Asien-Auszeit-v0_81.html','Stand: Route mit Teilstrecken und Zeitverlauf, Karte mit allen Unterkünften und Transfers, Buchungen einlesen (Mail, PDF, Screenshot), Claude-Assistent (Fragen, Reise prüfen, Belege, Richtpreise, Websuche), Guthaben-Zählung']},
@@ -4361,7 +4362,11 @@ function reattachAsk(x){if(!x.planned)return;const a=dayAnchor(x.planned);if(!a|
  document.addEventListener('click',e=>{const f=e.target.closest('.swp .fg');if(f&&(f.dataset.justDragged||f.hasAttribute('data-open'))){e.stopPropagation();e.preventDefault();if(!f.dataset.justDragged){f.style.transform='';f.removeAttribute('data-open');setTimeout(()=>f.parentNode&&f.parentNode.classList.remove('sw'),200)}}},true);
 })();
 // ---------- Start ----------
-load();applyColors();renderDebugBar();renderNav();render();setTimeout(()=>refreshSecurity(false),800);setTimeout(autoLive,2500);window.addEventListener('online',()=>{LIVE_FAIL=false;autoLive()});
+load();applyColors();renderDebugBar();renderNav();render();
+// Abgleich mit der neuen App (/v2/): gleiche Daten – geänderte Daten neu laden, statt sie zu überschreiben
+(()=>{let last=null;try{last=localStorage.getItem(STORE)}catch(e){}const re=()=>{try{const r=localStorage.getItem(STORE);if(!r||r===last)return;last=r;load();if(UI.pages.length)rerenderPage();else render();toast('Änderungen aus der neuen App übernommen.')}catch(e){}};
+ window.addEventListener('storage',e=>{if(e.key===STORE)re()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')re()});
+ const sv=save;save=function(){sv();try{last=localStorage.getItem(STORE)}catch(e){}}})();setTimeout(()=>refreshSecurity(false),800);setTimeout(autoLive,2500);window.addEventListener('online',()=>{LIVE_FAIL=false;autoLive()});
 window.addEventListener('online',()=>toast('Wieder online.'));
 
 setTimeout(prefetchSums,6000);setTimeout(()=>loadFx(),1500);setTimeout(prefetchSugg,12000);setInterval(prefetchSums,120000);
