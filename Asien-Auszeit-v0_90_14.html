@@ -1062,8 +1062,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90_13';
+const APP_VERSION='0.90_14';
 const CHANGELOG=[
+ {v:'0.90_14',d:'26.11.2026',items:['Unterkunft finden (KI): erst Preis pro Nacht, Ausstattung, Art und Mindestbewertung wählen – Claude sucht auf Booking.com, Agoda, Trip.com, Hotels.com und Trivago und zeigt Preis pro Nacht, Gesamtpreis, Bewertung, erfüllte und fehlende Wünsche','Übernehmen trägt Name, Lage, Gesamtpreis und Ausstattung ein – mit Rückfrage „schon gebucht/bezahlt?“ (Standard: nein) und Warnung, wenn eine gebuchte Unterkunft ersetzt würde','Flüge: Claude nutzt Skyscanner-Routenseiten; Flug-Optionen und Flug-Teilstrecken haben Links zu Skyscanner und Google Flights mit Datum und 2 Personen','Neue Unterkünfte und offene Transfers stehen jetzt auf „offen“ und „nicht bezahlt“']},
  {v:'0.90_13',d:'26.11.2026',items:['Transport fehlt nie: Werden alle Teilstrecken gelöscht, steht automatisch ein offener Transfer zwischen den Etappen als Aufgabe da','„Verbindungen“ gibt es in jedem Transfer – auch gebucht, auch im offenen Platzhalter und im Schritt Transport','Verbindungen sucht immer die ganze Strecke von Etappe zu Etappe. Übernehmen ersetzt alle Teilstrecken und füllt Verkehrsmittel, Datum, Abfahrt, Ankunft, Dauer, Anbieter, Orte, Kosten und Notiz','Vor dem Übernehmen fragt die App: schon gebucht? schon bezahlt? (Standard: nein) und warnt, wenn gebuchte Teilstrecken ersetzt würden','Nächster Schritt nennt jetzt „Transport offen“ bzw. „Kosten für T0.1, T0.2“; der Schritt „Anreise“ heißt „Transport“']},
  {v:'0.90_12',d:'26.11.2026',items:['Verbindungen: Claude schreibt die echten Angebote ab (z. B. Zeilen der 12Go-Fahrplantabelle mit Anbieter, Fahrzeug, Abfahrt, Preis, Bewertung) – für alle Verkehrsmittel','Den Richtpreis berechnet die App selbst: Mittel der drei günstigsten passenden Angebote, Privatfahrer ab 3 Plätzen. Gleiche Angebote ergeben immer denselben Preis','Jede Option zeigt „Echte Angebote“ oder „Geschätzt“; die Angebote lassen sich aufklappen','Findet Claude unter der 12Go-Adresse nichts, sucht es die passende Seite (12Go, Rome2Rio, Bookaway, Baolau) per Websuche und liest sie']},
  {v:'0.90_11',d:'26.11.2026',items:['Stabilere Transferpreise: Privatfahrer zählen immer je Fahrzeug – die App rechnet den Gesamtpreis für zwei selbst, statt ihn Claude zu überlassen','Claude nennt Preise in der Währung der Quelle mit Fahrzeugtyp und Herkunft; die App rechnet in Euro um','Neu suchen nimmt die früheren Preise als Ausgangswert. Weicht ein Preis um mehr als 30 % ab, steht der frühere Wert an der Option, mit „Mit ≈ … übernehmen“','KI-Prüfung und Chat verwenden die Transferpreise aus der App, statt neu zu schätzen']},
@@ -1343,7 +1344,7 @@ function stepSheet(i,k){UI.sheetCtx={i,k};const d=stagesDated()[i];const st=S.st
 // ---------- Transfer ----------
 function legSheet(i,j){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const L=legsOf(st);const l=L[j]||{};const I=trInfo(d,null,j);UI.f={i,j};const m=l.mode||st.mode||'car';
  sheet(`<div class="sht">${trLabel(st,j)||'Anreise'} · ${esc(I.from)} → ${esc(I.to)}</div><div class="mut" style="margin:4px 0 6px">${esc(pname(st))} · Etappe ${stageNo()[st.id]}${I.km?` · ca. ${I.km.toLocaleString('de-DE')} km`:''}</div>
- <div class="fbtn" style="margin:8px 0 2px"><button class="btn sm k" data-a="cnOpen" data-k="${i}" data-j="0">${ic('spark',15,2.2)}Verbindungen${L.length>1?' (ganze Strecke)':''}</button><button class="btn sm k" data-a="bkStart" data-kind="tr" data-i="${i}" data-j="${j}">${ic('spark',15,2.2)}Buchung einlesen</button>${docBtn(st.id+':L'+j,l)}</div><div id="prBox">${priceBox(i,j)}</div>
+ <div class="fbtn" style="margin:8px 0 2px"><button class="btn sm k" data-a="cnOpen" data-k="${i}" data-j="0">${ic('spark',15,2.2)}Verbindungen${L.length>1?' (ganze Strecke)':''}</button><button class="btn sm k" data-a="bkStart" data-kind="tr" data-i="${i}" data-j="${j}">${ic('spark',15,2.2)}Buchung einlesen</button>${docBtn(st.id+':L'+j,l)}</div><div id="prBox">${priceBox(i,j)}</div>${m==='flight'?`<div class="chips wrapc" style="margin:8px 0 2px">${trLinks(i,j)}</div>`:''}
  ${lbl('Verkehrsmittel')}${chipsSel('mode',[['car','Auto'],['bus','Bus'],['train','Zug'],['flight','Flug'],['boat','Boot']],m)}
  ${lbl('Status')}${seg('status',[['offen','offen'],['gebucht','gebucht']],l.status||'offen')}
  <div class="frow">${fld('lDate','Datum',l.date||I.defDate,{type:'date',half:1})}${fld('lDep','Abfahrt',l.dep,{type:'time',half:1})}</div>
@@ -1353,7 +1354,7 @@ function legSheet(i,j){const st=S.stages[i];if(!st)return;const d=stagesDated()[
  <div class="fly" ${m==='flight'?'':'hidden'}><div class="frow">${fld('lNo','Flugnummer',l.no,{half:1,ph:'z. B. VN 512'})}${fld('lAir','Airline',l.airline,{half:1})}</div></div>
  <div class="frow">${fld('lOp','Anbieter',l.op,{half:1,ph:'z. B. 12Go'})}${fld('lCode','Buchungscode',l.code,{half:1})}</div>
  ${money('lCost',l.cost,l.cur||(m==='flight'||i===0?'EUR':curDefault(st.country)),'Preis gesamt (für zwei)')}
- ${lbl('Bezahlt')}${seg('paid',[['1','ja'],['0','nein']],l.paid===false?'0':'1')}
+ ${lbl('Bezahlt')}${seg('paid',[['1','ja'],['0','nein']],l.paid===true||(l.paid==null&&l.status==='gebucht')?'1':'0')}
  ${area('lNote','Notiz',l.note)}
  ${btns(`<button class="btn p" style="flex:1" data-a="legSave">Speichern</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}
  <div class="fbtn" style="margin-top:8px">${L.length>1&&j>0?`<button class="btn gh sm" data-a="legMv" data-k="${i}" data-j="${j}" data-d="-1">${ic('up',15)}nach oben</button>`:''}${L.length>1&&j<L.length-1?`<button class="btn gh sm" data-a="legMv" data-k="${i}" data-j="${j}" data-d="1">${ic('down',15)}nach unten</button>`:''}<button class="btn gh sm" data-a="legAdd" data-k="${i}">${ic('plus',15)}Teilstrecke</button>${L[j]?`<button class="btn gh sm" style="color:var(--err);margin-left:auto" data-a="legDel" data-k="${i}" data-j="${j}">${ic('trash',15)}Entfernen</button>`:''}</div>`)}
@@ -1367,10 +1368,10 @@ function legSave(){const {i,j}=UI.f;const st=S.stages[i];const L=legsOf(st);cons
  Object.keys(leg).forEach(k=>{if(leg[k]==null||leg[k]==='')delete leg[k]});fixRate(leg);L[j]=leg;syncMode(st);save();closeSheet();render();toast('Transfer gespeichert.')}
 
 // ---------- Unterkunft ----------
-function staySheet(i){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const p=byId(st.placeId);const h=Object.assign({status:'gebucht',paid:true},st.stay||{});UI.f={i};
+function staySheet(i){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const p=byId(st.placeId);const h=Object.assign({status:'offen',paid:false},st.stay||{});UI.f={i};
  const cov=stayCover(d,h.bkIn,h.bkOut);const q=encodeURIComponent((p?.name||'')+', '+country(st.country).name);
  sheet(`<div class="sht">Unterkunft</div><div class="mut" style="margin:4px 0 6px">${esc(p?.name||'')} · Etappe ${stageNo()[st.id]} · ${fmtD(d.from)}–${fmtD(d.to)} · ${nN(d.nights)}</div>
- ${h.name?'':`<div class="fbtn" style="margin:8px 0 2px"><a class="btn sm" href="https://www.booking.com/searchresults.html?ss=${q}&checkin=${iso(d.from)}&checkout=${iso(d.to)}&group_adults=2" target="_blank" rel="noopener">${ic('search',15)}Booking.com</a><a class="btn sm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Hotels '+(p?.name||''))}" target="_blank" rel="noopener">${ic('map',15)}Google Maps</a><button class="btn sm k" data-a="bkStart" data-kind="stay" data-i="${i}">${ic('spark',15,2.2)}Buchung einlesen</button></div>`}
+ <div class="fbtn" style="margin:8px 0 2px"><button class="btn sm k" data-a="hoOpen" data-k="${i}">${ic('spark',15,2.2)}${h.name?'Alternativen (KI)':'Vorschläge (KI)'}</button>${h.name?'</div>':''}${h.name?'':`<a class="btn sm" href="https://www.booking.com/searchresults.html?ss=${q}&checkin=${iso(d.from)}&checkout=${iso(d.to)}&group_adults=2" target="_blank" rel="noopener">${ic('search',15)}Booking.com</a><a class="btn sm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Hotels '+(p?.name||''))}" target="_blank" rel="noopener">${ic('map',15)}Google Maps</a><button class="btn sm k" data-a="bkStart" data-kind="stay" data-i="${i}">${ic('spark',15,2.2)}Buchung einlesen</button></div>`}
  ${h.name?`<div class="small" style="margin:8px 2px 0;display:flex;align-items:center;gap:8px"><span class="sp mut">${h.gRating!=null?rateTxt(h,true):'noch keine Bewertung'}</span><button class="btn gh sm k" data-a="rateStay" data-k="${i}">${ic('spark',14,2.2)}${h.gRating!=null?'neu holen':'Bewertung holen'}</button></div>`:''}
  ${fld('hName','Name',h.name,{ph:'z. B. La Siesta Classic'})}${fld('hAddr','Adresse',h.addr,{ph:'Straße, Viertel oder Link'})}
  ${lbl('Status')}${seg('status',[['offen','offen'],['gebucht','gebucht']],h.status||'offen')}
@@ -1379,7 +1380,7 @@ function staySheet(i){const st=S.stages[i];if(!st)return;const d=stagesDated()[i
  ${cov?`<div class="small" style="color:var(--${cov.lvl==='err'?'err':'warn'});margin:6px 2px 0">${esc(cov.t)}.</div>`:''}
  <div class="frow">${fld('hCode','Buchungscode',h.code,{half:1})}${fld('hPortal','Portal',h.portal,{half:1,ph:'z. B. Booking.com'})}</div>
  ${money('hCost',h.cost,h.cur||curDefault(st.country),'Kosten gesamt')}
- ${lbl('Bezahlt')}${seg('paid',[['1','ja'],['0','nein']],h.paid===false?'0':'1')}
+ ${lbl('Bezahlt')}${seg('paid',[['1','ja'],['0','nein']],h.paid===true||(h.paid==null&&h.status==='gebucht')?'1':'0')}
  ${fld('hLink','Buchungslink',h.link,{type:'url',ph:'https://…'})}${area('hNote','Notiz',h.note)}
  ${btns(`<button class="btn p" style="flex:1" data-a="staySave">Speichern</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}
  ${st.stay?`<div class="fbtn" style="margin-top:8px">${docBtn(st.id,st.stay)}${h.link?`<a class="btn gh sm" href="${esc(h.link)}" target="_blank" rel="noopener">${ic('link',15)}Buchung öffnen</a>`:''}${h.name?`<a class="btn gh sm" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name+' '+(h.addr||p?.name||''))}" target="_blank" rel="noopener">${ic('map',15)}In Maps</a>`:''}<button class="btn gh sm" style="color:var(--err);margin-left:auto" data-a="stayDel" data-k="${i}">${ic('trash',15)}Entfernen</button></div>`:''}`)}
@@ -1505,7 +1506,7 @@ function navCommit(){const loc=locSnap();if(NAV.pend||NAV.repl){clearTimeout(NAV
 function navFix(){const n=curN();const loc=locSnap();history.replaceState(Object.assign({},history.state||{},{app:1,n,loc}),'');navSet(n,loc,history.state&&history.state.sheet)}
 function go(tab,stack,o={}){if(sheetOpen())NAV.repl=true;else if(!NAV.pend)navSaveY();UI.tab=tab;UI.stack=stack;if('preview' in o)UI.preview=o.preview;closeSheet(true);navCommit();render();window.scrollTo(0,o.y||0)}
 function goBack(){if(curN()>0)history.back();else if(UI.stack.length){UI.stack.pop();render();navFix()}}
-function locLabel(l){const t=l&&l.stack&&l.stack[l.stack.length-1];if(t){if(t.k==='stage'){const s=S.stages.find(x=>x.id===t.id);return s?pname(s):'Etappe'}return {offen:'Offen',settings:'Einstellungen',kosten:'Kosten je Etappe',chk:'Checklisten',map:'Karte',conn:'Verbindungen'}[t.k]||'Zurück'}return l?(l.preview?'Heute':({home:'Übersicht',route:'Route',ki:'KI',orte:'Orte',geld:'Geld'})[l.tab]||'Zurück'):'Zurück'}
+function locLabel(l){const t=l&&l.stack&&l.stack[l.stack.length-1];if(t){if(t.k==='stage'){const s=S.stages.find(x=>x.id===t.id);return s?pname(s):'Etappe'}return {offen:'Offen',settings:'Einstellungen',kosten:'Kosten je Etappe',chk:'Checklisten',map:'Karte',conn:'Verbindungen',hotels:'Unterkunft finden'}[t.k]||'Zurück'}return l?(l.preview?'Heute':({home:'Übersicht',route:'Route',ki:'KI',orte:'Orte',geld:'Geld'})[l.tab]||'Zurück'):'Zurück'}
 function prevLabel(){const n=curN();for(let k=n-1;k>=0;k--){const l=NAV.locs[k];if(l&&!l.sheet)return locLabel(l)}const t=UI.stack.length>1?{tab:UI.tab,stack:UI.stack.slice(0,-1)}:{tab:UI.tab,stack:[]};return locLabel(t)}
 const backBtn=()=>`<button class="back" data-a="back">${ic('back',18)}${esc(prevLabel())}</button>`;
 window.addEventListener('popstate',e=>{const st=e.state;
@@ -1524,7 +1525,7 @@ function rerenderPage(){render()}
 function emptyState(){$('#main').innerHTML=head('Asien-Auszeit 2027','Keine Reisedaten auf diesem Gerät')+`<div class="card" style="padding:16px;line-height:1.55">Die neue App arbeitet mit denselben Daten wie die heutige App. Öffne sie auf dem Gerät, auf dem eure Reise gespeichert ist, oder hole eine Sicherungsdatei zurück.</div><div class="fbtn" style="margin-top:14px"><a class="btn p" style="flex:1" href="../">Heutige App öffnen</a><button class="btn" data-a="importAsk">Sicherung laden</button></div>`;$('#nav').innerHTML='';$('#fab').hidden=true}
 function render(){if(!ready())return emptyState();const m=$('#main');
  const top=UI.stack[UI.stack.length-1];let h;
- if(top&&top.k==='stage'){const i=top.id!=null?S.stages.findIndex(s=>s.id===top.id):top.i;if(i==null||i<0||!S.stages[i]){UI.stack.pop();navFix();return render()}h=vStage(i)}else if(top&&top.k==='offen')h=vOffen();else if(top&&top.k==='kosten')h=vKosten();else if(top&&top.k==='settings')h=vSettings();else if(top&&top.k==='chk')h=vChk();else if(top&&top.k==='map')h=vMapFull();else if(top&&top.k==='conn')h=vConn(top);
+ if(top&&top.k==='stage'){const i=top.id!=null?S.stages.findIndex(s=>s.id===top.id):top.i;if(i==null||i<0||!S.stages[i]){UI.stack.pop();navFix();return render()}h=vStage(i)}else if(top&&top.k==='offen')h=vOffen();else if(top&&top.k==='kosten')h=vKosten();else if(top&&top.k==='settings')h=vSettings();else if(top&&top.k==='chk')h=vChk();else if(top&&top.k==='map')h=vMapFull();else if(top&&top.k==='conn')h=vConn(top);else if(top&&top.k==='hotels')h=vHotels(top);
  else h=UI.tab==='home'?vHome():UI.tab==='route'?vRoute():UI.tab==='orte'?vOrte():UI.tab==='geld'?vGeld():vKI();
  const y=window.scrollY;m.innerHTML=h;if(UI.keepY){window.scrollTo(0,y);UI.keepY=false}
  const fab=$('#fab');fab.innerHTML=ic('plus',26,2.2);fab.hidden=!!top||!['route','orte'].includes(UI.tab);
@@ -2042,11 +2043,11 @@ Object.assign(window.KIA=window.KIA||{},{
 // ===================== Verbindungen: alle Verkehrsmittel vergleichen, mehrstufig übernehmen =====================
 const PAX=2;
 const AI_CONN_SYS=`Du planst Transfers in Süd- und Südostasien für eine Reise-App (zwei Reisende mit Gepäck) und vergleichst ALLE sinnvollen Verbindungen einer Strecke.
-Vorgehen: Rufe die angegebene 12Go-Seite ab bzw. nutze die Websuche (12go.asia, Bookaway, Rome2Rio, Bahn- und Busfahrpläne, Fluggesellschaften). Prüfe jedes Verkehrsmittel: Privatfahrer/Taxi, Linien- und Schlafbus/Limousine, Zug, Flug (inklusive Wege zu und von den Flughäfen), Boot – und sinnvolle Kombinationen mit Umstieg.
+Vorgehen: Rufe die angegebene 12Go-Seite ab bzw. nutze die Websuche (12go.asia, Bookaway, Rome2Rio, Bahn- und Busfahrpläne; für Flüge Skyscanner-Routenseiten wie skyscanner.de/routes/fra/han/…, Google Flights und Fluggesellschaften). Prüfe jedes Verkehrsmittel: Privatfahrer/Taxi, Linien- und Schlafbus/Limousine, Zug, Flug (inklusive Wege zu und von den Flughäfen), Boot – und sinnvolle Kombinationen mit Umstieg.
 Antworte am Ende NUR mit JSON ohne Kommentare:
-{"options":[{"title":"kurzer Name, z. B. Schlafbus direkt","mode":"car|bus|train|boat|flight","dur_h":ZAHL,"dur":"z. B. 14–15 Std.","dep":"HH:MM oder null","ops":"Anbieter kurz","note":"1 Satz: Abholung, Gepäck, Besonderheiten","segments":[{"mode":"car|bus|train|boat|flight","from":"Ort","to":"Ort","dur":"z. B. 1,5 Std.","dep":"HH:MM oder null","ops":"Anbieter oder null","offers":[{"op":"Anbieter","cls":"Klasse oder Fahrzeug wie angezeigt, z. B. SUV 4pax, Sleeper, Economy","seats":ZAHL oder null,"price":ZAHL,"cur":"Währung wie angezeigt","dep":"HH:MM oder null","rating":ZAHL oder null}],"price_min":ZAHL,"price_max":ZAHL,"cur":"Währung des Preises, z. B. EUR, USD, VND","per":"person" oder "vehicle","vehicle":"nur bei vehicle: z. B. Limousine 4 Sitze","psrc":"Herkunft des Preises kurz, z. B. 12go, Bookaway, Hotel-Transfer, Schätzung"}]}],"why":{"fastest":"1 Satz","cheapest":"1 Satz","balanced":"1 Satz"},"chg":"nur bei deutlicher Abweichung von der früheren Recherche: 1 Satz mit Grund, sonst null","src":"12go.asia" oder "Websuche" oder "Schätzung"}
+{"options":[{"title":"kurzer Name, z. B. Schlafbus direkt","mode":"car|bus|train|boat|flight","dur_h":ZAHL,"dur":"z. B. 14–15 Std.","dep":"HH:MM oder null","ops":"Anbieter kurz","note":"1 Satz: Abholung, Gepäck, Besonderheiten","segments":[{"mode":"car|bus|train|boat|flight","from":"Ort","to":"Ort","dur":"z. B. 1,5 Std.","dep":"HH:MM oder null","ops":"Anbieter oder null","from_iata":"bei Flug: IATA-Code des Abflughafens, sonst null","to_iata":"bei Flug: IATA-Code des Zielflughafens, sonst null","offers":[{"op":"Anbieter","cls":"Klasse oder Fahrzeug wie angezeigt, z. B. SUV 4pax, Sleeper, Economy","seats":ZAHL oder null,"price":ZAHL,"cur":"Währung wie angezeigt","dep":"HH:MM oder null","rating":ZAHL oder null}],"price_min":ZAHL,"price_max":ZAHL,"cur":"Währung des Preises, z. B. EUR, USD, VND","per":"person" oder "vehicle","vehicle":"nur bei vehicle: z. B. Limousine 4 Sitze","psrc":"Herkunft des Preises kurz, z. B. 12go, Bookaway, Hotel-Transfer, Schätzung"}]}],"why":{"fastest":"1 Satz","cheapest":"1 Satz","balanced":"1 Satz"},"chg":"nur bei deutlicher Abweichung von der früheren Recherche: 1 Satz mit Grund, sonst null","src":"12go.asia" oder "Websuche" oder "Schätzung"}
 Preisregeln (wichtig, damit Preise bei jeder Suche gleich bleiben):
-- offers: bis zu 6 konkrete Angebote je Segment, die du auf einer abgerufenen Seite oder in Suchergebnissen gesehen hast (z. B. Zeilen der 12Go-Fahrplantabelle), genau abgeschrieben – Preis und Währung wie angezeigt, die günstigsten passenden zuerst. Bei Privatfahrern nur Fahrzeuge mit mindestens 3 Plätzen. NUR echte Angebote: Fehlen sie, offers leer lassen und price_min/price_max als Schätzung mit psrc "Schätzung" angeben.
+- offers: bis zu 6 konkrete Angebote je Segment, die du auf einer abgerufenen Seite oder in Suchergebnissen gesehen hast (z. B. Zeilen der 12Go-Fahrplantabelle), genau abgeschrieben – Preis und Währung wie angezeigt, die günstigsten passenden zuerst. Bei Privatfahrern nur Fahrzeuge mit mindestens 3 Plätzen. Bei Flügen nur Preise für die einfache Strecke (nicht Hin- und Rückflug), Economy, pro Person. NUR echte Angebote: Fehlen sie, offers leer lassen und price_min/price_max als Schätzung mit psrc "Schätzung" angeben.
 - Preise je Segment so, wie die Quelle sie nennt: Betrag in der Währung der Quelle, einfache Fahrt, ohne Trinkgeld. Keine Gesamtpreise – die App rechnet selbst für zwei Personen.
 - per "vehicle" = Preis für das ganze Fahrzeug, NICHT mit der Personenzahl multiplizieren. per "person" = Preis für eine Person.
 - Privatfahrer, Taxi, Grab und privater Transfer sind mode "car" mit per "vehicle". Rechne mit dem kleinsten passenden Fahrzeug für zwei Personen mit Gepäck (Limousine oder SUV, 4–5 Sitze) und direkter Fahrt ohne Sightseeing-Stopps. Bei mehreren Angeboten die übliche Spanne gängiger Anbieter, nicht das teuerste oder billigste Einzelangebot.
@@ -2061,7 +2062,7 @@ const segCur=c=>{c=String(c||'EUR').toUpperCase().replace(/[^A-Z]/g,'').slice(0,
 // Fahrzeugpreise gelten immer je Fahrzeug (verhindert verdoppelte Privatfahrer-Preise), Betrag in Quellwährung
 function connSeg(s){s=s||{};const mode=MODE_IN[String(s.mode||'').toLowerCase()]||'bus';const per=mode==='car'||(mode==='boat'&&s.per==='vehicle')?'vehicle':'person';
  const r={mode,from:String(s.from||'').slice(0,80),to:String(s.to||'').slice(0,80),dur:String(s.dur||''),dep:/^\d{1,2}:\d{2}$/.test(s.dep||'')?String(s.dep).padStart(5,'0'):'',ops:s.ops?String(s.ops).slice(0,60):'',
-  min:num0(s.price_min!=null?s.price_min:s.min),max:num0(s.price_max!=null?s.price_max:s.max),cur:segCur(s.cur),per,veh:per==='vehicle'&&s.vehicle?String(s.vehicle).slice(0,40):'',psrc:s.psrc?String(s.psrc).slice(0,40):''};
+  min:num0(s.price_min!=null?s.price_min:s.min),max:num0(s.price_max!=null?s.price_max:s.max),cur:segCur(s.cur),per,veh:per==='vehicle'&&s.vehicle?String(s.vehicle).slice(0,40):'',psrc:s.psrc?String(s.psrc).slice(0,40):''};if(mode==='flight'){const ia=x=>/^[A-Za-z]{3}$/.test(x||'')?String(x).toUpperCase():null;r.fi=ia(s.from_iata);r.ti=ia(s.to_iata)}
  const O=connOffers(s,per);if(O)Object.assign(r,{offers:O.list,min:O.min,max:O.max,mid:O.mid,cur:'EUR',on:O.n,oall:O.all});return r}
 function segEur(s){if(s.min==null&&s.max==null)return null;const c=s.cur||'EUR';const a=toEUR(s.min||s.max,c),b=toEUR(s.max||s.min,c);if(a==null||b==null)return null;const m=s.mid!=null?toEUR(s.mid,c):(a+b)/2;const f=s.per==='vehicle'?1:PAX;return [a*f,b*f,m*f]}
 // Richtpreis aus echten Angeboten, von der App bestimmt: Median der drei günstigsten passenden Angebote
@@ -2099,7 +2100,7 @@ function connMarks(opts){const ok=opts.filter(o=>connEur(o)>0);if(!ok.length)ret
  return {fast:arg(o=>o.durH||99),cheap:arg(o=>connEur(o)||1e9),bal:arg(o=>connEur(o)>0?sc(o):1e9)}}
 function connSort(opts,crit){const m=connMarks(opts);const ok=opts.filter(o=>connEur(o)>0);const c0=ok.length?Math.min(...ok.map(connEur)):1,d0=Math.min(...opts.map(o=>o.durH||99));
  const f=crit==='fast'?o=>o.durH||99:crit==='cheap'?o=>connEur(o)||1e9:o=>connEur(o)>0?connEur(o)/c0+(o.durH||99)/d0+0.25*connTr(o):1e9;return opts.map((o,k)=>({o,k})).sort((a,b)=>f(a.o)-f(b.o)||(a.k===m.bal?-1:0))}
-const CONN_DOM=['12go.asia','www.12go.asia','12go.com','www.12go.com','rome2rio.com','www.rome2rio.com','bookaway.com','www.bookaway.com','baolau.com','www.baolau.com'];
+const CONN_DOM=['12go.asia','www.12go.asia','12go.com','www.12go.com','rome2rio.com','www.rome2rio.com','bookaway.com','www.bookaway.com','baolau.com','www.baolau.com','skyscanner.de','www.skyscanner.de','skyscanner.net','www.skyscanner.net','skyscanner.com','www.skyscanner.com'];
 const wfTool=(n,dom)=>({type:'web_fetch_20250910',name:'web_fetch',max_uses:n,max_content_tokens:16000,allowed_domains:dom});
 const connReal=R=>R.opts.reduce((a,o)=>a+o.segs.filter(s=>s.offers).length,0);
 // Ein Transfer = ganze Strecke von Etappe zu Etappe (alle Teilstrecken); Ergebnisse liegen an der ersten Teilstrecke
@@ -2114,9 +2115,9 @@ async function aiConn(i){const c=connEnds(i);const url=`https://12go.asia/en/tra
   if(k==='both'){const v=localStorage.getItem('auszeit27_awsv');return aiCall(Object.assign(base,{system:AI_CONN_SYS+AI_WS_YES,tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:3},wfTool(3,CONN_DOM)],beta:'web-fetch-2025-09-10'}))}
   return aiCallWeb(base,4)};
  const parse=(r,k)=>{const J=aiJson(r.text);const opts=(Array.isArray(J.options)?J.options:[]).map(connNorm).filter(o=>o.tmin>0||o.durH).slice(0,5);if(!opts.length)throw new Error('keine Verbindung gefunden');
-  const W=J.why&&typeof J.why==='object'?J.why:{};return {opts,why:{fast:String(W.fastest||''),cheap:String(W.cheapest||''),bal:String(W.balanced||'')},chg:J.chg&&J.chg!=='null'?String(J.chg).slice(0,240):'',src:String(J.src||(k==='fetch'?'12go.asia':r.ws?'Websuche':'Schätzung')),url,ts:Date.now(),usd:r.usd,model:r.model,how:k}};
+  const W=J.why&&typeof J.why==='object'?J.why:{};return {opts,why:{fast:String(W.fastest||''),cheap:String(W.cheapest||''),bal:String(W.balanced||'')},chg:J.chg&&J.chg!=='null'?String(J.chg).slice(0,240):'',src:String(J.src||(k==='fetch'?'12go.asia':r.ws?'Websuche':'Schätzung')),url,date:c.date,ts:Date.now(),usd:r.usd,model:r.model,how:k}};
  const pref=localStorage.getItem('auszeit27_aweb')||'';const order=[];if(pref!=='search'&&pref!=='none')order.push('fetch');if(aiWsOn()&&localStorage.getItem('auszeit27_aboth')!=='0')order.push('both');
- const more='\nDie 12Go-Seite unter dieser Adresse lieferte keine konkreten Angebote. Suche per Websuche die passende Seite (12Go mit anderer Schreibweise oder dem nächsten größeren Ort, Rome2Rio, Bookaway, Baolau), rufe sie ab und schreibe die Angebote ab.';
+ const more='\nDie 12Go-Seite unter dieser Adresse lieferte keine konkreten Angebote. Suche per Websuche die passende Seite (12Go mit anderer Schreibweise oder dem nächsten größeren Ort, Rome2Rio, Bookaway, Baolau; für Flüge die Skyscanner-Routenseite), rufe sie ab und schreibe die Angebote ab.';
  let best=null,usd=0,last=null;
  for(let n=0;n<order.length;n++){const k=order[n];let r;try{r=await call(k,n?msg+more:msg)}catch(e){last=e;if(aiWsIsToolErr(e.message||'')||/fetch|beta/i.test(e.message||'')){try{if(k==='fetch')localStorage.setItem('auszeit27_aweb','search');else localStorage.setItem('auszeit27_aboth','0')}catch(x){}continue}if(best)break;throw e}
   usd+=r.usd||0;let R;try{R=parse(r,k)}catch(e){last=e;continue}
@@ -2136,7 +2137,7 @@ function connCard(o,k,m,R,applied,i,j,bk){const dv=R.dev&&R.dev[k];const badges=
  return `<div class="card cn ${k===m[crit]?'top':''}"><div style="display:flex;gap:6px;flex-wrap:wrap">${badges.map(b=>`<span class="bdg2 ${b==='Empfehlung'?'k':''}">${b}</span>`).join('')}${rb?`<span class="bdg2 ${rb[1]}">${rb[0]}</span>`:''}</div>
  <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic((MODES[o.mode]||MODES.car)[0],15)} ${esc(o.title||modeLabel(o.mode))}</div><div class="num" style="font-weight:700;white-space:nowrap">${o.tmin?'≈ '+eur(connEur(o)):'–'}</div></div>
  <div class="small mut" style="margin-top:3px">${[o.dur||(o.durH?o.durH.toLocaleString('de-DE')+' Std.':''),connTr(o)?connTr(o)+(connTr(o)===1?' Umstieg':' Umstiege'):'direkt',o.dep&&'ab '+o.dep,o.tmin&&o.tmax&&o.tmin!==o.tmax?eur(o.tmin)+'–'+eur(o.tmax)+' für zwei':'für zwei'].filter(Boolean).join(' · ')}</div>
- ${o.segs.length>1?`<div class="segs">${o.segs.map(s=>`<div class="segl">${segLine(s)}</div>`).join('')}</div>`:o.segs[0]&&segPr(o.segs[0])?`<div class="small mut" style="margin-top:3px">Preis: ${esc([segPr(o.segs[0]),o.segs[0].veh,o.segs[0].psrc].filter(Boolean).join(' · '))}</div>`:''}${o.part?'<div class="small" style="margin-top:4px;color:var(--warn)">Für eine Teilstrecke fehlt der Preis.</div>':''}${offList(o)}${dv?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">${dv.n>1?`Frühere Suchen (Median aus ${dv.n})`:'Frühere Suche'}: ≈ ${eur(dv.prev)} – jetzt ≈ ${eur(connEur(o))}. ${R.chg?esc(R.chg):o.real===2?'Laut den aktuell gelisteten Angeboten.':'Claude nennt keinen Grund – im Zweifel den früheren Wert nehmen.'}</div>`:''}
+ ${o.segs.length>1?`<div class="segs">${o.segs.map(s=>`<div class="segl">${segLine(s)}</div>`).join('')}</div>`:o.segs[0]&&segPr(o.segs[0])?`<div class="small mut" style="margin-top:3px">Preis: ${esc([segPr(o.segs[0]),o.segs[0].veh,o.segs[0].psrc].filter(Boolean).join(' · '))}</div>`:''}${o.part?'<div class="small" style="margin-top:4px;color:var(--warn)">Für eine Teilstrecke fehlt der Preis.</div>':''}${offList(o)}${flightLinks(o,R,i)}${dv?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">${dv.n>1?`Frühere Suchen (Median aus ${dv.n})`:'Frühere Suche'}: ≈ ${eur(dv.prev)} – jetzt ≈ ${eur(connEur(o))}. ${R.chg?esc(R.chg):o.real===2?'Laut den aktuell gelisteten Angeboten.':'Claude nennt keinen Grund – im Zweifel den früheren Wert nehmen.'}</div>`:''}
  ${o.ops||o.note?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc([o.ops,o.note].filter(Boolean).join(' · '))}</div>`:''}${why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(why)}</div>`:''}
  <div class="act">${applied?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}übernommen${(g=>g&&Math.abs(g-connEur(o))>1?' mit ≈ '+eur(g):'')(connGot(i,j))}</span>`:bk?'<span class="small mut">Transfer ist schon gebucht</span>':`<button class="btn sm ${k===m[crit]?'p':''}" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}">${o.segs.length>1?`Übernehmen (${o.segs.length} Teilstrecken)`:'Übernehmen'}</button>${dv?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}" data-pv="1">Mit ≈ ${eur(dv.prev)}</button>`:''}`}</div></div>`}
 function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Transfer nicht gefunden.</div>';const L=legsOf(st);const j=0;const l=L[0];const d=stagesDated()[i];const E=connEnds(i);const I={from:E.fromT,to:E.toT,km:E.km};const crit=critPref();
@@ -2151,7 +2152,7 @@ function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.sta
   if(R.dev&&Object.keys(R.dev).length)h+=`<div class="small mut" style="margin:-2px 2px 10px;line-height:1.45">Bei „Neu suchen“ gelten die früheren Preise als Ausgangswert. Weicht ein Preis um mehr als 30 % ab, steht der frühere Wert an der Option.</div>`;
   h+=`<div class="small mut" style="margin:-2px 2px 10px;line-height:1.45">Übernehmen ersetzt ${L.length>1?'alle '+L.length+' Teilstrecken':'den Transfer'} und füllt alle Felder. Vorher fragt die App, ob die Verbindung schon gebucht oder bezahlt ist.</div>`;
   h+=connSort(R.opts,crit).map(({o,k})=>connCard(o,k,m,R,l.connSel===k,i,0,false)).join('');
-  h+=`<div class="chips wrapc" style="margin-top:12px">${trLinks(i,j)}</div>`}
+  h+=`<div class="chips wrapc" style="margin-top:12px">${connLinks(i)}</div>`}
  return h}
 // Übernehmen: ersetzt alle Teilstrecken des Transfers und füllt Verkehrsmittel, Datum, Abfahrt, Ankunft, Dauer, Anbieter, Kosten, Notiz
 const hmMin=t=>{const m=/^(\d{1,2}):(\d{2})$/.exec(t||'');return m?+m[1]*60+ +m[2]:null};
@@ -2216,6 +2217,111 @@ function connPriceTxt(scope){scope=scope&&scope!=='all'?scope:null;const out=[];
 {const tf0=aiTripFull;aiTripFull=function(sc){return tf0(sc)+connPriceTxt(sc)}}
 // Fehlt jeder Transport zur Etappe, steht automatisch ein offener Transfer als Aufgabe da
 {const lo=legsOf;legsOf=function(s){const L=lo(s);if(!L.length&&s&&!s.noTr&&!s.gap&&typeof S!=='undefined'&&S.stages){const i=S.stages.indexOf(s);const pv=i>0?S.stages[i-1]:null;if(i>=0&&!(pv&&pv.placeId&&pv.placeId===s.placeId))L.push({mode:s.mode&&s.mode!=='flight'?s.mode:'car',status:'offen'})}return L}}
+// ===================== Flüge (Skyscanner, Google Flights) und KI-Unterkunftsvorschläge =====================
+const iataOf=t=>{const m=/\(([A-Z]{3})\)/.exec(t||'')||/\b([A-Z]{3})\b/.exec(t||'');return m?m[1]:null};
+const yymmdd=d=>String(d||'').slice(2,4)+String(d||'').slice(5,7)+String(d||'').slice(8,10);
+const skyUrl=(a,b,d)=>`https://www.skyscanner.de/transport/fluege/${a.toLowerCase()}/${b.toLowerCase()}/${yymmdd(d)}/?adultsv2=2&cabinclass=economy&rtn=0`;
+const gfUrl=(a,b,d)=>`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${a} to ${b} on ${d} one way`)}`;
+const lnk=(u,t)=>`<a class="chip sm" href="${u}" target="_blank" rel="noopener" style="text-decoration:none">${ic('link',12)} ${t}</a>`;
+// Flug-Teilstrecken im Formular: Skyscanner, wenn Flughafen-Codes erkennbar sind
+{const t0=trLinks;trLinks=function(i,j){let h=t0(i,j);try{const l=legsOf(S.stages[i])[j]||{};if(l.mode==='flight'){const I=trInfo(stagesDated()[i],null,j);const a=iataOf(l.from||I.from),b=iataOf(l.to||I.to);if(a&&b)h=lnk(skyUrl(a,b,l.date||I.defDate),'Skyscanner')+h}}catch(e){}return h}}
+// Verbindungen-Seite: Links für die ganze Strecke, Flüge mit Skyscanner
+function connLinks(i){const st=S.stages[i];const E=connEnds(i);const R=(legsOf(st)[0]||{}).conn;const d=E.date;const out=[];const seen=new Set();
+ const fl=[];((R&&R.opts)||[]).forEach(o=>o.segs.forEach(s=>{if(s.mode==='flight'&&s.fi&&s.ti)fl.push([s.fi,s.ti])}));legsOf(st).forEach((l,j)=>{if(l.mode==='flight'){let I={};try{I=trInfo(stagesDated()[i],null,j)}catch(e){}const a=iataOf(l.from||I.from),b=iataOf(l.to||I.to);if(a&&b)fl.push([a,b])}});
+ fl.forEach(([a,b])=>{const k=a+b;if(seen.has(k))return;seen.add(k);out.push(lnk(skyUrl(a,b,d),`Skyscanner ${a}→${b}`))});
+ if(fl.length||(E.km||0)>500)out.push(lnk(gfUrl(fl[0]?fl[0][0]:E.from,fl[0]?fl[0][1]:E.to,d),'Google Flights'));
+ out.push(lnk(`https://12go.asia/en/travel/${trSlug(E.from)}/${trSlug(E.to)}?people=2&date=${d}`,'12Go'));out.push(lnk(`https://www.rome2rio.com/map/${encodeURIComponent(E.from)}/${encodeURIComponent(E.to)}`,'Rome2Rio'));return out.join('')}
+const flightLinks=(o,R,i)=>{const d=(R&&R.date)||connEnds(i).date;const L=o.segs.filter(s=>s.mode==='flight'&&s.fi&&s.ti);return L.length?`<div class="chips wrapc" style="margin-top:8px">${L.map(s=>lnk(skyUrl(s.fi,s.ti,d),`Skyscanner ${s.fi}→${s.ti}`)+lnk(gfUrl(s.fi,s.ti,d),'Google Flights')).join('')}</div>`:''};
+
+// ---------- Unterkunft finden ----------
+const H_AM=['Pool','Frühstück inklusive','Klimaanlage','Strandnah','Zentral','Ruhig','Küche','Balkon/Terrasse','Meerblick','Spa','Fitness','Waschmaschine','Gutes WLAN','Flughafentransfer'];
+const H_TY=['Hotel','Resort','Boutique-Hotel','Bungalow','Apartment','Guesthouse/Homestay'];
+const H_RT=[['','egal'],['8','ab 8'],['8.5','ab 8,5'],['9','ab 9']];
+const H_DOM=['booking.com','www.booking.com','agoda.com','www.agoda.com','trip.com','www.trip.com','de.trip.com','us.trip.com','hotels.com','www.hotels.com','de.hotels.com','trivago.de','www.trivago.de','trivago.com','www.trivago.com','kayak.de','www.kayak.de','kayak.com','www.kayak.com','tripadvisor.de','www.tripadvisor.de','tripadvisor.com','www.tripadvisor.com'];
+const AI_HOTEL_SYS=`Du schlägst Unterkünfte in Süd- und Südostasien für eine Reise-App vor (zwei Erwachsene, ein Doppelzimmer).
+Vorgehen: Suche per Websuche auf Booking.com, Agoda, Trip.com, Hotels.com und Trivago und rufe passende Seiten ab – z. B. Booking-Stadt- und Themenseiten (booking.com/city/…, booking.com/pool/city/…) oder Agoda-Stadtseiten –, um echte Preise, Bewertungen und Ausstattung zu lesen. Schlage nur Unterkünfte vor, die es wirklich gibt.
+Antworte am Ende NUR mit JSON ohne Kommentare:
+{"hotels":[{"name":"exakter Name","type":"Hotel|Resort|Boutique-Hotel|Bungalow|Apartment|Guesthouse|Homestay","area":"Viertel oder Lage kurz","addr":"Adresse oder null","price_min":ZAHL,"price_max":ZAHL,"cur":"Währung wie angezeigt","psrc":"Herkunft des Preises, z. B. Booking, Agoda, Trip.com oder Schätzung","rating":ZAHL oder null,"scale":10 oder 5,"rsrc":"Booking|Agoda|Trip.com|Google|Tripadvisor","reviews":ZAHL oder null,"amen":["Ausstattung auf Deutsch, höchstens 8"],"match":["erfüllte Wünsche, wörtlich aus der Wunschliste"],"miss":["nicht erfüllte oder unklare Wünsche, wörtlich aus der Wunschliste"],"dist":"z. B. 5 Min. zum Strand oder null","why":"1 Satz"}],"note":"1 Satz zur Preislage im Reisezeitraum","src":"genutzte Quellen kurz oder Schätzung"}
+Regeln: 4–6 Vorschläge, nach Eignung sortiert (der erste ist die Empfehlung). Preis = Preis pro Nacht für ein Doppelzimmer mit 2 Erwachsenen inklusive Steuern, Betrag und Währung wie in der Quelle; Spanne, wenn Quellen abweichen. Findest du keinen Preis in einer Quelle, schätze und setze psrc "Schätzung". Halte den Preisrahmen ein; höchstens ein Vorschlag darf knapp darüber liegen, wenn er deutlich besser passt (in why begründen). Mindestbewertung einhalten. match und miss nur aus der Wunschliste des Nutzers. Nichts erfinden: keine erfundenen Unterkünfte, Bewertungen oder Ausstattungen.`;
+const hpref=()=>{try{return JSON.parse(localStorage.getItem('auszeit27_v2hpref')||'{}')}catch(e){return {}}};
+function hcOf(st){if(!UI.hc||UI.hc.sid!==st.id){const p=(st.hsug&&st.hsug.crit)||hpref();UI.hc={sid:st.id,min:p.min||'',max:p.max||'',am:[...(p.am||[])],ty:[...(p.ty||[])],rt:p.rt||'',free:p.free||''}}return UI.hc}
+function hcSync(){const c=UI.hc;if(!c)return;const v=id=>{const e=$('#'+id);return e?e.value.trim():null};const a=v('hcMin'),b=v('hcMax'),f=v('hcFree');if(a!=null)c.min=a;if(b!=null)c.max=b;if(f!=null)c.free=f}
+function hotNorm(h,nights){h=h||{};const cur=segCur(h.cur);const a=num0(h.price_min),b=num0(h.price_max);const ea=a?toEUR(a,cur):null,eb=b?toEUR(b,cur):null;const pmin=ea||eb,pmax=eb||ea;const sc=+h.scale===5?5:10;const r=num0(h.rating);
+ const arr=x=>(Array.isArray(x)?x:[]).map(v=>String(v||'').slice(0,40)).filter(Boolean);
+ return {name:String(h.name||'').slice(0,90),type:String(h.type||'').slice(0,30),area:String(h.area||'').slice(0,60),addr:h.addr?String(h.addr).slice(0,140):'',pmin:pmin?Math.round(pmin):null,pmax:pmax?Math.round(pmax):null,pn:pmin?Math.round((pmin+pmax)/2):null,
+  raw:a?[a,b||a,cur]:null,psrc:String(h.psrc||'').slice(0,30),real:!!pmin&&!/sch[äa]tz/i.test(h.psrc||''),rt:r&&r<=sc?r:null,sc,rsrc:String(h.rsrc||'').slice(0,20),rev:num0(h.reviews),amen:arr(h.amen).slice(0,8),match:arr(h.match),miss:arr(h.miss),dist:h.dist&&h.dist!=='null'?String(h.dist).slice(0,60):'',why:String(h.why||'').slice(0,240)}}
+async function aiHotels(i,c){const st=S.stages[i];const d=stagesDated()[i];const p=byId(st.placeId);const place=p?.name||pname(st);const cn=country(st.country).name;const h0=st.stay||{};
+ const msg=`Ort: ${place} (${cn}). Unterkunft für ${nN(d.nights)}: Check-in ${iso(d.from)}, Check-out ${iso(d.to)}. 2 Erwachsene, 1 Doppelzimmer.
+Preis pro Nacht für zwei: ${c.min||'egal'} bis ${c.max||'egal'} €.
+Wünsche (Ausstattung): ${c.am.length?c.am.join(', '):'keine besonderen'}.
+Unterkunftsart: ${c.ty.length?c.ty.join(', '):'egal'}. Mindestbewertung: ${c.rt?String(c.rt).replace('.',',')+' von 10':'egal'}.
+Sonstiges: ${c.free||'–'}.${h0.name?`\nBisher eingetragen: ${h0.name} (${h0.status||'offen'}) – nicht erneut vorschlagen.`:''}`;
+ const base={system:AI_HOTEL_SYS+AI_WS_YES,max:4500,timeout:150000,messages:[{role:'user',content:msg}]};const v=localStorage.getItem('auszeit27_awsv');let r;
+ try{if(localStorage.getItem('auszeit27_aboth')==='0')throw new Error('tool');r=await aiCall(Object.assign({},base,{tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:4},{type:'web_fetch_20250910',name:'web_fetch',max_uses:3,max_content_tokens:16000,allowed_domains:H_DOM}],beta:'web-fetch-2025-09-10'}))}
+ catch(e){if(!(aiWsIsToolErr(e.message||'')||/fetch|beta|^tool$/i.test(e.message||'')))throw e;r=await aiCallWeb({system:AI_HOTEL_SYS,max:4500,timeout:150000,messages:[{role:'user',content:msg}]},4)}
+ const J=aiJson(r.text);const opts=(Array.isArray(J.hotels)?J.hotels:[]).map(x=>hotNorm(x,d.nights)).filter(x=>x.name).slice(0,6);if(!opts.length)throw new Error('keine passende Unterkunft gefunden');
+ return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd:r.usd,crit:{min:c.min,max:c.max,am:c.am,ty:c.ty,rt:c.rt,free:c.free},from:iso(d.from),to:iso(d.to)}}
+async function hotRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];hcSync();const c=hcOf(st);try{localStorage.setItem('auszeit27_v2hpref',JSON.stringify({min:c.min,max:c.max,am:c.am,ty:c.ty,rt:c.rt,free:c.free}))}catch(e){}
+ UI.hoBusy=st.id;UI.hoErr=null;hotRefresh();try{const R=await aiHotels(i,c);st.hsug=R;save()}catch(e){UI.hoErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.hoBusy=null;hotRefresh()}
+function hotRefresh(){const t=UI.stack[UI.stack.length-1];if(t&&t.k==='hotels'&&!sheetOpen()){UI.keepY=true;render()}}
+const hBook=(q,st)=>{const d=stagesDated()[S.stages.indexOf(st)];return `https://www.booking.com/searchresults.de.html?ss=${encodeURIComponent(q)}&checkin=${iso(d.from)}&checkout=${iso(d.to)}&group_adults=2&no_rooms=1&group_children=0`};
+const hMaps=q=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+const rtTxt=o=>o.rt?`${o.rsrc||'Bewertung'} ${String(o.rt).replace('.',',')}${o.sc===5?'/5':''}${o.rev?` (${o.rev.toLocaleString('de-DE')})`:''}`:'';
+function hotMarks(opts){const P=opts.map((o,k)=>({o,k})).filter(x=>x.o.pn);const R=opts.map((o,k)=>({o,k,r:o.rt?o.rt*(o.sc===5?2:1):0})).filter(x=>x.r);
+ return {best:0,cheap:P.length?P.reduce((a,b)=>b.o.pn<a.o.pn?b:a).k:-1,top:R.length?R.reduce((a,b)=>b.r>a.r?b:a).k:-1}}
+function hotCard(o,k,M,i,st,R){const d=stagesDated()[i];const place=(byId(st.placeId)||{}).name||pname(st);const cur=st.stay&&st.stay.name&&st.stay.name.toLowerCase()===o.name.toLowerCase();
+ const b=[k===M.best?['Empfehlung','k']:null,k===M.cheap?['Günstigste','']:null,k===M.top?['Beste Bewertung','']:null,[o.real?'Echte Preise':'Geschätzt',o.real?'ok':'wn']].filter(Boolean);
+ return `<div class="card cn ${k===M.best?'top':''}"><div style="display:flex;gap:6px;flex-wrap:wrap">${b.map(x=>`<span class="bdg2 ${x[1]}">${x[0]}</span>`).join('')}</div>
+ <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic('bed',15)} ${esc(o.name)}</div><div class="num" style="font-weight:700;white-space:nowrap">${o.pn?'≈ '+eur(o.pn):'–'}<span class="small mut" style="font-weight:500"> /Nacht</span></div></div>
+ <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([o.type,o.area,o.dist].filter(Boolean).join(' · '))}</div>
+ <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([rtTxt(o),o.pn&&d.nights?`≈ ${eur(o.pn*d.nights)} für ${nN(d.nights)}`:'',o.raw?`Preis ${nfmt(o.raw[0])}${o.raw[1]!==o.raw[0]?'–'+nfmt(o.raw[1]):''} ${curSym(o.raw[2])} · ${o.psrc||'Quelle'}`:''].filter(Boolean).join(' · '))}</div>
+ ${o.match.length||o.miss.length?`<div class="chips wrapc" style="margin-top:8px">${o.match.map(a=>`<span class="bdg2 ok">${ic('check',11,2.6)} ${esc(a)}</span>`).join('')}${o.miss.map(a=>`<span class="bdg2 wn">${ic('x',11,2.6)} ${esc(a)}</span>`).join('')}</div>`:''}
+ ${o.amen.length?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc(o.amen.join(' · '))}</div>`:''}${o.why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(o.why)}</div>`:''}
+ <div class="chips wrapc" style="margin-top:8px">${lnk(hBook(o.name+', '+place,st),'Booking')}${lnk(hMaps(o.name+' '+place),'Google Maps')}</div>
+ <div class="act">${cur?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}eingetragen</span>`:`<button class="btn sm ${k===M.best?'p':''}" data-a="hoAsk" data-k="${i}" data-o="${k}">Übernehmen</button>`}</div></div>`}
+const tg=(g,v,on)=>`<button class="chip ${on?'on':''}" data-a="hcTog" data-g="${g}" data-k="${esc(v)}">${esc(v)}</button>`;
+function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=hcOf(st);const R=st.hsug;const place=(byId(st.placeId)||{}).name||pname(st);
+ let h=backBtn()+head('Unterkunft finden',[esc(place),`${dl(d.from)} – ${dl(d.to)}`,nN(d.nights)]);
+ h+=`<div class="card" style="padding:14px 16px"><div style="font-weight:600">Was ist euch wichtig?</div>
+ <div class="frow">${fld('hcMin','Preis pro Nacht ab (€)',c.min,{half:1,num:1,ph:'egal'})}${fld('hcMax','bis (€, für zwei)',c.max,{half:1,num:1,ph:'egal'})}</div>
+ ${lbl('Ausstattung')}<div class="chips wrapc">${H_AM.map(a=>tg('am',a,c.am.includes(a))).join('')}</div>
+ ${lbl('Art')}<div class="chips wrapc">${H_TY.map(a=>tg('ty',a,c.ty.includes(a))).join('')}</div>
+ ${lbl('Bewertung')}<div class="seg">${H_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="hcRate" data-k="${k}">${v}</button>`).join('')}</div>
+ ${fld('hcFree','Sonstiges',c.free,{ph:'z. B. nahe Altstadt, Meerblick, großes Bett'})}
+ <div class="act"><button class="btn p" style="flex:1" data-a="hcRun" data-k="${i}" ${UI.hoBusy===st.id?'disabled':''}>${ic('spark',16,2.2)}${R?'Neu suchen':'Vorschläge suchen'}</button></div></div>
+ <div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Trip.com, Hotels.com und Trivago und liest Preise, Bewertungen und Ausstattung. Preise sind Richtwerte pro Nacht für ein Doppelzimmer. ca. 3–8 ct je Suche</div>`;
+ if(UI.hoBusy===st.id)h+=`<div class="card kb"><div class="small mut"><span class="spin"></span>Claude sucht Unterkünfte … bis zu zwei Minuten</div></div>`;
+ else if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
+ if(R&&R.opts){const M=hotMarks(R.opts);const chg=R.from!==iso(d.from)||R.to!==iso(d.to);
+  h+=`<div class="small mut" style="display:flex;align-items:center;gap:8px;margin:0 2px 10px">${kib('KI')}<span class="sp">${esc(R.src||'Websuche')} · ${fmtD(new Date(R.ts))}${R.usd?' · '+cents(R.usd):''}</span></div>`;
+  if(R.note||chg)h+=`<div class="small ${chg?'':'mut'}" style="margin:-2px 2px 10px;line-height:1.45;${chg?'color:var(--warn)':''}">${chg?'Die Reisedaten haben sich seit der Suche geändert. ':''}${esc(R.note||'')}</div>`;
+  h+=R.opts.map((o,k)=>hotCard(o,k,M,i,st,R)).join('');
+  h+=`<div class="chips wrapc" style="margin-top:12px">${lnk(hBook(place,st),'Booking-Suche')}${lnk(hMaps('Hotels '+place),'Google Maps')}</div>`}
+ return h}
+function hoAsk(i,k){const st=S.stages[i];const R=st.hsug;const o=R&&R.opts[k];if(!o)return;const d=stagesDated()[i];const h0=st.stay||{};UI.hoAsk={i,k};const tot=o.pn&&d.nights?Math.round(o.pn*d.nights):null;
+ const warn=h0.name?`Ersetzt „${esc(h0.name)}“${h0.status==='gebucht'||h0.paid?' – gebucht oder bezahlt. Buchungscode, Zeitraum und Beleg dieser Unterkunft gehen verloren (Rückgängig bleibt möglich).':'.'}`:'Trägt die Unterkunft in die Etappe ein.';
+ sheet(`<div class="sht">Unterkunft übernehmen</div><div class="mut" style="margin:4px 0 12px">${esc(o.name)}</div>
+ <div class="card">${row({icn:'bed',t:`${dl(d.from)} – ${dl(d.to)} · ${nN(d.nights)}`,s:esc([o.type,o.area].filter(Boolean).join(' · '))})}${row({icn:'wallet',t:tot?`≈ ${eur(tot)} gesamt`:'Preis unbekannt',s:o.pn?`≈ ${eur(o.pn)} pro Nacht · ${esc(o.psrc||'')}${o.real?'':' (geschätzt)'}`:''})}${o.amen.length||o.rt?row({icn:'star',t:esc(rtTxt(o)||'Ausstattung'),s:esc(o.amen.join(' · ')),w2:1}):''}</div>
+ <div class="small" style="margin:10px 4px 0;line-height:1.45;color:var(${h0.status==='gebucht'||h0.paid?'--warn':'--ink2'})">${warn}</div>
+ ${lbl('Schon gebucht?')}${seg('hfSt',[['offen','Nein, offen'],['gebucht','Ja, gebucht']],'offen')}
+ ${lbl('Schon bezahlt?')}${seg('hfPd',[['0','Nein'],['1','Ja, bezahlt']],'0')}
+ ${btns(`<button class="btn p" style="flex:1" data-a="hoDo">Übernehmen</button>`,`<button class="btn gh" data-a="hoBack">Abbrechen</button>`)}`)}
+function hoDo(F){const A=UI.hoAsk;UI.hoAsk=null;if(!A)return;const st=S.stages[A.i];const R=st.hsug;const o=R&&R.opts[A.k];if(!o)return;const d=stagesDated()[A.i];const snap=JSON.stringify(st.stay||null);
+ const same=st.stay&&st.stay.name&&st.stay.name.toLowerCase()===o.name.toLowerCase();const h=same?Object.assign({},st.stay):{};
+ Object.assign(h,{name:o.name,status:F.booked?'gebucht':'offen',paid:!!F.paid});if(o.addr)h.addr=o.addr;else if(!same)delete h.addr;
+ const tot=o.pn&&d.nights?Math.round(o.pn*d.nights):null;if(tot){h.cost=String(tot);h.cur='EUR';h.costEst=1}
+ h.note=[[o.type,o.area,o.dist].filter(Boolean).join(' · '),o.pn?`ca. ${eur(o.pn)}/Nacht (${o.psrc||'KI'})`:'',rtTxt(o),o.amen.join(', ')].filter(Boolean).join(' – ').slice(0,400);
+ if(!same)['gRating','gCount','gSrc','gVia','gNone','gTs','ll'].forEach(k=>delete h[k]);fixRate(h);st.stay=h;save();
+ UI.undo=()=>{const v=JSON.parse(snap);if(v)st.stay=v;else delete st.stay;save();render()};closeSheet();render();rateSoon(null,[st.id]);
+ toast(`Unterkunft übernommen: ${esc(o.name)}${tot?' · ≈ '+eur(tot):''}${F.booked?' · gebucht':''}${F.paid?' · bezahlt':''}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
+Object.assign(window.KIA=window.KIA||{},{
+ hoOpen:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st)return;UI.hc=null;go(UI.tab,[...UI.stack,{k:'hotels',sid:st.id}])},
+ hcTog:(el)=>{hcSync();const c=UI.hc;if(!c)return;const L=c[el.dataset.g];const v=el.dataset.k;const n=L.indexOf(v);if(n>=0)L.splice(n,1);else L.push(v);el.classList.toggle('on',n<0)},
+ hcRate:(el)=>{hcSync();if(!UI.hc)return;UI.hc.rt=el.dataset.k;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el))},
+ hcRun:(el)=>hotRun(+el.dataset.k),
+ hoAsk:(el)=>hoAsk(+el.dataset.k,+el.dataset.o),
+ hoDo:()=>hoDo({booked:gv('hfSt')==='gebucht',paid:gv('hfPd')==='1'}),
+ hoBack:()=>{UI.hoAsk=null;closeSheet()}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
