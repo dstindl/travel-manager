@@ -96,6 +96,10 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inse
 .cc{width:156px;padding:12px 13px;text-align:left;border-radius:14px}
 .cc.on{border:1.5px solid var(--acc)}
 .st3{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 14px 11px 56px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}
+.sub .lb{color:var(--ink);font-weight:500}
+.sub .ico{color:var(--ink3);display:flex}
+.kc{width:138px;padding:12px 13px;text-align:left}.kc .k{font-size:11.5px;color:var(--ink2)}.kc .v{font-size:17px;font-weight:600;margin-top:4px}
 .kpi{padding:12px 14px}.kpi .k{font-size:11.5px;color:var(--ink2)}.kpi .v{font-size:17px;font-weight:600;margin-top:3px}
 .tile{padding:12px 12px 11px;text-align:left}
 .empty{padding:28px 10px;text-align:center;color:var(--ink2)}
@@ -103,7 +107,7 @@ nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inse
 .kv span:first-child{color:var(--ink2)}
 .conv{font-size:28px;font-weight:600;letter-spacing:-.5px;border:0;background:transparent;width:100%;outline:none;padding:0}
 </style></head><body>
-<div class="proto"><span>Prototyp v2 · Stand 5 · nur ansehen</span><a href="../">heutige App</a></div>
+<div class="proto"><span>Prototyp v2 · Stand 6 · nur ansehen</span><a href="../">heutige App</a></div>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden></button>
 <nav id="nav"></nav>
@@ -314,10 +318,13 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
   // Transfers: zwei Zeilen, nichts abgeschnitten
   const L=legsOf(st);if(d.i>0)L.forEach((l,j)=>{const pv=byId(S.stages[d.i-1].placeId);const fr=l.from||(j===0?pv?.name:'')||'',to=l.to||(j===L.length-1?p?.name:'')||'';const M=MODES[l.mode]||MODES.car;
    h+=`<button class="tr" data-a="step" data-k="${d.i}" data-s="anreise" style="align-items:flex-start;padding-top:10px;padding-bottom:10px"><span class="tl" style="padding-top:1px">${trLabel(st,j)}</span><span style="padding-top:1px">${ic(M[0],15)}</span><span class="sp"><span style="display:block;color:var(--ink);font-weight:500">${M[1]} · ${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}</span><span style="display:block;margin-top:2px">${esc(fr)}${fr||to?' → ':''}${esc(to)}</span></span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?`<span class="ki" style="padding:3px 5px" title="Richtpreis">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}" style="margin-top:6px"></span></button>`});
-  const n=doneN(d.i);const dates=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`;
-  const hotel=d.nights?`<div class="st3">${ic('bed',13)}<span style="overflow:hidden;text-overflow:ellipsis">${st.stay?.name?esc(st.stay.name):'Unterkunft offen'}</span></div>`:'';
-  if(d.i===fi){const S5=steps(d.i);const nx=S5.find(x=>!x.ok);h+=`<div class="pri" style="padding:14px;margin:6px 0"><button data-a="stage" data-k="${d.i}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left"><div class="stn a">${no[st.id]}</div><div class="sp"><div style="font-size:15px;font-weight:600">${esc(p?.name||'')}</div><div class="st3">${dates}</div>${hotel}</div><span class="small num" style="color:var(--acc);font-weight:600;padding-top:2px">${n}/5</span></button><div class="prog" style="margin:14px 0 12px">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><div style="border-top:1px solid var(--line2);padding-top:12px;display:flex;align-items:center;gap:10px"><div class="sp small mut">Nächster Schritt<br><b style="color:var(--ink);font-weight:600;font-size:13px">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div></div>`}
-  else h+=`<button class="card" style="margin:6px 0;display:flex;align-items:flex-start;gap:12px;padding:13px 14px;width:100%;text-align:left" data-a="stage" data-k="${d.i}"><div class="stn">${no[st.id]}</div><div class="sp"><div class="tt" style="font-weight:600">${esc(p?.name||'')}</div><div class="st3">${dates}</div>${hotel}</div><span class="small mut num" style="display:flex;align-items:center;gap:4px;padding-top:2px">${n===5?`<span style="color:var(--ok)">${ic('check',13,2.4)}</span>`:''}${n}/5</span></button>`});
+  const n=doneN(d.i);const S5=steps(d.i);const foc=d.i===fi;const dates=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`;
+  const ex=excursionsSt(d.i);const fr=S5[3].free.length;const stay=st.stay||{};
+  let c=`<button data-a="stage" data-k="${d.i}" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:13px 14px"><div class="stn ${foc?'a':''}">${no[st.id]}</div><div class="sp"><div style="font-size:${foc?15:14}px;font-weight:600">${esc(p?.name||'')}</div><div class="st3">${dates}</div></div><span class="small num" style="display:flex;align-items:center;gap:4px;padding-top:2px;${foc?'color:var(--acc);font-weight:600':'color:var(--ink2)'}">${n===5?`<span style="color:var(--ok)">${ic('check',13,2.4)}</span>`:''}${n}/5</span></button>`;
+  if(d.nights)c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="unterkunft"><span class="ico">${ic('bed',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${stay.name?esc(stay.name):'Unterkunft offen'}</span>${stay.name?` · ${stay.status==='gebucht'?'gebucht':'offen'}`:''}</span><span class="dot ${stay.status==='gebucht'?'g':''}"></span><span class="chev">${ic('chev',14)}</span></button>`;
+  c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="ausfluege"><span class="ico">${ic('pin',15)}</span><span class="sp"><span class="lb">${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}</span>${fr?` · ${fr} ${fr===1?'Tag':'Tage'} frei`:''}</span>${fr&&d.nights>1?`<span class="ki" style="padding:3px 5px">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${fr&&d.nights>1?'n':'g'}"></span><span class="chev">${ic('chev',14)}</span></button>`;
+  if(foc){const nx=S5.find(x=>!x.ok);c+=`<div style="border-top:1px solid var(--line2);padding:12px 14px;display:flex;align-items:center;gap:10px"><div class="prog" style="width:70px;flex:none">${S5.map(x=>`<i class="${x.ok?'f':''}" style="height:4px"></i>`).join('')}</div><div class="sp small mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div>`}
+  h+=foc?`<div class="pri" style="margin:6px 0;overflow:hidden">${c}</div>`:`<div class="card" style="margin:6px 0;overflow:hidden">${c}</div>`});
  return h}
 function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='<div class="empty small">Karte braucht Internet.</div>';return}
  if(MAP){MAP.remove();MAP=null}const dark=isDark();const big=UI.view==='karte';
@@ -378,16 +385,16 @@ function vGeld(){const t=iso(today());const cur=stageAt(t)||stagesDated()[0];con
   <div style="display:flex;align-items:baseline;gap:8px" id="convOut">${convOut(a,c)}</div>
   <div class="chips" style="margin-top:10px">${tripCurs().filter(x=>x!=='EUR').map(x=>`<button class="chip ${x===c?'on':''}" style="height:26px;font-size:11.5px;padding:0 9px" data-a="cur" data-k="${x}">${esc(x)}</button>`).join('')}</div></div>`;
  h+=`<div class="qa" style="margin-top:16px;margin-bottom:0"><button class="p" data-a="expense">${ic('plus',19,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',19,2)}Beleg lesen</button></div>`;
- h+=`<div class="tabs">${[['heute','Heute'],['budget','Budget'],['ausgaben','Ausgaben']].map(([k,l])=>`<button class="${gt===k?'on':''}" data-a="gt" data-k="${k}">${l}</button>`).join('')}</div>`;
  const all=(S.expenses||[]).slice().sort((x,y)=>y.date.localeCompare(x.date));
- const erow=e=>row({icn:/Essen/.test(e.cat)?'food':/Transport/.test(e.cat)?'car':/Unterkunft/.test(e.cat)?'bed':'wallet',t:esc(e.txt||e.cat||'Ausgabe'),s:`${dl(pd(e.date))}${e.txt&&e.cat?' · '+esc(e.cat):''}`,right:`<span class="num" style="font-weight:600">${(numOf(e.amt)||0).toLocaleString('de-DE')} ${esc(curSym(e.cur||'EUR'))}</span>`});
- if(gt==='heute'){const td=all.filter(e=>e.date===t);
-  h+=b?`<div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">${dl(today())}</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)}</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div></div>`:'';
-  h+=td.length?`<div class="card" style="margin-top:16px">${td.map(erow).join('')}</div>`:`<div class="empty small">Heute noch keine Ausgaben.</div>`}
- if(gt==='budget'){h+=b?`<div class="grid2">${[['Budget übrig',b.rest],['pro Tag frei',b.daily],['Fixkosten',b.fix],['ausgegeben',b.past+b.tod]].map(([k,v])=>`<div class="card kpi"><div class="k">${k}</div><div class="v num">${eur(v)}</div></div>`).join('')}</div>`:`<div class="card">${row({icn:'wallet',t:'Budget festlegen',s:'noch kein Budget eingetragen'})}</div>`;
-  const miss=stagesDated().filter(d=>!d.gap).reduce((x,d)=>x+steps(d.i)[4].miss.length,0);
-  h+=`<div class="card" style="margin-top:16px">${row({icn:'layers',t:'Kosten je Etappe',s:miss?`${miss} Posten ohne Betrag`:'alle Beträge erfasst',dot:miss?'':'g',a:'data-a="page" data-k="kosten"'})}</div>`}
- if(gt==='ausgaben'){h+=all.length?`<div class="card">${all.slice(0,30).map(erow).join('')}</div>`:'<div class="empty small">Noch keine Ausgaben.</div>'}
+ if(b){const pc=Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100));
+  h+=`<div class="sec">Überblick<span class="r"><button data-a="page" data-k="kosten">Kosten je Etappe ›</button></span></div><div class="car">`+
+   `<div class="card kc" style="width:170px"><div class="k">Heute ausgegeben</div><div class="v num">${eur(b.tod)} <span class="mut" style="font-size:12px;font-weight:500">von ${eur(b.daily)}</span></div><div style="height:4px;background:var(--line2);border-radius:2px;margin-top:9px"><div style="width:${pc}%;height:4px;background:var(--ink2);border-radius:2px"></div></div></div>`+
+   [['Pro Tag frei',b.daily],['Budget übrig',b.rest],['Fixkosten',b.fix],['Ausgegeben',b.past+b.tod]].map(([k,v])=>`<div class="card kc"><div class="k">${k}</div><div class="v num">${eur(v)}</div></div>`).join('')+`</div>`}
+ else h+=`<div class="card" style="margin-top:16px">${row({icn:'wallet',t:'Budget festlegen',s:'noch kein Budget eingetragen'})}</div>`;
+ const erow=e=>row({icn:/Essen/.test(e.cat)?'food':/Transport/.test(e.cat)?'car':/Unterkunft/.test(e.cat)?'bed':'wallet',t:esc(e.txt||e.cat||'Ausgabe'),s:e.txt&&e.cat?esc(e.cat):'',right:`<span class="num" style="font-weight:600">${(numOf(e.amt)||0).toLocaleString('de-DE')} ${esc(curSym(e.cur||'EUR'))}</span>`});
+ const yd=iso(addDays(today(),-1));const days=[...new Set(all.map(e=>e.date))].slice(0,5);
+ h+=`<div class="sec">Ausgaben<span class="r">${all.length}</span></div>`;
+ h+=days.length?days.map(dd=>{const l=all.filter(e=>e.date===dd);const sum=l.reduce((x,e)=>x+(eurOf(e,'amt')||0),0);return `<div class="lab" style="display:flex;margin:14px 2px 6px"><span class="sp">${dd===t?'Heute':dd===yd?'Gestern':dl(pd(dd))}</span><span class="num">${eur(sum)}</span></div><div class="card">${l.map(erow).join('')}</div>`}).join(''):`<div class="card"><div class="empty small">Noch keine Ausgaben.</div></div>`;
  return h}
 function convOut(a,c){const e=UI.dir===1?toEUR(a,c):a;const o=UI.dir===1?null:a*(rateOf(c)||1);const usd=(e||0)*(rateOf('USD')||1);const f=v=>v==null?'–':v.toLocaleString('de-DE',{maximumFractionDigits:v<100?2:0});
  return UI.dir===1?`<span class="num" style="font-size:18px;font-weight:600;color:var(--acc)">= ${f(e)} €</span>${c!=='USD'?`<span class="small mut">· ${f(usd)} $</span>`:''}`:`<span class="num" style="font-size:18px;font-weight:600;color:var(--acc)">= ${f(o)} ${esc(c)}</span>`}
@@ -452,6 +459,6 @@ window.addEventListener('resize',()=>{if(MAP)MAP.invalidateSize()});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{applyTheme();render()});
 applyTheme();render();
 // Neuester Stand: GitHub Pages und Browser halten Seiten zwischengespeichert – Version prüfen und ggf. frisch laden
-const V2_STAND='5';
+const V2_STAND='6';
 fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(j=>{if(j&&j.v&&j.v!==V2_STAND){const q='s='+j.v;if(!location.search.includes(q))location.replace(location.pathname+'?'+q)}}).catch(()=>{});
 </script></body></html>
