@@ -247,6 +247,7 @@ button.wxcol.on{background:var(--chip)}
 .cathree{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--ink2);margin-top:4px}.cathree b{color:var(--ink);font-weight:600}
 .cainfo{margin:0 0 0 18px;padding:0;line-height:1.5;font-size:13px}.cainfo li{margin-bottom:8px}
 .cacard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px}
+.caprogb{height:6px;border-radius:3px;background:var(--chip);overflow:hidden;margin-top:10px}.caprogb i{display:block;height:100%;background:var(--ki);border-radius:3px;transition:width .9s linear}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1116,8 +1117,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_02';
+const APP_VERSION='0.91_03';
 const CHANGELOG=[
+ {v:'0.91_03',d:'26.11.2026',items:['Kostenanalyse: Während Claude analysiert, zeigt eine Karte oben einen Fortschrittsbalken mit dem aktuellen Arbeitsschritt, der Laufzeit und der Zahl der Posten – auch auf der Karte unter Geld und im KI-Kasten; die Seite springt beim Start nach oben']},
  {v:'0.91_02',d:'26.11.2026',items:['Neu unter Geld: Kostenanalyse (KI) – ganze Reise oder je Land in drei Stufen: Low Budget, Ausgewogen, Oberes Segment','Vorher fragt die App die Annahmen ab: Höchstpreis pro Nacht je Stufe (der höchste Wert ist die absolute Obergrenze – teurer wird es nie) und Puffer','Gebuchtes zählt mit dem echten Betrag, geplante Beträge gelten für „Ausgewogen“, alles Offene schätzt Claude mit Websuche; die App rechnet hoch','Spielraum gesamt und pro Tag, Vergleich der drei Stufen, Zusammensetzung nach Unterkunft, Transport, Ausflügen und Tagesausgaben, Verlauf über die Reise mit Budget, wann bezahlt wird, Spielraum pro Tag je Land, alle Posten je Land (antippen öffnet das Formular)','Info-Knopf erklärt Schritt für Schritt, wie gerechnet wird']},
  {v:'0.91_01',d:'26.11.2026',items:['Neue Arbeitsversion auf Basis der Vollversion 0.91 (inhaltlich identisch)']},
  {v:'0.91',d:'26.11.2026',items:['Vollversion 0.91 – dauerhaft gesichert unter releases/Asien-Auszeit-v0_91.html. Neu seit 0.90:','Verbindungen je Transfer mit echten Angeboten (12Go, Skyscanner): stabile Preise aus den günstigsten passenden Angeboten, Übernahme füllt den ganzen Transfer','Unterkunft finden (KI) mit Preisen je Portal, Gesamtkosten, Ausstattung und Zahlungsarten; Ausflüge finden (KI) mit Bewertungen; KI-Vorschläge auswählen und übernehmen, KI-Kennzeichnung überall','Einreise-Karten vor jedem Landeswechsel, Checklisten mit KI aktuell gehalten, Erinnerung beim Start, Kalender-Export','Abgleich zwischen euren Handys über ein privates, auf dem Gerät verschlüsseltes GitHub-Repository – inklusive geteilter Buchungsbestätigungen','Reisehinweise (KI) zu Streiks, Wetter und Ausfällen; Wetter mit Details und markiertem Aufenthalt; Fahrzeiten live; Sicherheitslage des Auswärtigen Amts; Google-Maps-Import; Testmodus','Karte ohne Schlüssel, Bewertungen automatisch über Claude']},
@@ -3189,15 +3191,27 @@ function caCurve(t){const M=caModel(t,'all');const ds=stagesDated().filter(d=>!d
  M.items.forEach(x=>{if(x.k==='u'&&x.n){for(let q=0;q<x.n;q++)per[Math.min(N,at(x.date)+q)]+=x.v/x.n}else per[at(x.date)]+=x.v});
  ds.forEach(d=>{const c=S.stages[d.i].country;const r=M.daily[c];if(!r)return;stayDays(d).forEach(x=>{per[at(iso(x))]+=r.rate})});
  const bufPer=M.buf/(N+1);let acc=0;const cum=per.map(v=>acc+=v+bufPer);return {cum,N,start,M}}
+// ---------- Fortschritt während der Analyse (geschätzt nach üblicher Dauer, ehrlich als „ca.“) ----------
+const caPct=s=>Math.min(95,Math.round(100*(1-Math.exp(-s/45))));
+const caStep=s=>s<4?'Posten werden zusammengestellt':s<30?'Claude sucht Preise im Web – Unterkünfte, Transfers, Ausflüge':s<75?'Tagesausgaben je Land, Saison und Feiertage':'Antwort wird ausgewertet – gleich fertig';
+const caClock=s=>{s=Math.floor(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+function caProg(mini){const B=UI.caBusy;if(!B)return '';const s=(Date.now()-B.t0)/1000;const p=B.done?100:caPct(s);
+ if(mini)return `<div class="caprog"><div class="small" style="display:flex;gap:6px;align-items:center;color:var(--ki)"><span class="spin"></span><span class="caprogt sp">${caStep(s)}</span><span class="caprogz num mut">${caClock(s)}</span></div><div class="caprogb"><i style="width:${p}%"></i></div></div>`;
+ return `<div class="card caprog" style="padding:14px 16px;margin:0 0 12px"><div style="display:flex;gap:10px;align-items:center"><span class="spin"></span><b class="sp" style="font-weight:600">Claude analysiert die Kosten</b><span class="caprogz num small mut">${caClock(s)}</span></div>
+ <div class="caprogt small" style="margin-top:6px;color:var(--ink2)">${B.done?'Fertig':caStep(s)}</div><div class="caprogb"><i style="width:${p}%"></i></div>
+ <div class="small mut" style="margin-top:8px">${B.n} Posten in ${B.c} Ländern · dauert meist 1–2 Minuten · ihr könnt die App solange weiter nutzen</div></div>`}
+let CA_TICK=null;
+function caTick(){clearInterval(CA_TICK);CA_TICK=setInterval(()=>{const B=UI.caBusy;if(!B){clearInterval(CA_TICK);return}const s=(Date.now()-B.t0)/1000;
+ document.querySelectorAll('.caprog').forEach(e=>{const b=e.querySelector('.caprogb i');if(b)b.style.width=(B.done?100:caPct(s))+'%';const t=e.querySelector('.caprogt');if(t)t.textContent=B.done?'Fertig':caStep(s);const z=e.querySelector('.caprogz');if(z)z.textContent=caClock(s)})},1000)}
 // ---------- Seite ----------
 const caF=n=>n==null?'–':Math.round(n).toLocaleString('de-DE');const caE=n=>caF(n)+' €';const caS=n=>(n>=0?'+ ':'− ')+caF(Math.abs(n));
 function vCost(){const A=S.cost;const t=UI.caT||'mid';const sc=UI.caSc||'all';const cs=caCountries();const as=caAs();
  let h=backBtn()+head('Kostenanalyse',[sc==='all'?'Ganze Reise':esc(country(sc).name),`${caF(sc==='all'?totalNights():caModel(t,sc).days)} Nächte · zu zweit`,A&&A.ts?`${ic('spark',12,2.3)} KI-Stand ${fmtD(new Date(A.ts))}`:'noch nicht analysiert'],`<button class="ib" data-a="caInfo" aria-label="So wird gerechnet">${ic('info',21)}</button>`);
- if(!A||!A.ts){return h+`<div class="card" style="padding:16px;line-height:1.5"><div style="font-weight:600;font-size:15px">Was kostet die Reise – günstig, ausgewogen oder gehoben?</div><div class="mut" style="margin-top:6px">Claude schätzt alle offenen Unterkünfte, Transfers, Ausflüge und die Tagesausgaben je Land in drei Stufen. Gebuchtes zählt mit dem echten Betrag. Die App rechnet hoch und zeigt, wie viel Spielraum euer Budget lässt – gesamt und pro Tag.</div>
+ if(!A||!A.ts){if(UI.caBusy)return h+caProg()+`<button class="btn gh" style="width:100%" data-a="caInfo">${ic('info',16)}So wird gerechnet</button>`;return h+`<div class="card" style="padding:16px;line-height:1.5"><div style="font-weight:600;font-size:15px">Was kostet die Reise – günstig, ausgewogen oder gehoben?</div><div class="mut" style="margin-top:6px">Claude schätzt alle offenen Unterkünfte, Transfers, Ausflüge und die Tagesausgaben je Land in drei Stufen. Gebuchtes zählt mit dem echten Betrag. Die App rechnet hoch und zeigt, wie viel Spielraum euer Budget lässt – gesamt und pro Tag.</div>
   <div class="small mut" style="margin-top:10px">Vorher legt ihr fest, wie viel eine Unterkunft je Stufe höchstens kosten darf (jetzt: bis ${as.hl} / ${as.hm} / ${as.hh} € pro Nacht).</div>
   <div class="act"><button class="btn p" style="flex:1" data-a="caSetup">${ic('spark',16,2.2)}Annahmen festlegen und analysieren</button></div></div>
   <button class="btn gh" style="width:100%;margin-top:10px" data-a="caInfo">${ic('info',16)}So wird gerechnet</button>`}
- const M=caModel(t,sc);
+ const M=caModel(t,sc);h+=caProg();
  h+=`<div class="chips" style="margin:2px 0 10px"><button class="chip ${sc==='all'?'on':''}" data-a="caScope" data-k="all">Ganze Reise</button>${cs.map(c=>`<button class="chip ${sc===c?'on':''}" data-a="caScope" data-k="${c}">${cname(c)}</button>`).join('')}</div>`;
  h+=`<div class="seg">${CA_T.map(([k,l])=>`<button class="${t===k?'on':''}" data-a="caTier" data-k="${k}">${l}</button>`).join('')}</div>`;
  const L=caModel('low',sc),H=caModel('top',sc);const fixPct=M.tot?Math.round(M.fixed/M.tot*100):0;
@@ -3223,7 +3237,7 @@ function vCost(){const A=S.cost;const t=UI.caT||'mid';const sc=UI.caSc||'all';co
    return `<button class="cacr" data-a="caScope" data-k="${c}"><span>${cname(c).match(/<span[^>]*>.*?<\/span>/)?.[0]||esc(c)}</span><div><div style="font-weight:500">${esc(country(c).name)}</div><div class="small mut">${m.days} Nächte · ${caE(m.tot)}</div></div><span class="num small mut">${free==null?'':caF(free)+' € / '}${caF(D.rate)} €</span><b class="num ${diff==null||diff>=0?'capos':'caneg'}" style="min-width:46px;text-align:right">${diff==null?'':(diff>=0?'+':'−')+caF(Math.abs(diff))+' €'}</b></button>`}).join('');
   h+=`<div class="sec">Spielraum pro Tag je Land<span class="r">frei / KI-Satz</span></div><div class="card" style="padding:2px 0">${rows}</div><div class="small mut" style="margin:8px 4px 0;line-height:1.45">„frei“: was vom Tagesbudget nach Unterkunft, Transport, Ausflügen und Puffer für Essen, Fahrten vor Ort und Eintritte übrig bleibt. Land antippen zeigt alle Posten.</div>`}
  else h+=caPositions(M,sc);
- const busy=UI.caBusy;h+=`<div class="card kb" style="margin-top:14px;padding:12px 14px"><div style="display:flex;align-items:center;gap:8px">${kib('KI')}<span class="small mut sp">${busy?'<span class="spin"></span>Claude schätzt die Preise …':`geprüft ${new Date(A.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${A.usd?' · '+cents(A.usd):''}`}</span>${busy?'':`<button class="btn sm k" data-a="caSetup">${ic('spark',14,2.2)}Neu analysieren</button>`}</div>
+ const busy=UI.caBusy;h+=`<div class="card kb" style="margin-top:14px;padding:12px 14px"><div style="display:flex;align-items:center;gap:8px">${kib('KI')}<span class="small mut sp">${busy?'Analyse läuft':`geprüft ${new Date(A.ts).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}${A.usd?' · '+cents(A.usd):''}`}</span>${busy?'':`<button class="btn sm k" data-a="caSetup">${ic('spark',14,2.2)}Neu analysieren</button>`}</div>${busy?`<div style="margin-top:8px">${caProg(1)}</div>`:''}
  ${A.note?`<div class="small" style="margin-top:8px;line-height:1.45">${esc(A.note)}</div>`:''}<div class="small mut" style="margin-top:6px">Annahmen: Unterkunft bis ${as.hl} / ${as.hm} / ${as.hh} € pro Nacht · Puffer ${as.buf} %${M.missing?` · ${M.missing} Posten ohne KI-Schätzung (App-Schätzung)`:''}</div></div>`;
  return h}
 function caChart(t){const C=caCurve(t),L=caCurve('low'),H=caCurve('top');if(!C)return '';const N=C.N;const B=C.M.B;const W=360,Hh=190,PL=4,PR=8,PT=16,PB=22;
@@ -3270,8 +3284,8 @@ function caInfoSheet(){const as=caAs();const A=S.cost;
  <div class="small mut" style="margin-top:10px;line-height:1.45">Stufen: Low = einfach (Guesthouse, Bus, Streetfood) · Ausgewogen = gute Mittelklasse, Mischung · Oberes Segment = sehr gute Hotels, Privatfahrer und Flüge, Restaurants.${A&&A.src?' Quellen der letzten Analyse: '+esc(A.src)+'.':''} Die Analyse wird mit den anderen Handys abgeglichen.</div>
  ${btns(`<button class="btn" style="flex:1" data-a="close">Verstanden</button>`,`<button class="btn k" data-a="caSetup">${ic('spark',15,2.2)}Annahmen ändern</button>`)}`)}
 // ---------- KI-Analyse ----------
-async function caRun(as){if(!aiKey())return kiNoKey();if(UI.caBusy)return;UI.caBusy=true;S.cost=Object.assign(S.cost||{},{as});save();caUi();
- const all=caItems();const ds=stagesDated().filter(d=>!d.gap);const cs=caCountries();
+async function caRun(as){if(!aiKey())return kiNoKey();if(UI.caBusy)return;const all=caItems();const ds=stagesDated().filter(d=>!d.gap);const cs=caCountries();
+ UI.caBusy={t0:Date.now(),n:all.filter(x=>x.fix==null).length,c:cs.length};caTick();S.cost=Object.assign(S.cost||{},{as});save();caUi();{const t=UI.stack[UI.stack.length-1];if(t&&t.k==='cost')setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),60)}
  const hint=x=>{if(x.plan!=null)return `geplant ${caF(x.plan)} €${x.k==='u'?' gesamt':''}`;if(x.k==='u'){const st=S.stages[x.i];const R=st.hsug;if(R&&Array.isArray(R.opts)){const v=R.opts.map(o=>{try{hotPrice(o)}catch(e){}return o.pn}).filter(v=>v>0);if(v.length)return `KI-Hotelvorschläge ${caF(Math.min(...v))}–${caF(Math.max(...v))} €/Nacht`}}return ''};
  const rng=c=>{const L=ds.filter(d=>S.stages[d.i].country===c);return `${dl(L[0].from)}–${dl(L[L.length-1].to)} ${L[0].from.getFullYear()}`};
  const msg=`Obergrenzen Unterkunft pro Nacht (Doppelzimmer): low ≤ ${as.hl} €, mid ≤ ${as.hm} €, top ≤ ${as.hh} €.
@@ -3290,10 +3304,12 @@ Ausflüge (Gesamtpreis schätzen):\n${all.filter(x=>x.k==='a'&&x.fix==null).map(
   if(!Object.keys(C).length&&!Object.keys(H).length)throw new Error('keine verwertbare Antwort');
   S.cost={as,ts:Date.now(),usd:r.usd,c:C,h:H,l:Lg,x:X,note:String(J.note||'').slice(0,400),src:String(J.src||'').slice(0,160)};save();
   const m=caModel('mid','all');toast(`Kostenanalyse fertig: Ausgewogen ${caE(m.tot)}${m.sp!=null?' · Spielraum '+caS(m.sp)+' €':''}.`,6000)}
- catch(e){toast('Kostenanalyse: '+esc(e.message||e),7000)}finally{UI.caBusy=false;caUi()}}
+ catch(e){toast('Kostenanalyse: '+esc(e.message||e),7000);UI.caBusy=null;clearInterval(CA_TICK);caUi();return}
+ UI.caBusy.done=true;document.querySelectorAll('.caprog .caprogb i').forEach(e=>e.style.width='100%');document.querySelectorAll('.caprog .caprogt').forEach(e=>e.textContent='Fertig');
+ setTimeout(()=>{UI.caBusy=null;clearInterval(CA_TICK);caUi()},700)}
 function caUi(){const t=UI.stack[UI.stack.length-1];if(sheetOpen())return;if((t&&t.k==='cost')||(UI.tab==='geld'&&!UI.stack.length)){UI.keepY=true;render()}}
 // Karte unter Geld
-function caCard(){const A=S.cost;if(!A||!A.ts)return `<div class="sec">Kostenanalyse</div><div class="card">${row({icn:'spark',kic:1,t:'Was kostet die Reise?',s:'Low Budget, Ausgewogen, Oberes Segment – mit Spielraum gesamt und pro Tag',a:'data-a="page" data-k="cost"'})}</div>`;
+function caCard(){const A=S.cost;if(UI.caBusy)return `<div class="sec">Kostenanalyse</div><button class="card cacard" data-a="page" data-k="cost" style="display:block">${caProg(1)}</button>`;if(!A||!A.ts)return `<div class="sec">Kostenanalyse</div><div class="card">${row({icn:'spark',kic:1,t:'Was kostet die Reise?',s:'Low Budget, Ausgewogen, Oberes Segment – mit Spielraum gesamt und pro Tag',a:'data-a="page" data-k="cost"'})}</div>`;
  const m=caModel('mid','all');return `<div class="sec">Kostenanalyse</div><button class="card cacard" data-a="page" data-k="cost"><div class="ic0" style="background:var(--kis);color:var(--ki)">${ic('spark',17,2.1)}</div><div class="sp"><div class="small mut">Ausgewogen voraussichtlich</div><div class="num" style="font-weight:600;font-size:17px;margin-top:2px">${caE(m.tot)}</div>${m.sp!=null?`<div class="small num ${m.sp>=0?'capos':'caneg'}" style="font-weight:600;margin-top:2px">Spielraum ${caS(m.sp)} € · ${caS(m.perDay)} €/Tag</div>`:''}</div><span class="chev">${ic('chev',16)}</span></button>`}
 // Tippen ins Diagramm: Stand an diesem Tag
 document.addEventListener('click',e=>{const sv=e.target.closest&&e.target.closest('#caChart');if(!sv||!UI.caCurve)return;const R=UI.caCurve;const b=sv.getBoundingClientRect();const x=(e.clientX-b.left)*(R.W/b.width);const d=Math.max(0,Math.min(R.N,Math.round((x-R.PL)/((R.W-R.PL-R.PR)/R.N))));
