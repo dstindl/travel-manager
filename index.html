@@ -1041,8 +1041,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90_04';
+const APP_VERSION='0.90_05';
 const CHANGELOG=[
+ {v:'0.90_05',d:'26.11.2026',items:['KI: Aufgaben-Karussell steht immer oben, direkt unter dem Fragefeld und über dem Gespräch']},
  {v:'0.90_04',d:'26.11.2026',items:['Bewertung steht in den Listen hinter Land und Flagge','Einmalig alle Bewertungen aktualisieren (Orte und Unterkünfte, über Claude) – läuft nach dem Update automatisch an, mit Fortschritt und Stopp; später erneut unter Einstellungen']},
  {v:'0.90_03',d:'26.11.2026',items:['Google-Bewertungen automatisch über Claude: bei Suchtreffern, beim Hinzufügen von Orten, Ausflügen (auch aus KI-Vorschlägen und Buchungen) und bei neuen Unterkünften','Bewertung je Ort und je Unterkunft auf Knopfdruck neu holen; Quelle wird angezeigt','Karte: Bewertungen einblendbar und Mindestbewertung (ab 4,0 oder 4,5) für Ausflüge und Ideen','Einstellung „Bewertungen automatisch“ zum Abschalten']},
  {v:'0.90_02',d:'26.11.2026',items:['Karte ohne Hinweis „API KEY REQUIRED“: neue Kartenkacheln ohne Schlüssel (Schlicht hell/dunkel, Straßen, Satellit)','Karte im Vollbild mit Länderauswahl; Zurück schließt das Vollbild','Filter für die Karte: Unterkünfte, Transfers, Ausflüge, Ideen und Kartenstil','Plus-Knopf liegt immer über der Karte','Karte zoomt zuverlässiger auf das gewählte Land']},
@@ -1649,15 +1650,15 @@ function vKI(){const bal=aiBal();const key=!!aiKey();const model=aiModel()==='so
  const lab=sc==='all'?'zur Reise':sc==='s'?'zu '+pname(fs):'zu '+country(sc).name;
  h+=`<form id="kif" class="card" style="display:flex;align-items:center;gap:10px;min-height:50px;padding:5px 6px 5px 14px;border-color:var(--ki)"><input placeholder="Frag ${esc(lab)} …" style="flex:1;border:0;background:transparent;outline:none;font-size:14px;min-width:0" id="kiq" enterkeyhint="send"><button type="submit" style="width:38px;height:38px;border-radius:11px;background:var(--ki);color:var(--kit);display:flex;align-items:center;justify-content:center" aria-label="Fragen">${ic('spark',19,2.2)}</button></form>`;
  h+=`<div class="chips" style="margin-top:10px">${aiQuick().map(q=>`<button class="chip" data-a="kiQ" data-k="${esc(q)}">${esc(q)}</button>`).join('')}</div>`;
+ // Aufgaben
+ const T=[['check','alert',ck==='all'?'Reise prüfen':country(ck).name+' prüfen','Fehler, Risiken, Optimierung'],['ex','pin','Ausflüge vorschlagen',sc==='s'?'für '+pname(fs):'für freie Tage'],['price','wallet','Richtpreise','offene Transfers · 12Go'],['rate','star','Bewertungen holen','Ausflüge, Unterkünfte'],['plan','cal','Tagesplan',fs?'für '+pname(fs):'für eine Etappe'],['entry','flag','Einreise prüfen',sc==='all'?'alle Länder':'Visum, Fristen']];
+ h+=`<div class="sec">Aufgaben</div><div class="car">${T.map(([k,i,t,s])=>`<button class="card tile" style="width:150px" data-a="kiTask" data-k="${k}"><div style="color:var(--ki)">${ic(i,18,2)}</div><div style="font-size:13px;font-weight:600;margin-top:8px">${esc(t)}</div><div class="small mut" style="margin-top:2px">${esc(s)}</div></button>`).join('')}</div>`;
  // Gespräch: neueste Frage zuerst, Antwort direkt darunter
  const M=aiChatLoad();const pairs=[];M.forEach((m,i)=>{if(m.role==='user')pairs.push({q:m,qi:i});else if(pairs.length&&!pairs[pairs.length-1].a)Object.assign(pairs[pairs.length-1],{a:m,ai:i})});
  if(UI.aiBusy||UI.aiErr||pairs.length){h+=`<div class="sec">Gespräch${pairs.length?`<span class="r"><button data-a="kiClear">leeren</button></span>`:''}</div>`;
   if(UI.aiBusy)h+=`<div class="card kb"><div class="small mut"><span class="spin"></span>Claude denkt nach …${UI.aiBusyWeb?' (mit Websuche)':''}</div></div>`;
   if(UI.aiErr)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.aiErr)}</div></div>`;
   pairs.slice(-5).reverse().forEach(p=>{h+=`<div class="kq">${esc(p.q.content)}${p.q.focus?`<span class="small mut"> · ${esc(p.q.focus)}</span>`:''}</div>`;if(p.a)h+=kiAnswer(p.a,p.ai)})}
- // Aufgaben
- const T=[['check','alert',ck==='all'?'Reise prüfen':country(ck).name+' prüfen','Fehler, Risiken, Optimierung'],['ex','pin','Ausflüge vorschlagen',sc==='s'?'für '+pname(fs):'für freie Tage'],['price','wallet','Richtpreise','offene Transfers · 12Go'],['rate','star','Bewertungen holen','Ausflüge, Unterkünfte'],['plan','cal','Tagesplan',fs?'für '+pname(fs):'für eine Etappe'],['entry','flag','Einreise prüfen',sc==='all'?'alle Länder':'Visum, Fristen']];
- h+=`<div class="sec">Aufgaben</div><div class="car">${T.map(([k,i,t,s])=>`<button class="card tile" style="width:150px" data-a="kiTask" data-k="${k}"><div style="color:var(--ki)">${ic(i,18,2)}</div><div style="font-size:13px;font-weight:600;margin-top:8px">${esc(t)}</div><div class="small mut" style="margin-top:2px">${esc(s)}</div></button>`).join('')}</div>`;
  // Vorschläge aus der Prüfung
  const C=aiChkOf(ck);const it=C?C.items.filter(x=>!x.st):[];const LV={fehler:['Fehler','var(--err)'],warnung:['Warnung','var(--warn)'],optimierung:['Optimierung','var(--ki)']};
  h+=`<div class="sec">Vorschläge${C?`<span class="r">${it.length} offen · ${fmtD(new Date(C.ts))}</span>`:''}</div>`;
