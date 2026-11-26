@@ -1062,8 +1062,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.90_12';
+const APP_VERSION='0.90_13';
 const CHANGELOG=[
+ {v:'0.90_13',d:'26.11.2026',items:['Transport fehlt nie: Werden alle Teilstrecken gelöscht, steht automatisch ein offener Transfer zwischen den Etappen als Aufgabe da','„Verbindungen“ gibt es in jedem Transfer – auch gebucht, auch im offenen Platzhalter und im Schritt Transport','Verbindungen sucht immer die ganze Strecke von Etappe zu Etappe. Übernehmen ersetzt alle Teilstrecken und füllt Verkehrsmittel, Datum, Abfahrt, Ankunft, Dauer, Anbieter, Orte, Kosten und Notiz','Vor dem Übernehmen fragt die App: schon gebucht? schon bezahlt? (Standard: nein) und warnt, wenn gebuchte Teilstrecken ersetzt würden','Nächster Schritt nennt jetzt „Transport offen“ bzw. „Kosten für T0.1, T0.2“; der Schritt „Anreise“ heißt „Transport“']},
  {v:'0.90_12',d:'26.11.2026',items:['Verbindungen: Claude schreibt die echten Angebote ab (z. B. Zeilen der 12Go-Fahrplantabelle mit Anbieter, Fahrzeug, Abfahrt, Preis, Bewertung) – für alle Verkehrsmittel','Den Richtpreis berechnet die App selbst: Mittel der drei günstigsten passenden Angebote, Privatfahrer ab 3 Plätzen. Gleiche Angebote ergeben immer denselben Preis','Jede Option zeigt „Echte Angebote“ oder „Geschätzt“; die Angebote lassen sich aufklappen','Findet Claude unter der 12Go-Adresse nichts, sucht es die passende Seite (12Go, Rome2Rio, Bookaway, Baolau) per Websuche und liest sie']},
  {v:'0.90_11',d:'26.11.2026',items:['Stabilere Transferpreise: Privatfahrer zählen immer je Fahrzeug – die App rechnet den Gesamtpreis für zwei selbst, statt ihn Claude zu überlassen','Claude nennt Preise in der Währung der Quelle mit Fahrzeugtyp und Herkunft; die App rechnet in Euro um','Neu suchen nimmt die früheren Preise als Ausgangswert. Weicht ein Preis um mehr als 30 % ab, steht der frühere Wert an der Option, mit „Mit ≈ … übernehmen“','KI-Prüfung und Chat verwenden die Transferpreise aus der App, statt neu zu schätzen']},
  {v:'0.90_10',d:'26.11.2026',items:['Fehler behoben: Verbindungen-Suche brach mit „temperature is deprecated“ ab (das aktuelle Claude-Modell nimmt diese Einstellung nicht mehr an)']},
@@ -1122,7 +1123,7 @@ function steps(i){const d=stagesDated()[i];const st=S.stages[i];const L=legsOf(s
  const miss=[];if(d.nights&&st.stay&&st.stay.status==='gebucht'&&eurOf(st.stay)==null)miss.push('Unterkunft');L.forEach((l,j)=>{if(l.status==='gebucht'&&eurOf(l)==null)miss.push(trLabel(st,j)||'Anreise')});ex.forEach(x=>{if(x.tt&&x.tt.status==='gebucht'&&eurOf(x.tt)==null)miss.push(x.name)});
  return [
   {k:'ort',t:'Ort und Nächte',ok:true,sub:`${pname(st)} · ${d.nights?nN(d.nights):'Durchreise'}${st.pinFrom||st.pinTo?' · Datum fixiert':''}`},
-  {k:'anreise',t:'Anreise',ok:!L.length||L.every(legDone),sub:L.length?L.map((l,j)=>`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]}${l.status==='gebucht'?'':' · offen'}`).join(' · '):'keine Anreise nötig'},
+  {k:'anreise',t:'Transport',ok:!L.length||L.every(legDone),sub:L.length?L.map((l,j)=>`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]}${l.status==='gebucht'?'':' · offen'}`).join(' · '):'kein Transport nötig'},
   {k:'unterkunft',t:'Unterkunft',ok:!d.nights||st.stay?.status==='gebucht',sub:!d.nights?'Durchreise, keine Übernachtung':st.stay?.name?`${st.stay.name} · ${st.stay.status==='gebucht'?'gebucht':'offen'}${st.stay.paid?' · bezahlt':''}`:'noch nicht eingetragen'},
   {k:'ausfluege',t:'Ausflüge',ok:d.nights<=1||free.length===0,sub:`${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}${free.length?` · ${free.length} ${free.length===1?'Tag':'Tage'} frei`:''}`,free},
   {k:'kosten',t:'Kosten',ok:miss.length===0,sub:miss.length?`${miss.length} Posten ohne Betrag`:'alle Beträge erfasst',miss}]}
@@ -1226,7 +1227,7 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
   let c=`<div data-a="stage" data-k="${d.i}" role="button" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:13px 14px;cursor:pointer"><div class="stn ${foc?'a':''}">${no[st.id]}</div><div class="sp"><div style="font-size:${foc?15:14}px;font-weight:600">${esc(pname(st))}${pin}</div><div class="st3">${dates}</div></div><span class="small num" style="display:flex;align-items:center;gap:4px;padding-top:2px;${foc?'color:var(--acc);font-weight:600':'color:var(--ink2)'}">${n===5?`<span style="color:var(--ok)">${ic('check',13,2.4)}</span>`:''}${n}/5</span><button class="mn" data-a="stmenu" data-k="${d.i}" aria-label="Menü">${ic('more',17)}</button></div>`;
   if(d.nights)c+=`<button class="sub" data-a="stay" data-k="${d.i}"><span class="ico">${ic('bed',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${stay.name?esc(stay.name):'Unterkunft offen'}</span>${stay.name?` · ${stay.status==='gebucht'?'gebucht':'offen'}`:''}</span><span class="dot ${stay.status==='gebucht'?'g':''}"></span><span class="chev">${ic('chev',14)}</span></button>`;
   c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="ausfluege"><span class="ico">${ic('pin',15)}</span><span class="sp"><span class="lb">${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}</span>${fr?` · ${fr} ${fr===1?'Tag':'Tage'} frei`:''}</span>${fr&&d.nights>1?`<span class="ki" style="padding:3px 5px">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${fr&&d.nights>1?'n':'g'}"></span><span class="chev">${ic('chev',14)}</span></button>`;
-  if(foc){const nx=S5.find(x=>!x.ok);c+=`<div style="border-top:1px solid var(--line2);padding:12px 14px;display:flex;align-items:center;gap:10px"><div class="prog" style="width:70px;flex:none">${S5.map(x=>`<i class="${x.ok?'f':''}" style="height:4px"></i>`).join('')}</div><div class="sp small mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div>`}
+  if(foc){const nx=S5.find(x=>!x.ok);c+=`<div style="border-top:1px solid var(--line2);padding:12px 14px;display:flex;align-items:center;gap:10px"><div class="prog" style="width:70px;flex:none">${S5.map(x=>`<i class="${x.ok?'f':''}" style="height:4px"></i>`).join('')}</div><div class="sp small mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.k==='anreise'?'Transport offen':nx.k==='kosten'&&nx.miss&&nx.miss.length?'Kosten für '+nx.miss.slice(0,3).join(', ')+(nx.miss.length>3?' …':''):nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div>`}
   h+=`<div class="${foc?'pri':'card'}" data-drag="stage" data-k="${d.i}" style="margin:6px 0;overflow:hidden">${c}</div>`});
  h+=`<button class="btn" style="width:100%;margin-top:14px" data-a="stageAdd">${ic('plus',17,2.2)}Etappe hinzufügen</button>`;
  if(!localStorage.getItem('auszeit27_v2hint')){try{localStorage.setItem('auszeit27_v2hint','1')}catch(e){}setTimeout(()=>toast('Tipp: Etappe lange drücken und ziehen zum Verschieben – oder ⋯ für das Menü.'),600)}
@@ -1327,6 +1328,7 @@ function stepSheet(i,k){UI.sheetCtx={i,k};const d=stagesDated()[i];const st=S.st
   b+=btns(`<button class="btn" data-a="stmenu" data-k="${i}">${ic('route',16)}Verschieben …</button>`,`<button class="btn gh" style="color:var(--err)" data-a="rmAsk" data-k="${i}">${ic('trash',16)}Aus Route nehmen</button>`)}
  if(k==='anreise'){const L=legsOf(st);
   b=L.length?`<div class="card">${L.map((l,j)=>{const I=trInfo(d,null,j);const c=cost$(l);return row({icn:(MODES[l.mode]||MODES.car)[0],t:`${trLabel(st,j)} · ${esc(I.from)} → ${esc(I.to)}`,w2:1,s:`${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}${l.no?' · '+esc(l.no):''} · ${l.status==='gebucht'?'gebucht':'offen'}${c?' · '+c:''}`,dot:l.status==='gebucht'?'g':'',a:`data-a="leg" data-k="${i}" data-j="${j}"`})}).join('')}</div>`:'<div class="card"><div class="empty small">Keine Anreise eingetragen.</div></div>';
+  b+=`<div class="fbtn" style="margin:12px 0 0"><button class="btn sm k" data-a="cnOpen" data-k="${i}" data-j="0">${ic('spark',15,2.2)}Verbindungen mit KI${L.length>1?' (ganze Strecke)':''}</button></div>`;
   b+=btns(`<button class="btn" data-a="legAdd" data-k="${i}">${ic('plus',16,2.2)}${L.length?'Teilstrecke':'Anreise'} hinzufügen</button>`,L.length===1&&i>0?`<button class="btn gh" data-a="legSplit" data-k="${i}">${ic('plane',16)}Flughafenwege</button>`:'')}
  if(k==='unterkunft')b='<div class="card"><div class="empty small">Durchreise, keine Unterkunft nötig.</div></div>';
  if(k==='ausfluege'){const ex=exOf(i);const days=[];for(let q=0;q<Math.max(1,d.nights);q++)days.push(iso(addDays(d.from,q)));
@@ -1341,7 +1343,7 @@ function stepSheet(i,k){UI.sheetCtx={i,k};const d=stagesDated()[i];const st=S.st
 // ---------- Transfer ----------
 function legSheet(i,j){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const L=legsOf(st);const l=L[j]||{};const I=trInfo(d,null,j);UI.f={i,j};const m=l.mode||st.mode||'car';
  sheet(`<div class="sht">${trLabel(st,j)||'Anreise'} · ${esc(I.from)} → ${esc(I.to)}</div><div class="mut" style="margin:4px 0 6px">${esc(pname(st))} · Etappe ${stageNo()[st.id]}${I.km?` · ca. ${I.km.toLocaleString('de-DE')} km`:''}</div>
- <div class="fbtn" style="margin:8px 0 2px">${l.status!=='gebucht'?`<button class="btn sm k" data-a="cnOpen" data-k="${i}" data-j="${j}">${ic('spark',15,2.2)}Verbindungen</button>`:''}<button class="btn sm k" data-a="bkStart" data-kind="tr" data-i="${i}" data-j="${j}">${ic('spark',15,2.2)}Buchung einlesen</button>${docBtn(st.id+':L'+j,l)}</div><div id="prBox">${priceBox(i,j)}</div>
+ <div class="fbtn" style="margin:8px 0 2px"><button class="btn sm k" data-a="cnOpen" data-k="${i}" data-j="0">${ic('spark',15,2.2)}Verbindungen${L.length>1?' (ganze Strecke)':''}</button><button class="btn sm k" data-a="bkStart" data-kind="tr" data-i="${i}" data-j="${j}">${ic('spark',15,2.2)}Buchung einlesen</button>${docBtn(st.id+':L'+j,l)}</div><div id="prBox">${priceBox(i,j)}</div>
  ${lbl('Verkehrsmittel')}${chipsSel('mode',[['car','Auto'],['bus','Bus'],['train','Zug'],['flight','Flug'],['boat','Boot']],m)}
  ${lbl('Status')}${seg('status',[['offen','offen'],['gebucht','gebucht']],l.status||'offen')}
  <div class="frow">${fld('lDate','Datum',l.date||I.defDate,{type:'date',half:1})}${fld('lDep','Abfahrt',l.dep,{type:'time',half:1})}</div>
@@ -1583,7 +1585,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!
   // Transfers und Unterkunft
   leg:()=>legSheet(+k,+(D.j||0)),legSave:()=>legSave(),
   legAdd:()=>{const i=+k;const st=S.stages[i];const L=legsOf(st);let j;if(L.length)j=legAddAt(i,false);else{L.push({mode:st.mode||'car',status:'offen'});j=0}syncMode(st);save();render();legSheet(i,j)},
-  legDel:()=>{const i=+k,j=+D.j;const st=S.stages[i];const L=legsOf(st);const old=L.splice(j,1)[0];syncMode(st);save();closeSheet();render();UI.undo=()=>{legsOf(S.stages[i]).splice(j,0,old);syncMode(S.stages[i]);save();render()};toast(`Transfer entfernt. <button class="tb" data-a="undo">Rückgängig</button>`,6000)},
+  legDel:()=>{const i=+k,j=+D.j;const st=S.stages[i];const L=legsOf(st);const snap=JSON.stringify(L);L.splice(j,1);syncMode(st);save();closeSheet();render();UI.undo=()=>{S.stages[i].legs=JSON.parse(snap);syncMode(S.stages[i]);save();render()};toast(`Transfer entfernt. <button class="tb" data-a="undo">Rückgängig</button>`,6000)},
   legMv:()=>{const i=+k,j=+D.j,t=j+(+D.d);const st=S.stages[i];const L=legsOf(st);if(t<0||t>=L.length)return;[L[j],L[t]]=[L[t],L[j]];syncMode(st);save();render();legSheet(i,t)},
   legSplit:()=>{legSplit(+k);if(UI.sheetCtx)stepSheet(+k,'anreise')},
   stay:()=>{const i=+k;if(!stagesDated()[i]?.nights)return stepSheet(i,'unterkunft');staySheet(i)},staySave:()=>staySave(),
@@ -2100,8 +2102,13 @@ function connSort(opts,crit){const m=connMarks(opts);const ok=opts.filter(o=>con
 const CONN_DOM=['12go.asia','www.12go.asia','12go.com','www.12go.com','rome2rio.com','www.rome2rio.com','bookaway.com','www.bookaway.com','baolau.com','www.baolau.com'];
 const wfTool=(n,dom)=>({type:'web_fetch_20250910',name:'web_fetch',max_uses:n,max_content_tokens:16000,allowed_domains:dom});
 const connReal=R=>R.opts.reduce((a,o)=>a+o.segs.filter(s=>s.offers).length,0);
-async function aiConn(i,j){const c=trCities(i,j);const url=`https://12go.asia/en/travel/${trSlug(c.from)}/${trSlug(c.to)}`;const d=stagesDated()[i];let km='';try{const I=trInfo(d,null,j);if(I.km)km=` (Luftlinie ca. ${I.km} km)`}catch(e){}
- const l0=legsOf(S.stages[i])[j]||{};const msg=`Strecke: ${c.from} → ${c.to}${km}, ${country(S.stages[i].country).name}. Datum: ${c.date}. 2 Reisende mit Gepäck. Bisher geplant: ${modeLabel(c.mode)}.\n12Go-Seite: ${url}${connAnchor(l0)}`;
+// Ein Transfer = ganze Strecke von Etappe zu Etappe (alle Teilstrecken); Ergebnisse liegen an der ersten Teilstrecke
+function connEnds(i){const st=S.stages[i];const L=legsOf(st);const d=stagesDated()[i];const a=trCities(i,0),b=trCities(i,L.length-1);let I0={},I1={};try{I0=trInfo(d,null,0);I1=trInfo(d,null,L.length-1)}catch(e){}
+ const pv=i>0?byId(S.stages[i-1].placeId):FRA_LL;const cu=byId(st.placeId);let km=null;try{if(pv&&cu&&cu.lat!=null)km=Math.round(hav(pv,cu))}catch(e){}
+ return {from:a.from,to:b.to,date:a.date,fromT:I0.from||a.from,toT:I1.to||b.to,km,modes:L.map(l=>modeLabel(l.mode||'car')).join(' + ')}}
+const trBase=st=>trLabel(st,0).replace(/\.\d+$/,'');
+async function aiConn(i){const c=connEnds(i);const url=`https://12go.asia/en/travel/${trSlug(c.from)}/${trSlug(c.to)}`;const km=c.km?` (Luftlinie ca. ${c.km} km)`:'';
+ const l0=legsOf(S.stages[i])[0]||{};const msg=`Strecke: ${c.from} → ${c.to}${km}, ${country(S.stages[i].country).name}. Datum: ${c.date}. 2 Reisende mit Gepäck. Start: ${c.fromT}. Ziel: ${c.toT}. Bisher geplant: ${c.modes}.\n12Go-Seite: ${url}${connAnchor(l0)}`;
  const call=(k,txt)=>{const base={system:AI_CONN_SYS,max:4500,timeout:150000,messages:[{role:'user',content:txt}]};
   if(k==='fetch')return aiCall(Object.assign(base,{tools:[wfTool(2,['12go.asia','www.12go.asia'])],beta:'web-fetch-2025-09-10'}));
   if(k==='both'){const v=localStorage.getItem('auszeit27_awsv');return aiCall(Object.assign(base,{system:AI_CONN_SYS+AI_WS_YES,tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:3},wfTool(3,CONN_DOM)],beta:'web-fetch-2025-09-10'}))}
@@ -2117,7 +2124,7 @@ async function aiConn(i,j){const c=trCities(i,j);const url=`https://12go.asia/en
  if(!best){const r=await call('search',msg);usd+=r.usd||0;best=parse(r,'search')}
  best.usd=usd;return best;
 }
-async function connRun(i,j){if(!aiKey())return kiNoKey();const st=S.stages[i];const key=st.id+':'+j;UI.cnBusy=key;UI.cnErr=null;connRefresh();
+async function connRun(i,j){j=0;if(!aiKey())return kiNoKey();const st=S.stages[i];const key=st.id+':'+j;UI.cnBusy=key;UI.cnErr=null;connRefresh();
  try{const R=await aiConn(i,j);const l=legsOf(st)[j];if(l){connRecord(l,R);l.conn=R;delete l.connSel;save()}UI.cnBusy=null;connRefresh();return R}catch(e){UI.cnErr={k:key,m:'Claude: '+(e.message||e)};UI.cnBusy=null;connRefresh();return null}}
 function connRefresh(){const t=UI.stack[UI.stack.length-1];if(t&&t.k==='conn'&&!sheetOpen()){UI.keepY=true;render()}const b=$('#prBox');if(b&&UI.f&&UI.f.j!=null)b.innerHTML=priceBox(UI.f.i,UI.f.j,chipMode());if(UI.pb&&sheetOpen()&&$('#sheet [data-pb]'))pbSheet()}
 const segLine=s=>`${ic((MODES[s.mode]||MODES.car)[0],14)}<span class="sp"><span>${esc(s.from||'')}${s.from||s.to?' → ':''}${esc(s.to||'')}</span><span class="mut segm">${esc([s.dep&&'ab '+s.dep,s.dur,segPr(s)].filter(Boolean).join(' · '))}</span></span>`;
@@ -2132,9 +2139,9 @@ function connCard(o,k,m,R,applied,i,j,bk){const dv=R.dev&&R.dev[k];const badges=
  ${o.segs.length>1?`<div class="segs">${o.segs.map(s=>`<div class="segl">${segLine(s)}</div>`).join('')}</div>`:o.segs[0]&&segPr(o.segs[0])?`<div class="small mut" style="margin-top:3px">Preis: ${esc([segPr(o.segs[0]),o.segs[0].veh,o.segs[0].psrc].filter(Boolean).join(' · '))}</div>`:''}${o.part?'<div class="small" style="margin-top:4px;color:var(--warn)">Für eine Teilstrecke fehlt der Preis.</div>':''}${offList(o)}${dv?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">${dv.n>1?`Frühere Suchen (Median aus ${dv.n})`:'Frühere Suche'}: ≈ ${eur(dv.prev)} – jetzt ≈ ${eur(connEur(o))}. ${R.chg?esc(R.chg):o.real===2?'Laut den aktuell gelisteten Angeboten.':'Claude nennt keinen Grund – im Zweifel den früheren Wert nehmen.'}</div>`:''}
  ${o.ops||o.note?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc([o.ops,o.note].filter(Boolean).join(' · '))}</div>`:''}${why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(why)}</div>`:''}
  <div class="act">${applied?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}übernommen${(g=>g&&Math.abs(g-connEur(o))>1?' mit ≈ '+eur(g):'')(connGot(i,j))}</span>`:bk?'<span class="small mut">Transfer ist schon gebucht</span>':`<button class="btn sm ${k===m[crit]?'p':''}" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}">${o.segs.length>1?`Übernehmen (${o.segs.length} Teilstrecken)`:'Übernehmen'}</button>${dv?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}" data-pv="1">Mit ≈ ${eur(dv.prev)}</button>`:''}`}</div></div>`}
-function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Transfer nicht gefunden.</div>';const L=legsOf(st);const j=Math.min(top.j||0,L.length-1);const l=L[j];const d=stagesDated()[i];const I=trInfo(d,null,j);const crit=critPref();
+function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Transfer nicht gefunden.</div>';const L=legsOf(st);const j=0;const l=L[0];const d=stagesDated()[i];const E=connEnds(i);const I={from:E.fromT,to:E.toT,km:E.km};const crit=critPref();
  const R=l&&l.conn;const key=st.id+':'+j;
- let h=backBtn()+head('Verbindungen',[`${trLabel(st,j)} · ${esc(I.from)} → ${esc(I.to)}`,dl(l.date?pd(l.date):d.from),I.km?'ca. '+I.km.toLocaleString('de-DE')+' km':'']);
+ let h=backBtn()+head('Verbindungen',[`${trBase(st)} · ${esc(I.from)} → ${esc(I.to)}`,dl(l.date?pd(l.date):d.from),I.km?'ca. '+I.km.toLocaleString('de-DE')+' km':'',L.length>1?L.length+' Teilstrecken':'']);
  h+=`<div class="seg" style="margin-bottom:14px">${Object.entries(CRIT).map(([k,v])=>`<button class="${crit===k?'on':''}" data-a="cnCrit" data-k="${k}">${v}</button>`).join('')}</div>`;
  if(UI.cnBusy===key)h+=`<div class="card kb"><div class="small mut"><span class="spin"></span>Claude vergleicht alle Verbindungen (Bus, Zug, Privatfahrer, Flug, Umstiege) … bis zu einer Minute</div></div>`;
  else if(UI.cnErr&&UI.cnErr.k===key)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.cnErr.m)}</div></div>`;
@@ -2142,42 +2149,73 @@ function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.sta
  if(R){const m=connMarks(R.opts);const est=/sch[äa]tz/i.test(R.src);
   h+=`<div class="small mut" style="display:flex;align-items:center;gap:8px;margin:0 2px 10px">${kib('KI')}<span class="sp">${est?'Schätzung ohne Live-Angebote':esc(R.src)} · ${fmtD(new Date(R.ts))}${R.usd?' · '+cents(R.usd):''}</span><button class="small" style="color:var(--acc);font-weight:600" data-a="cnRun" data-k="${i}" data-j="${j}">Neu suchen</button></div>`;
   if(R.dev&&Object.keys(R.dev).length)h+=`<div class="small mut" style="margin:-2px 2px 10px;line-height:1.45">Bei „Neu suchen“ gelten die früheren Preise als Ausgangswert. Weicht ein Preis um mehr als 30 % ab, steht der frühere Wert an der Option.</div>`;
-  h+=connSort(R.opts,crit).map(({o,k})=>connCard(o,k,m,R,l.connSel===k,i,j,l.status==='gebucht')).join('');
+  h+=`<div class="small mut" style="margin:-2px 2px 10px;line-height:1.45">Übernehmen ersetzt ${L.length>1?'alle '+L.length+' Teilstrecken':'den Transfer'} und füllt alle Felder. Vorher fragt die App, ob die Verbindung schon gebucht oder bezahlt ist.</div>`;
+  h+=connSort(R.opts,crit).map(({o,k})=>connCard(o,k,m,R,l.connSel===k,i,0,false)).join('');
   h+=`<div class="chips wrapc" style="margin-top:12px">${trLinks(i,j)}</div>`}
  return h}
-// Übernehmen: Verkehrsmittel, Preis, Dauer, Anbieter, Abfahrt; mehrere Segmente werden zu Teilstrecken
-function connApply(i,j,k,pv){const st=S.stages[i];const L=legsOf(st);const l=L[j];const R=l&&l.conn;const o=R&&R.opts[k];if(!o)return;const snap=JSON.stringify(L);
+// Übernehmen: ersetzt alle Teilstrecken des Transfers und füllt Verkehrsmittel, Datum, Abfahrt, Ankunft, Dauer, Anbieter, Kosten, Notiz
+const hmMin=t=>{const m=/^(\d{1,2}):(\d{2})$/.exec(t||'');return m?+m[1]*60+ +m[2]:null};
+const fmtHM=v=>{v=((v%1440)+1440)%1440;return String(Math.floor(v/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')};
+function durMin(t){t=String(t||'').toLowerCase().replace(/,/g,'.');let h=0,m=0;const H=/(\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+(?:\.\d+)?))?\s*(?:std|stunde|h\b|hrs?\b|hours?)/.exec(t);if(H)h=H[2]?(+H[1]+ +H[2])/2:+H[1];const M=/(\d+)\s*(?:min|m\b)/.exec(t.replace(H?H[0]:'',''));if(M)m=+M[1];const v=Math.round(h*60+m);return v>0?v:null}
+function connBuild(i,k,pv){const st=S.stages[i];const L=legsOf(st);const l0=L[0];const R=l0&&l0.conn;const o=R&&R.opts[k];if(!o)return null;
  const dv=pv&&R.dev&&R.dev[k];const f=dv&&connEur(o)>0?dv.prev/connEur(o):1;const mid=Math.round(connEur(o)*f);
- if(R.dev&&R.dev[k]&&Array.isArray(l.prh)){const key=connKey(o);if(pv){const ix=l.prh.map(h=>h.k===key&&h.ts===R.ts).lastIndexOf(true);if(ix>=0)l.prh.splice(ix,1)}else l.prh=l.prh.filter(h=>h.k!==key||h.ts===R.ts)}const segs=o.segs.length?o.segs:[{mode:o.mode,from:'',to:'',dur:o.dur,dep:o.dep,ops:o.ops}];
- const segCost=s=>{const e=segEur(s);return e?Math.round((e[0]+e[1])/2*f):null};
- const known=segs.map(segCost);const allKnown=known.every(v=>v!=null);const main=Math.max(0,segs.findIndex(s=>s.mode===o.mode));
- const base={status:'offen',paid:false};if(l.date)base.date=l.date;
- const legs=segs.map((s,n)=>{const x=Object.assign({},base,{mode:s.mode});if(n>0&&s.from)x.from=s.from;if(n<segs.length-1&&s.to)x.to=s.to;if(segs.length===1){if(o.dur)x.dur=o.dur;if(o.ops)x.op=o.ops;if(o.dep)x.dep=o.dep}else{if(s.dur)x.dur=s.dur;if(s.ops)x.op=s.ops;if(s.dep)x.dep=s.dep}
-  const c=segs.length===1?mid:allKnown?known[n]:(n===main?mid:null);if(c){x.cost=String(c);x.cur='EUR';x.costEst=1}if(n===0){x.note=[o.title,o.note,o.segs.length===1&&o.segs[0].veh].filter(Boolean).join(' – ').slice(0,300);x.conn=R;x.connSel=k;if(l.prh)x.prh=l.prh}return x});
- if(l.code)legs[0].code=l.code;if(legs.length>1){const g=uid();legs.forEach(x=>x.cg=g)}
- let n=1;if(l.cg)while(L[j+n]&&L[j+n].cg===l.cg)n++;
- L.splice(j,n,...legs);if(UI.pb)UI.pb.items.forEach(x=>{if(x.i===i&&x.j>j)x.j+=legs.length-n});syncMode(st);save();UI.undo=()=>{st.legs=JSON.parse(snap);syncMode(st);save();render()};render();
- toast(`Übernommen: ${esc(o.title||modeLabel(o.mode))}${legs.length>1?` als ${legs.length} Teilstrecken`:''} · ≈ ${eur(mid)}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
+ const segs=o.segs.length?o.segs:[{mode:o.mode,from:'',to:'',dur:o.dur,dep:o.dep,ops:o.ops}];const one=segs.length===1;
+ const segCost=s=>{const e=segEur(s);return e?Math.round(e[2]*f):null};const known=segs.map(segCost);const allKnown=known.every(v=>v!=null);const main=Math.max(0,segs.findIndex(s=>s.mode===o.mode));
+ const def=iso(stagesDated()[i].from);let day=l0.date||def;let prevArr=null;
+ const legs=segs.map((s,n)=>{const x={mode:s.mode,status:'offen',paid:false};if(n>0&&s.from)x.from=s.from;if(n<segs.length-1&&s.to)x.to=s.to;
+  const dur=one?(o.dur||s.dur):(s.dur||'');const dep=one?(o.dep||s.dep):s.dep;const ops=one?(o.ops||s.ops):s.ops;
+  if(dur)x.dur=dur;if(ops){if(s.mode==='flight')x.airline=ops;else x.op=ops}
+  const dm=durMin(dur)||(one&&o.durH?Math.round(o.durH*60):null);const t0=hmMin(dep);
+  if(t0!=null){if(prevArr!=null&&t0<prevArr)day=iso(addDays(pd(day),1));x.dep=fmtHM(t0)}
+  if(day!==def)x.date=day;
+  if(t0!=null&&dm){const t1=t0+dm;x.arr=fmtHM(t1);if(t1>=1440)day=iso(addDays(pd(day),Math.floor(t1/1440)));prevArr=t1%1440}else prevArr=null;
+  const c=one?mid:allKnown?known[n]:(n===main?mid:null);if(c){x.cost=String(c);x.cur='EUR';x.costEst=1}
+  const nt=n===0?[o.title,o.note,one&&s.veh].filter(Boolean).join(' – '):(s.veh||'');if(nt)x.note=nt.slice(0,300);return x});
+ return {o,legs,mid,def}}
+const legEmpty=l=>!l.cost&&!l.dep&&!l.op&&!l.airline&&!l.no&&!l.code&&!l.from&&!l.to&&l.status!=='gebucht'&&!l.paid;
+function connAsk(i,k,pv,ret){const st=S.stages[i];const B=connBuild(i,k,pv);if(!B)return;const L=legsOf(st);const E=connEnds(i);UI.cnAsk={i,k,pv:!!pv,ret:ret||'page'};
+ const bk=L.filter(l=>l.status==='gebucht'||l.paid);const tb=trBase(st);const lab=n=>B.legs.length>1?`${tb}.${n+1}`:tb;
+ const rows=B.legs.map((x,n)=>row({icn:(MODES[x.mode]||MODES.car)[0],w2:1,t:`${lab(n)} · ${esc(modeLabel(x.mode))} · ${esc(x.from||(n===0?E.fromT:B.legs[n-1].to||''))} → ${esc(x.to||(n===B.legs.length-1?E.toT:''))}`,
+  s:[dl(pd(x.date||B.def)),x.dep?x.dep+(x.arr?'–'+x.arr:''):'',x.dur,x.airline||x.op,x.cost?'≈ '+eur(+x.cost):''].filter(Boolean).map(v=>esc(String(v))).join(' · ')})).join('');
+ const rep=L.every(legEmpty)?'Trägt die Verbindung in den offenen Transfer ein.':`Ersetzt ${L.length===1?'den bisherigen Transfer':'die bisherigen '+L.length+' Teilstrecken'}${bk.length?` – davon ${bk.map(l=>trLabel(st,L.indexOf(l))).join(', ')} gebucht oder bezahlt. Deren Buchungsdaten gehen verloren (Rückgängig bleibt möglich).`:'.'}`;
+ sheet(`<div class="sht">Verbindung übernehmen</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">${esc(B.o.title||modeLabel(B.o.mode))} · ≈ ${eur(B.mid)} für zwei</div>
+ <div class="card">${rows}</div><div class="small" style="margin:10px 4px 0;line-height:1.45;color:var(${bk.length?'--warn':'--ink2'})">${rep}</div>
+ ${lbl('Schon gebucht?')}${seg('cfSt',[['offen','Nein, offen'],['gebucht','Ja, gebucht']],'offen')}
+ ${lbl('Schon bezahlt?')}${seg('cfPd',[['0','Nein'],['1','Ja, bezahlt']],'0')}
+ ${btns(`<button class="btn p" style="flex:1" data-a="cnDo">Übernehmen</button>`,`<button class="btn gh" data-a="cnBack">Abbrechen</button>`)}`)}
+function connBack(ret){const A=UI.cnAsk;UI.cnAsk=null;if(!A)return closeSheet();if(/^leg/.test(A.ret))return legSheet(A.i,A.ret==='leg'?0:+A.ret.split(':')[1]||0);if(A.ret==='pb'&&UI.pb)return pbSheet();closeSheet();render()}
+function connDo(i,k,pv,F){const st=S.stages[i];const L=legsOf(st);const B=connBuild(i,k,pv);if(!B)return;const snap=JSON.stringify(L);const l0=L[0];const R=l0.conn;const o=B.o;
+ if(R.dev&&R.dev[k]&&Array.isArray(l0.prh)){const key=connKey(o);if(pv){const ix=l0.prh.map(h=>h.k===key&&h.ts===R.ts).lastIndexOf(true);if(ix>=0)l0.prh.splice(ix,1)}else l0.prh=l0.prh.filter(h=>h.k!==key||h.ts===R.ts)}
+ B.legs.forEach(x=>{if(F&&F.booked)x.status='gebucht';if(F&&F.paid)x.paid=true});Object.assign(B.legs[0],{conn:R,connSel:k});if(l0.prh)B.legs[0].prh=l0.prh;
+ if(B.legs.length>1){const g=uid();B.legs.forEach(x=>x.cg=g)}
+ L.splice(0,L.length,...B.legs);if(UI.pb)UI.pb.items.forEach(x=>{if(x.i===i)x.j=0});syncMode(st);save();UI.undo=()=>{st.legs=JSON.parse(snap);syncMode(st);save();render()};render();
+ toast(`Übernommen: ${esc(o.title||modeLabel(o.mode))}${B.legs.length>1?` als ${B.legs.length} Teilstrecken`:''} · ≈ ${eur(B.mid)}${F&&F.booked?' · gebucht':''}${F&&F.paid?' · bezahlt':''}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
+// Sammelsuche: je Transfer nur einmal (ganze Strecke)
+{const pbt=priceBatch;priceBatch=function(c){pbt(c);const B=UI.pb;if(!B)return;const seen=new Set();B.items=B.items.filter(x=>{if(x.i===0||seen.has(x.i))return false;seen.add(x.i);x.j=0;return true});pbSheet()}}
 // Kurzfassung im Transfer-Formular
-function connBox(i,j,mode){const st=S.stages[i];const l=legsOf(st)[j];const R=l&&l.conn;if(!R)return null;const m=connMarks(R.opts);const crit=critPref();
- const pickM=mode&&mode!==l.mode?R.opts.map((o,k)=>({o,k})).filter(x=>x.o.mode===mode):null;let k;if(pickM){const s=connSort(pickM.map(x=>x.o),crit);k=s.length?pickM[s[0].k].k:-1}else k=l.connSel!=null?l.connSel:m[crit];
+function connBox(i,j,mode){const st=S.stages[i];const L=legsOf(st);const l=L[0];const R=l&&l.conn;if(!R)return null;const m=connMarks(R.opts);const crit=critPref();
+ const pickM=L.length===1&&mode&&mode!==l.mode?R.opts.map((o,k)=>({o,k})).filter(x=>x.o.mode===mode):null;let k;if(pickM){const s=connSort(pickM.map(x=>x.o),crit);k=s.length?pickM[s[0].k].k:-1}else k=l.connSel!=null?l.connSel:m[crit];
  const o=k>=0?R.opts[k]:null;const lab=l.connSel!=null&&!pickM?'Übernommen':pickM?'Für '+modeLabel(mode):'Empfehlung ('+CRIT[crit].toLowerCase()+')';
- return `<div class="card kb"><div style="display:flex;align-items:center;gap:8px">${kib('Verbindungen')}<span class="small mut">${R.opts.length} Optionen · ${fmtD(new Date(R.ts))}</span></div>${o?`<div class="small mut" style="margin-top:8px">${lab}</div><div style="font-size:15px;font-weight:600;margin-top:2px">${esc(o.title||modeLabel(o.mode))} · ≈ ${eur(l.connSel===k&&!pickM&&connGot(i,j)?connGot(i,j):connEur(o))}</div>${R.dev&&R.dev[k]&&!(l.connSel===k&&!pickM)?`<div class="small" style="margin-top:3px;color:var(--warn)">Frühere Suche: ≈ ${eur(R.dev[k].prev)}</div>`:''}<div class="small mut" style="margin-top:3px">${[o.dur,connTr(o)?connTr(o)+' Umstieg'+(connTr(o)>1?'e':''):'direkt',o.real!=null?REAL[o.real][0].replace('Echte Angebote','aus echten Angeboten'):''].filter(Boolean).join(' · ')}</div>`:`<div class="small" style="margin-top:8px;color:var(--warn)">Für ${esc(modeLabel(mode))} fand Claude auf dieser Strecke keine Verbindung.</div>`}
- <div class="act"><button class="btn sm p" data-a="cnOpen" data-k="${i}" data-j="${j}">Alle vergleichen</button>${o&&l.connSel!==k&&l.status!=='gebucht'?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}">Übernehmen</button>`:''}</div></div>`}
+ return `<div class="card kb"><div style="display:flex;align-items:center;gap:8px">${kib('Verbindungen')}<span class="small mut">${R.opts.length} Optionen · ${fmtD(new Date(R.ts))}</span></div>${o?`<div class="small mut" style="margin-top:8px">${lab}</div><div style="font-size:15px;font-weight:600;margin-top:2px">${esc(o.title||modeLabel(o.mode))} · ≈ ${eur(l.connSel===k&&!pickM&&connGot(i,0)?connGot(i,0):connEur(o))}</div>${R.dev&&R.dev[k]&&!(l.connSel===k&&!pickM)?`<div class="small" style="margin-top:3px;color:var(--warn)">Frühere Suche: ≈ ${eur(R.dev[k].prev)}</div>`:''}<div class="small mut" style="margin-top:3px">${[o.dur,connTr(o)?connTr(o)+' Umstieg'+(connTr(o)>1?'e':''):'direkt',o.real!=null?REAL[o.real][0].replace('Echte Angebote','aus echten Angeboten'):''].filter(Boolean).join(' · ')}</div>`:`<div class="small" style="margin-top:8px;color:var(--warn)">Für ${esc(modeLabel(mode))} fand Claude auf dieser Strecke keine Verbindung.</div>`}
+ <div class="act"><button class="btn sm p" data-a="cnOpen" data-k="${i}" data-j="0">Alle vergleichen</button>${o&&l.connSel!==k?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="0" data-o="${k}">Übernehmen</button>`:''}</div></div>`}
 Object.assign(window.KIA=window.KIA||{},{
- cnOpen:(el)=>{const i=+el.dataset.k,j=+el.dataset.j;const st=S.stages[i];if(!st)return;go(UI.tab,[...UI.stack,{k:'conn',sid:st.id,j}]);if(!legsOf(st)[j]?.conn&&aiKey())connRun(i,j)},
+ cnOpen:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st)return;go(UI.tab,[...UI.stack,{k:'conn',sid:st.id,j:0}]);if(!legsOf(st)[0]?.conn&&aiKey())connRun(i,0)},
  cnRun:(el)=>connRun(+el.dataset.k,+el.dataset.j),
  price:(el)=>{const i=+el.dataset.k,j=+el.dataset.j;if(!$('#prBox'))legSheet(i,j);connRun(i,j)},
  cnCrit:(el)=>{try{localStorage.setItem('auszeit27_v2crit',el.dataset.k)}catch(e){}UI.keepY=true;render();if(UI.pb&&sheetOpen())pbSheet()},
- cnApply:(el)=>{const i=+el.dataset.k,j=+el.dataset.j;const inSheet=!!el.closest('#sheet');connApply(i,j,+el.dataset.o,!!el.dataset.pv);if(inSheet&&$('#prBox'))legSheet(i,j);else if(inSheet&&UI.pb)pbSheet()}});
+ cnApply:(el)=>{const i=+el.dataset.k;const inS=el.closest('#sheet');const ret=!inS?'page':$('#prBox')?'leg:'+(UI.f&&UI.f.i===i?UI.f.j:0):UI.pb&&$('#sheet [data-pb]')?'pb':'page';connAsk(i,+el.dataset.o,!!el.dataset.pv,ret)},
+ cnDo:()=>{const A=UI.cnAsk;if(!A)return;connDo(A.i,A.k,A.pv,{booked:gv('cfSt')==='gebucht',paid:gv('cfPd')==='1'});if(A.ret.startsWith('leg'))A.ret='leg';connBack()},
+ cnBack:()=>connBack()});
 // Formular: Ladezustand der Verbindungen-Suche, auch wenn noch nichts gespeichert ist
-{const pb0=priceBox;priceBox=function(i,j,mode){const st=S.stages[i];const key=st&&st.id+':'+j;if(UI.cnBusy===key)return `<div class="card kb"><div class="small mut"><span class="spin"></span>Claude vergleicht alle Verbindungen …</div></div>`;
- if(UI.cnErr&&UI.cnErr.k===key&&!(legsOf(st)[j]||{}).conn)return `<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.cnErr.m)}</div><div class="act"><button class="btn sm k" data-a="cnRun" data-k="${i}" data-j="${j}">${ic('spark',14,2.2)}Erneut</button></div></div>`;return pb0(i,j,mode)}}
+{const pb0=priceBox;priceBox=function(i,j,mode){const st=S.stages[i];const key=st&&st.id+':0';if(st&&legsOf(st)[0]&&legsOf(st)[0].conn&&UI.cnBusy!==key)return connBox(i,j,mode)||'';if(UI.cnBusy===key)return `<div class="card kb"><div class="small mut"><span class="spin"></span>Claude vergleicht alle Verbindungen …</div></div>`;
+ if(UI.cnErr&&UI.cnErr.k===key&&!(legsOf(st)[0]||{}).conn)return `<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.cnErr.m)}</div><div class="act"><button class="btn sm k" data-a="cnRun" data-k="${i}" data-j="0">${ic('spark',14,2.2)}Erneut</button></div></div>`;return pb0(i,j,mode)}}
 // KI-Prüfung und Chat sehen die Preise aus der App und schätzen nicht neu
 function connPriceTxt(scope){scope=scope&&scope!=='all'?scope:null;const out=[];S.stages.forEach((st,i)=>{if(st.gap||(scope&&st.country!==scope))return;legsOf(st).forEach((l,j)=>{const p=[];const e=l.cost?eurOf(l):null;if(e!=null)p.push(`${l.status==='gebucht'?'gebucht':l.costEst?'Richtpreis':'Kosten'} ${Math.round(e)} € (${modeLabel(l.mode)})`);
   if(l.conn&&l.conn.opts)p.push('Verbindungen-Suche '+fmtD(new Date(l.conn.ts))+': '+l.conn.opts.map((o,k)=>`${o.title||modeLabel(o.mode)} ≈ ${Math.round(connEur(o))} €${l.conn.dev&&l.conn.dev[k]?` (frühere Suchen ≈ ${l.conn.dev[k].prev} €)`:''}`).join(', '));if(p.length)out.push(`  ${trLabel(st,j)} nach ${pname(st)}: ${p.join(' · ')}`)})});
  return out.length?`\n\nTransferpreise aus der App (für zwei Personen, Privatfahrer je Fahrzeug) – diese Werte verwenden, nicht neu schätzen:\n${out.slice(0,60).join('\n')}`:''}
 {const tf0=aiTripFull;aiTripFull=function(sc){return tf0(sc)+connPriceTxt(sc)}}
+// Fehlt jeder Transport zur Etappe, steht automatisch ein offener Transfer als Aufgabe da
+{const lo=legsOf;legsOf=function(s){const L=lo(s);if(!L.length&&s&&!s.noTr&&!s.gap&&typeof S!=='undefined'&&S.stages){const i=S.stages.indexOf(s);const pv=i>0?S.stages[i-1]:null;if(i>=0&&!(pv&&pv.placeId&&pv.placeId===s.placeId))L.push({mode:s.mode&&s.mode!=='flight'?s.mode:'car',status:'offen'})}return L}}
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
