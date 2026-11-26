@@ -1,5 +1,5 @@
 // Asien-Auszeit 2027 – Service Worker (Netz zuerst, bei Offline aus dem Speicher)
-const CACHE='auszeit-0.90_25';
+const CACHE='auszeit-0.90_26';
 const CORE=['./','index.html','manifest.json','icon-192.png','icon-512.png','lib/pdf.min.mjs','lib/pdf.worker.min.mjs','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js','https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css','https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>Promise.all(CORE.map(u=>c.add(new Request(u,{cache:'reload'})).catch(()=>{})))))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE&&x!=='auszeit-share').map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
