@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F6F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)">
+<title>Asien-Auszeit · Prototyp v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F6F5F1;--card:#FFFFFF;--line:#E6E3DC;--line2:#EFEDE7;--ink:#1C1D1F;--ink2:#5F6368;--ink3:#8D9195;--acc:#1F6F6B;--accs:#E8F1EF;--acct:#FFFFFF;--ki:#6B5BD6;--kis:#F0EEFB;--kit:#FFFFFF;--ok:#3E8E5A;--warn:#C68A1E;--err:#C2453B;--nav:#FFFFFF;--chip:#EFEDE7;--sheet:#FFFFFF;--shade:rgba(20,22,23,.35)}
+@media (prefers-color-scheme:dark){:root{--bg:#121314;--card:#1C1E20;--line:#2C2F32;--line2:#25282A;--ink:#ECEDEE;--ink2:#A6AAAE;--ink3:#7D8186;--acc:#8FCFC6;--accs:#1B2B29;--acct:#0F1A19;--ki:#B7ACF5;--kis:#25223A;--kit:#17142B;--ok:#7DC18F;--warn:#DDB063;--err:#E58A80;--nav:#17191A;--chip:#25282A;--sheet:#1C1E20;--shade:rgba(0,0,0,.55)}}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Roboto,sans-serif;font-size:14px;line-height:1.35;-webkit-font-smoothing:antialiased}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit;color:inherit}
+.proto{display:flex;align-items:center;gap:8px;padding:calc(6px + env(safe-area-inset-top)) 20px 6px;font-size:12px;color:var(--ink3)}
+.proto a{color:var(--ink2);text-decoration:underline;margin-left:auto}
+main{padding:4px 20px 24px;max-width:560px;margin:0 auto}
+.hd{display:flex;align-items:flex-start;gap:10px;margin:6px 0 16px}
+.hd .t{font-size:28px;font-weight:600;letter-spacing:-.4px;line-height:1.15}
+.hd .s{font-size:13px;color:var(--ink2);margin-top:4px}
+.back{display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:14px;margin:4px 0 6px}
+.ib{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--ink2);flex:none}
+.sec{font-size:14px;font-weight:600;color:var(--ink2);margin:20px 2px 8px;display:flex;align-items:center;gap:8px}
+.sec .r{margin-left:auto;color:var(--ink2);font-weight:500;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left}
+.row+.row{border-top:1px solid var(--line2)}
+.ic0{width:32px;height:32px;border-radius:10px;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--ink2);flex:none}
+.tt{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ss{font-size:13px;color:var(--ink2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.wrap{white-space:normal;display:block}
+.sp{flex:1;min-width:0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex:none}.dot.g{background:var(--ok)}.dot.r{background:var(--err)}.dot.n{background:var(--line)}
+.chev{color:var(--ink3);display:flex}
+.btn{white-space:nowrap;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;padding:0 16px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.btn.p{background:var(--acc);border-color:var(--acc);color:var(--acct)}
+.btn.sm{height:34px;font-size:13px;border-radius:10px;padding:0 12px}
+.btn.gh{background:transparent;border-color:transparent;color:var(--ink2)}
+.btn.k{color:var(--ki)}
+.ki{display:inline-flex;align-items:center;gap:4px;color:var(--ki);font-size:12px;font-weight:600;background:var(--kis);border-radius:8px;padding:2px 7px 2px 5px;white-space:nowrap}
+.pri{background:var(--card);border:1.5px solid var(--acc);border-radius:16px}
+.lab{font-size:12.5px;font-weight:500;color:var(--ink3)}
+.qa{display:flex;gap:8px;margin:0 0 14px}.qa>button{flex:1;height:64px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600}
+.qa>button.p{background:var(--accs);border-color:var(--acc);color:var(--acc)}.qa>button.k{color:var(--ki)}
+nav{position:fixed;left:0;right:0;bottom:0;height:calc(78px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--nav);border-top:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-around;padding-top:9px;z-index:20}
+.nv{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:500;color:var(--ink3);width:68px}
+.nv.on{color:var(--acc);font-weight:600}
+.nv.kin{color:var(--ki);font-weight:600}
+.kib{width:50px;height:50px;border-radius:25px;background:var(--ki);display:flex;align-items:center;justify-content:center;margin-top:-6px;color:var(--kit)}
+.fab[hidden]{display:none}
+.fab{position:fixed;right:20px;bottom:calc(94px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:18px;background:var(--acc);color:var(--acct);display:flex;align-items:center;justify-content:center;z-index:15;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:10px;background:var(--chip);color:var(--ink2);font-size:13px;font-weight:500;white-space:nowrap;flex:none}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px}.chips::-webkit-scrollbar{display:none}
+.seg{display:flex;background:var(--chip);border-radius:11px;padding:3px}
+.seg button{flex:1;height:32px;border-radius:9px;font-size:13px;font-weight:500;color:var(--ink2)}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.prog{display:flex;gap:4px}.prog i{flex:1;height:5px;border-radius:3px;background:var(--line)}.prog i.f{background:var(--acc)}
+.mut{color:var(--ink2)}.small{font-size:12.5px}.num{font-variant-numeric:tabular-nums}
+.tr{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 30px;color:var(--ink2);font-size:13px;position:relative;width:100%;text-align:left}
+.tr:before{content:'';position:absolute;left:21px;top:-6px;bottom:-6px;border-left:1.5px dashed var(--line)}
+.tr .tl{font-size:12px;font-weight:600;color:var(--ink3);min-width:30px}
+.stn{width:30px;height:30px;border-radius:15px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--ink2);flex:none}
+.stn.a{background:var(--acc);border-color:var(--acc);color:var(--acct)}
+.stepm{width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+.stepm.ok{background:var(--ok);color:#fff}.stepm.now{border:2px solid var(--acc);color:var(--acc)}.stepm.open{border:1.5px solid var(--line);color:var(--ink3)}
+#map{height:190px;border-radius:14px;overflow:hidden;background:var(--chip);margin-bottom:4px}
+#map.big{height:calc(100vh - 260px)}
+.leaflet-container{background:var(--chip);font-family:inherit}
+.pinl{width:22px;height:22px;border-radius:11px;background:var(--card);border:1.5px solid var(--ink2);color:var(--ink2);font:600 10px Inter,sans-serif;display:flex;align-items:center;justify-content:center}
+.pinl.a{width:28px;height:28px;border-radius:14px;background:var(--acc);border-color:var(--acc);color:var(--acct);font-size:12px}
+.shade{position:fixed;inset:0;background:var(--shade);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.shade.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:86vh;overflow:auto;background:var(--sheet);border-radius:22px 22px 0 0;z-index:41;transform:translateY(100%);transition:transform .25s;padding:10px 20px calc(20px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+.sheet.on{transform:none}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sht{font-size:20px;font-weight:600;letter-spacing:-.2px}
+.toast{position:fixed;left:20px;right:20px;bottom:calc(100px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:13.5px;z-index:60;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;max-width:520px;margin:0 auto}
+.toast.on{opacity:1;transform:none}
+.fld{width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);padding:0 14px;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{padding:12px 12px 11px;text-align:left}
+.empty{padding:28px 10px;text-align:center;color:var(--ink2)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line2);font-size:14px}.kv:first-child{border-top:0}
+.kv span:first-child{color:var(--ink2)}
+.conv{font-size:32px;font-weight:600;letter-spacing:-.5px;border:0;background:transparent;width:100%;outline:none;padding:0}
+</style></head><body>
+<div class="proto"><span>Prototyp v2 · nur ansehen</span><a href="../">heutige App</a></div>
+<main id="main"></main>
+<button class="fab" id="fab" data-a="plus" hidden></button>
+<nav id="nav"></nav>
+<div class="shade" id="shade" data-a="close"></div><div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<script>
+const CHK={
+ _g:{name:'Allgemein',items:[
+  ['Dokumente','g1','Reisepass gültig bis mindestens 6 Monate nach Reiseende und genug freie Seiten (mind. 2 pro Land)','Alle Länder der Route verlangen den Reisepass, der Personalausweis reicht nicht. Visa-Aufkleber (z. B. Kambodscha) brauchen eine ganze Seite.'],
+  ['Dokumente','g2','Kopien von Pass, Visa, Versicherung: digital (offline am Handy + Cloud) und 2 Papierkopien getrennt vom Pass','Dazu 4–6 biometrische Passfotos für Visa bei Ankunft und Verlängerungen.'],
+  ['Dokumente','g3','Registrierung in der Krisenvorsorgeliste „Elefand“ des Auswärtigen Amts mit allen Ländern und Daten','','https://elefand.diplo.de'],
+  ['Dokumente','g4','Auslandskrankenversicherung für die gesamte Reisedauer (ca. 12 Wochen) prüfen','Viele Jahrespolicen decken nur 6–8 Wochen pro Reise. Rücktransport, Roller und Wassersport abgedeckt? Policennummer und Notrufnummer offline speichern.'],
+  ['Dokumente','g5','Internationaler Führerschein (beim Straßenverkehrsamt), falls Roller oder Auto gefahren werden','Für Roller ist die Klasse A nötig. Ohne passende Fahrerlaubnis besteht meist kein Versicherungsschutz.'],
+  ['Gesundheit','g6','Reisemedizinische Beratung 6–8 Wochen vor Abflug','Standardimpfungen sowie Hepatitis A/B, Typhus, Tollwut, Japanische Enzephalitis und Dengue individuell abklären, Malariarisiko je Region besprechen.'],
+  ['Gesundheit','g7','Reiseapotheke, Mückenschutz (DEET/Icaridin), ggf. Moskitonetz','Rezeptpflichtige Medikamente in Originalverpackung mit ärztlicher Bescheinigung auf Englisch. Für Schmerz- und Psychopharmaka gelten teils strenge Einfuhrregeln, vorher prüfen.'],
+  ['Gesundheit','g8','Impfpass und Impfnachweise digital und auf Papier dabei'],
+  ['Geld','g9','Zwei Kreditkarten (Visa und Mastercard) ohne Auslandseinsatzgebühr, getrennt aufbewahren','Bank über die Reise informieren, Sperrnotruf 116 116 notieren, Banking-App mit Zwei-Faktor-Freigabe im Ausland testen.'],
+  ['Geld','g10','US-Dollar in neuen, unbeschädigten Scheinen mitnehmen','Für das Visum in Kambodscha und als Reserve. Beschädigte Scheine werden oft nicht angenommen.'],
+  ['Kommunikation','g11','eSIM oder Datentarif für alle Länder planen, Handy ohne SIM-Lock'],
+  ['Kommunikation','g12','Offline-Karten und Apps installieren (Grab, Übersetzer, Währungsrechner)'],
+  ['Organisation','g13','Rück- oder Weiterflugnachweise für jedes Land bereithalten','Mehrere Länder der Route verlangen bei Einreise ein Ausreiseticket.'],
+  ['Organisation','g14','Notfallkontakte und Adressen der deutschen Botschaften offline speichern'],
+  ['Organisation','g15','Hinweis: In allen Ländern der Route gelten drakonische Drogenstrafen, teils bis zur Todesstrafe'],
+  ['Organisation','g16','Datensicherung dieser App exportieren (Einstellungen → Export JSON)']]},
+ VN:{items:[
+  ['Einreise','vn1','Visumfreie Einreise bis 45 Tage (Ein- und Ausreisetag zählen mit)','Gilt laut Regierungsbeschluss bis 14.03.2028. Für längere Aufenthalte nur das E-Visum über das offizielle Portal (bis 90 Tage).','https://evisa.gov.vn'],
+  ['Einreise','vn2','Reisepass ab Einreise noch mindestens 6 Monate gültig'],
+  ['Einreise','vn3','Weiterflug nachweisen können (Flug Đà Nẵng → Siem Reap)'],
+  ['Zoll','vn4','Keine E-Zigaretten mitnehmen','Seit 1.1.2025 sind Einfuhr, Besitz und Nutzung von E-Zigaretten in Vietnam verboten.'],
+  ['Vor Ort','vn5','Pass beim Hotel-Check-in nur zur Registrierung abgeben, nicht als Pfand dalassen'],
+  ['Vor Ort','vn6','Roller nur mit Klasse A und internationalem Führerschein, Helmpflicht'],
+  ['Vor Ort','vn7','Bootstouren Lan Ha / Halong nur mit lizenzierten Anbietern buchen'],
+  ['Vor Ort','vn8','Februar im Norden kühl (oft 15–20 °C, neblig): warme Kleidung für Hanoi und die Buchten'],
+  ['Buchung','vn9','Sơn Đoòng: Expedition Monate im Voraus buchen (nur in der Saison, stark limitiert)']]},
+ KH:{items:[
+  ['Einreise','kh1','Visum: E-Visum vorab über das offizielle Portal (30 Tage) oder Visum bei Ankunft am Flughafen','Visumfreie Einreise gibt es für Deutsche nicht. E-Visum mind. eine Woche vorher beantragen und ausdrucken.','https://www.evisa.gov.kh'],
+  ['Einreise','kh2','Cambodia e-Arrival Card (CeA) vor dem Flug ausfüllen, QR-Code speichern','Pflicht für alle Einreisen per Flug, kostenlos. Ersetzt Einreise-, Zoll- und Gesundheitsformular, aber kein Visum.','https://arrival.gov.kh',-3],
+  ['Einreise','kh3','Reisepass ab Einreise noch mindestens 6 Monate gültig, freie Seite für das Visum'],
+  ['Sicherheit','kh4','Landgrenzen zu Thailand sind geschlossen: Weiterreise nach Bangkok nur per Flug','Stand Okt. 2026. Warnung für das Grenzgebiet (20 km) zu Thailand, besonders Banteay Meanchey und Oddar Meanchey. Im gesamten Grenzgebiet nicht fotografieren.'],
+  ['Sicherheit','kh5','Minengefahr: abseits befestigter Wege nicht laufen (Phnom Kulen, Koh Ker, Beng Mealea)'],
+  ['Vor Ort','kh6','Angkor-Pass (1, 3 oder 7 Tage) nur über den offiziellen Verkauf; Schultern und Knie bedeckt in Tempeln','Koh Ker und Beng Mealea haben eigene Tickets.','https://www.angkorenterprise.gov.kh'],
+  ['Geld','kh7','US-Dollar sind gängiges Zahlungsmittel, Riel als Wechselgeld; nur saubere Scheine']]},
+ TH:{items:[
+  ['Einreise','th1','Visumfreie Einreise zu touristischen Zwecken: aktuelle Höchstdauer prüfen','Die Dauer wurde 2026 geändert, Berichten zufolge seit 15.09.2026 30 statt 60 Tage. Euer Aufenthalt liegt darunter. Vor Abreise beim Auswärtigen Amt bestätigen.'],
+  ['Einreise','th2','Thailand Digital Arrival Card (TDAC) frühestens 3 Tage vor Ankunft ausfüllen','Kostenlos und nur über das offizielle Portal; Drittanbieter verlangen Gebühren.','https://tdac.immigration.go.th',-3],
+  ['Einreise','th3','Reisepass 6 Monate gültig, Ausreiseticket (Flug nach Colombo) bereithalten','Ein Nachweis über ausreichende Geldmittel kann verlangt werden.'],
+  ['Zoll','th4','Keine E-Zigaretten mitnehmen: in Thailand verboten, hohe Strafen'],
+  ['Sicherheit','th5','Teilreisewarnung: Grenzgebiet zu Kambodscha (20 km) und Südprovinzen Narathiwat, Yala, Pattani, Teile von Songkhla','Die geplanten Orte liegen außerhalb. Landgrenze zu Kambodscha geschlossen.'],
+  ['Vor Ort','th6','Strenge Gesetze zur Majestätsbeleidigung: keine abfälligen Äußerungen über das Königshaus, auch nicht online']]},
+ LK:{items:[
+  ['Einreise','lk1','ETA (Electronic Travel Authorization) vor Abreise beantragen','Seit 25.05.2026 für Deutsche kostenlos, 30 Tage, zweimalige Einreise. Frühestens 90 Tage vor Einreise, nur über das offizielle Portal.','https://www.eta.gov.lk',-90],
+  ['Einreise','lk2','Ankunftskarte vorab online oder vor Ort auf Papier ausfüllen'],
+  ['Einreise','lk3','Reisepass 6 Monate gültig, bestätigter Weiterflug (nach Kuala Lumpur)'],
+  ['Vor Ort','lk4','Respekt vor Buddha-Darstellungen: keine Fotos mit dem Rücken zur Statue, sichtbare Buddha-Tattoos bedecken','Es gab deswegen bereits Einreiseverweigerungen und Festnahmen.'],
+  ['Vor Ort','lk5','Tempelkleidung: Schultern und Knie bedeckt, Schuhe und Kopfbedeckung ablegen']]},
+ MY:{items:[
+  ['Einreise','my1','Visumfreie Einreise bis 90 Tage'],
+  ['Einreise','my2','Malaysia Digital Arrival Card (MDAC) innerhalb von 3 Tagen vor Ankunft ausfüllen','Kostenlos über das offizielle Portal der Einwanderungsbehörde. Für Inlandsflüge (z. B. nach Terengganu) nicht erneut nötig.','https://imigresen-online.imi.gov.my/mdac/main',-3],
+  ['Einreise','my3','Reisepass 6 Monate gültig, Weiterflug (nach Manila) bereithalten'],
+  ['Vor Ort','my4','Sabah und Sarawak (Borneo) haben eigene Einreisekontrollen, falls ihr spontan dorthin wollt']]},
+ PH:{items:[
+  ['Einreise','ph1','Visumfreie Einreise 30 Tage (vor Ort um 29 Tage verlängerbar)','Euer Aufenthalt: 14 Nächte, passt.'],
+  ['Einreise','ph2','eTravel innerhalb von 72 Stunden vor Ankunft registrieren, QR-Code speichern','Kostenlos über das offizielle Portal; auch vor der Ausreise nötig. Fake-Seiten verlangen Gebühren.','https://etravel.gov.ph',-3],
+  ['Einreise','ph3','Reisepass 6 Monate über den Aufenthalt hinaus gültig, Rück-/Weiterflug innerhalb von 30 Tagen nachweisen'],
+  ['Vor Ort','ph4','Inlandsflüge nach Palawan früh buchen, Gepäckgrenzen kleiner Airlines prüfen']]},
+ ID:{items:[
+  ['Einreise','id1','Visum: e-VOA vorab beantragen (IDR 500.000, 30 Tage, einmal um 30 Tage verlängerbar)','Visumfreie Einreise gibt es für Deutsche nicht. Nur über das offizielle Portal, Drittanbieter sind deutlich teurer.','https://evisa.imigrasi.go.id'],
+  ['Einreise','id2','All Indonesia Arrival Card innerhalb von 72 Stunden vor Ankunft ausfüllen','Kostenlos, ersetzt Einreise-, Zoll- und Gesundheitsformular.','https://allindonesia.imigrasi.go.id',-3],
+  ['Einreise','id3','Bali: Tourismusabgabe IDR 150.000 pro Person vorab bezahlen','Nur bei Einreise auf Bali.','https://lovebali.baliprov.go.id'],
+  ['Einreise','id4','Reisepass 6 Monate gültig, Weiterflug nachweisen'],
+  ['Planung','id5','Indonesien ist noch nicht in der Route: Etappen anlegen, damit Fristen berechnet werden']]}
+};
+const CUR_INFO={MMK:['K','Myanmar-Kyat'],BND:['B$','Brunei-Dollar'],INR:['₹','Indische Rupie'],NPR:['Rs','Nepalesische Rupie'],MVR:['Rf','Malediven-Rufiyaa'],TWD:['NT$','Taiwan-Dollar'],KRW:['₩','Südkoreanischer Won'],NZD:['NZ$','Neuseeland-Dollar'],EUR:['€','Euro'],USD:['$','US-Dollar'],VND:['₫','Vietnamesischer Dong'],KHR:['៛','Kambodschanischer Riel'],THB:['฿','Thailändischer Baht'],LKR:['Rs','Sri-Lanka-Rupie'],MYR:['RM','Malaysischer Ringgit'],PHP:['₱','Philippinischer Peso'],IDR:['Rp','Indonesische Rupiah'],SGD:['S$','Singapur-Dollar'],LAK:['₭','Laotischer Kip'],GBP:['£','Britisches Pfund'],CHF:['CHF','Schweizer Franken'],AUD:['A$','Australischer Dollar'],JPY:['¥','Japanischer Yen'],CNY:['¥','Chinesischer Yuan'],HKD:['HK$','Hongkong-Dollar'],AED:['AED','VAE-Dirham'],QAR:['QR','Katar-Riyal']};
+const CUR_OF={VN:'VND',KH:'KHR',TH:'THB',LK:'LKR',MY:'MYR',PH:'PHP',ID:'IDR',SG:'SGD',LA:'LAK'};;
+const FX_START={USD:1.04,VND:26500,KHR:4380,THB:37.8,LKR:330,MYR:4.9,PHP:61,IDR:17500,SGD:1.4,LAK:22500,GBP:.84,CHF:.94,AUD:1.6,JPY:160,CNY:7.5,HKD:8.1,AED:3.8,QAR:3.8};
+
+const IC={"home": "<path d=\"M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/>", "route": "<circle cx=\"6\" cy=\"19\" r=\"2.6\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"2.6\"/>", "spark": "<path d=\"M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z\"/>", "pin": "<path d=\"M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>", "wallet": "<rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2.5\"/><path d=\"M3 10h18 M16 15h2 M6 6l9-3 1 3\"/>", "search": "<circle cx=\"11\" cy=\"11\" r=\"7.5\"/><path d=\"m21 21-4.3-4.3\"/>", "plus": "<path d=\"M12 5v14M5 12h14\"/>", "bed": "<path d=\"M2 4v16 M2 8h18a2 2 0 0 1 2 2v10 M2 17h20 M6 8v9\"/>", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\"/><circle cx=\"7\" cy=\"17\" r=\"2\"/><path d=\"M9 17h6\"/><circle cx=\"17\" cy=\"17\" r=\"2\"/>", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"/>", "bus": "<rect x=\"4\" y=\"3\" width=\"16\" height=\"15\" rx=\"2\"/><path d=\"M4 11h16 M8 18v3 M16 18v3 M8 15h.01 M16 15h.01\"/>", "boat": "<path d=\"M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1s1.2 1 2.5 1c2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1 M19.4 18 22 11H2l2.6 7 M12 3v8 M12 3l6 6H12\"/>", "cal": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/>", "check": "<path d=\"M20 6 9 17l-5-5\"/>", "chev": "<path d=\"M9 18l6-6-6-6\"/>", "flag": "<path d=\"M5 21V4M5 4h11l-2 4 2 4H5\"/>", "alert": "<path d=\"M12 3 2 21h20z M12 10v5 M12 18h.01\"/>", "gear": "<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z\"/>", "map": "<path d=\"M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15\"/>", "layers": "<path d=\"m12 2 10 5-10 5L2 7z M2 17l10 5 10-5 M2 12l10 5 10-5\"/>", "cam": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"9.5\"/><path d=\"M12 6.5v5.5l3.5 2\"/>", "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41\"/>", "globe": "<circle cx=\"12\" cy=\"12\" r=\"9.5\"/><path d=\"M2.5 12h19 M12 2.5a14.5 14.5 0 0 1 4 9.5 14.5 14.5 0 0 1-4 9.5 14.5 14.5 0 0 1-4-9.5 14.5 14.5 0 0 1 4-9.5z\"/>", "book": "<path d=\"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20\"/>", "more": "<circle cx=\"5\" cy=\"12\" r=\"1.2\"/><circle cx=\"12\" cy=\"12\" r=\"1.2\"/><circle cx=\"19\" cy=\"12\" r=\"1.2\"/>", "back": "<path d=\"M19 12H5M12 19l-7-7 7-7\"/>", "star": "<path d=\"M12 2l3 7 7 .6-5.3 4.7 1.6 7.2L12 17.8 5.7 21.5l1.6-7.2L2 9.6 9 9z\"/>", "walk": "<circle cx=\"13\" cy=\"4\" r=\"2\"/><path d=\"M9 21l3-7 3 3v4 M7 12l3-4 4 1 3 3\"/>", "food": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"/>", "temple": "<path d=\"M3 22h18 M6 18v-7 M10 18v-7 M14 18v-7 M18 18v-7 M12 2l8 5H4z\"/>", "nav": "<path d=\"M3 11l19-9-9 19-2-8-8-2z\"/>", "info": "<circle cx=\"12\" cy=\"12\" r=\"9.5\"/><path d=\"M12 11v6 M12 7.5h.01\"/>", "x": "<path d=\"M18 6 6 18M6 6l12 12\"/>", "link": "<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/>"};
+const ic=(n,s=18,w=1.9)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" style="flex:none;display:block">${IC[n]||''}</svg>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=s=>document.querySelector(s);
+const STORE='auszeit2027_state_v1';
+let S=null;try{S=JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){}
+const WD=['So','Mo','Di','Mi','Do','Fr','Sa'];
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmtD=d=>String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.';
+const fmtDY=d=>fmtD(d)+d.getFullYear();
+const dl=d=>WD[d.getDay()]+' '+fmtD(d);
+const pd=s=>new Date(s+'T12:00:00');
+const numOf=v=>{if(v==null||v==='')return null;if(typeof v==='number')return v;const t=String(v).replace(/\s/g,'');let m=t.match(/(\d{1,3}(?:\.\d{3})+)(?:,(\d+))?/);if(m)return +(m[1].replace(/\./g,'')+(m[2]?'.'+m[2]:''));m=t.match(/(\d+)(?:[.,](\d+))?/);if(!m)return null;return +(m[1]+(m[2]?'.'+m[2]:''))};
+const UI={tab:'home',stack:[],preview:null,view:'liste',q:'',of:'alle',focus:null,cur:null,amt:'100000',dir:1,kiScope:'all'};
+function ready(){return S&&Array.isArray(S.stages)&&S.stages.length}
+const byId=id=>S.places.find(p=>p.id===id);
+const country=id=>(S.countries||[]).find(c=>c.id===id)||{id,name:id};
+const D0=()=>pd(S.settings.tripStart);
+const totalN=()=>S.stages.reduce((a,s)=>a+(s.nights||0),0);
+let DS=null;function stagesDated(){if(DS)return DS;let d=D0();DS=S.stages.map((s,i)=>{const f=d;d=addDays(d,s.nights||0);return{...s,i,from:f,to:d}});return DS}
+const legsOf=s=>Array.isArray(s.legs)?s.legs:(s.noTr?[]:[Object.assign({mode:s.mode||'car'},s.tr||{})]);
+function stageNo(){const m={};let n=0;S.stages.forEach(s=>{if(s.gap)return;n++;m[s.id]=n});return m}
+function trNos(){const m={};let n=0;S.stages.forEach(st=>{if(legsOf(st).length)m[st.id]=n++});return m}
+function trLabel(st,j){const n=trNos()[st.id];const L=legsOf(st).length;return n!=null?(L>1?`T${n}.${j+1}`:`T${n}`):''}
+const MODES={car:['car','Auto'],bus:['bus','Bus'],flight:['plane','Flug'],boat:['boat','Boot'],train:['bus','Zug']};
+function rateOf(c){if(!c||c==='EUR')return 1;const m=(S.settings.fxManual||{})[c];if(m)return m;return (S.fx&&S.fx.rates&&S.fx.rates[c])||FX_START[c]||null}
+function toEUR(a,c){if(a==null)return null;if(!c||c==='EUR')return a;const r=rateOf(c);return r?a/r:null}
+function eurOf(o,f='cost'){if(!o)return null;const a=numOf(o[f]);if(a==null)return null;return toEUR(a,o.cur||'EUR')}
+const eur=v=>v==null?'–':Math.round(v).toLocaleString('de-DE')+' €';
+function curDefault(c){return (S.settings.curDefault||{})[c]||(c==='KH'?'USD':CUR_OF[c]||'EUR')}
+const curSym=c=>(CUR_INFO[c]&&CUR_INFO[c][0])||c;
+function today(){return UI.preview?pd(UI.preview):new Date()}
+function stageAt(dIso){return stagesDated().find(x=>!x.gap&&iso(x.from)<=dIso&&dIso<iso(x.to))}
+// Ausflüge je Etappe
+function exStage(x){const ds=stagesDated();const ks=ds.filter(s=>!s.gap&&s.placeId===x.anchorId).map(s=>s.i);if(!ks.length)return -1;if(x.stageId){const k=S.stages.findIndex(s=>s.id===x.stageId);if(ks.includes(k))return k}
+ if(x.planned){const k=ks.find(k=>iso(ds[k].from)<=x.planned&&x.planned<=iso(ds[k].to));if(k!=null)return k}return ks[0]}
+function excursionsSt(i){const st=S.stages[i];return S.places.filter(p=>p.role!=='anchor'&&p.attached&&p.anchorId===st.placeId&&exStage(p)===i).sort((a,b)=>(a.planned||'9').localeCompare(b.planned||'9'))}
+const excNo=p=>{const k=exStage(p);if(k<0)return '';const n=stageNo()[S.stages[k].id]||'';const m=p.excNo||(excursionsSt(k).indexOf(p)+1);return `${n}.${m}`};
+// Status je Etappe: 5 Schritte
+function legDone(l){return l.status==='gebucht'}
+function steps(i){const d=stagesDated()[i];const st=S.stages[i];const L=legsOf(st);const ex=excursionsSt(i);const days=[];for(let k=1;k<d.nights;k++)days.push(iso(addDays(d.from,k)));
+ const free=days.filter(x=>!ex.some(e=>e.planned===x));
+ const miss=[];if(d.nights&&st.stay&&st.stay.status==='gebucht'&&eurOf(st.stay)==null)miss.push('Unterkunft');L.forEach((l,j)=>{if(l.status==='gebucht'&&eurOf(l)==null)miss.push(trLabel(st,j)||'Anreise')});ex.forEach(x=>{if(x.tt&&x.tt.status==='gebucht'&&eurOf(x.tt)==null)miss.push(x.name)});
+ const s=[
+  {k:'ort',t:'Ort und Nächte',ok:true,sub:`${byId(st.placeId)?.name||''} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`},
+  {k:'anreise',t:'Anreise',ok:!L.length||L.every(legDone),sub:L.length?L.map((l,j)=>`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]}${l.status==='gebucht'?'':' · offen'}`).join(' · '):'keine Anreise nötig'},
+  {k:'unterkunft',t:'Unterkunft',ok:!d.nights||st.stay?.status==='gebucht',sub:!d.nights?'Durchreise, keine Übernachtung':st.stay?.name?`${st.stay.name} · ${st.stay.status==='gebucht'?'gebucht':'offen'}${st.stay.paid?' · bezahlt':''}`:'noch nicht eingetragen'},
+  {k:'ausfluege',t:'Ausflüge',ok:d.nights<=1||free.length===0,sub:`${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}${free.length?` · ${free.length} ${free.length===1?'Tag':'Tage'} frei`:''}`,free},
+  {k:'kosten',t:'Kosten',ok:miss.length===0,sub:miss.length?`${miss.length} ${miss.length===1?'Posten':'Posten'} ohne Betrag`:'alle Beträge erfasst',miss}];
+ return s}
+const doneN=i=>steps(i).filter(x=>x.ok).length;
+function focusStage(){const t=iso(today());const ds=stagesDated();const c=ds.find(s=>!s.gap&&iso(s.to)>t&&doneN(s.i)<5);return c?c.i:-1}
+// Offene Punkte
+function openItems(){const out=[];const ds=stagesDated();const no=stageNo();
+ const chk=(c,base)=>{const items=(CHK[c]?.items||[]).map(([g,id,t,h,l,due])=>({id,t,due}));items.forEach(x=>{if(x.due==null||S.chk?.[x.id])return;out.push({k:'chk',icn:'flag',t:x.t,s:c==='_g'?'Vor der Reise':country(c).name,date:addDays(base,x.due),c})})};
+ chk('_g',D0());(S.countries||[]).forEach(c=>{const s=ds.find(x=>x.country===c.id);if(s)chk(c.id,s.from)});
+ ds.forEach(d=>{if(d.gap)return;const st=S.stages[d.i];const p=byId(st.placeId);
+  if(d.nights&&st.stay?.status!=='gebucht')out.push({k:'stay',icn:'bed',t:'Unterkunft '+(p?.name||'')+' buchen',s:`E${no[st.id]} · ${fmtD(d.from)}–${fmtD(d.to)} · ${d.nights} N`,date:d.from,i:d.i});
+  legsOf(st).forEach((l,j)=>{if(l.status==='gebucht')return;const pv=d.i>0?byId(S.stages[d.i-1].placeId):null;out.push({k:'tr',icn:(MODES[l.mode]||MODES.car)[0],t:`${l.from||pv?.name||'Start'} → ${l.to||p?.name||''}`,s:`${trLabel(st,j)} · ${(MODES[l.mode]||MODES.car)[1]} · ${dl(l.date?pd(l.date):d.from)}`,date:l.date?pd(l.date):d.from,i:d.i,price:!eurOf(l)&&l.mode!=='flight'})})});
+ return out.sort((a,b)=>a.date-b.date)}
+const bookedStats=()=>{let n=0,b=0;stagesDated().forEach(d=>{if(d.gap)return;const st=S.stages[d.i];if(d.nights){n++;if(st.stay?.status==='gebucht')b++}legsOf(st).forEach(l=>{n++;if(l.status==='gebucht')b++})});return{n,b}};
+function dueTxt(d){const t=new Date();t.setHours(12,0,0,0);const n=Math.round((d-t)/864e5);return n<0?'überfällig':n===0?'heute':n===1?'morgen':n<14?`in ${n} Tagen`:`bis ${dl(d)}`}
+// Budget
+function budget(){const N=totalN();const B=S.settings.budgetMode==='total'?S.settings.budgetTotal:(S.settings.dailyBudget?S.settings.dailyBudget*N:null);if(!B)return null;
+ let fix=0;S.stages.forEach(st=>{fix+=eurOf(st.stay)||0;legsOf(st).forEach(l=>fix+=eurOf(l)||0)});S.places.forEach(p=>{if(p.tt&&p.planned)fix+=eurOf(p.tt)||0});
+ const t=iso(today());const ex=S.expenses||[];const past=ex.filter(e=>e.date<t).reduce((a,e)=>a+(eurOf(e,'amt')||0),0);const tod=ex.filter(e=>e.date===t).reduce((a,e)=>a+(eurOf(e,'amt')||0),0);
+ const used=Math.max(0,Math.min(N,Math.round((pd(t)-D0())/864e5)));const R=Math.max(1,N-used);return{B,fix,past,tod,daily:(B-fix-past)/R,rest:B-fix-past-tod}}
+// ---------- Bausteine ----------
+const kib=t=>`<span class="ki">${ic('spark',12,2.3)}${esc(t)}</span>`;
+function row(o){return `<button class="row" ${o.a||''}>${o.icn?`<div class="ic0" ${o.kic?'style="background:var(--kis);color:var(--ki)"':''}>${ic(o.icn,17,o.kic?2.1:1.9)}</div>`:''}${o.left||''}<div class="sp"><div class="tt" ${o.tb?'style="font-weight:600"':''}>${o.t}</div>${o.s?`<div class="ss">${o.s}</div>`:''}</div>${o.right||''}${o.dot!=null?`<span class="dot ${o.dot}"></span>`:''}${o.a?`<span class="chev">${ic('chev',16)}</span>`:''}</button>`}
+function head(t,s,right){return `<div class="hd"><div class="sp"><div class="t">${t}</div>${s?`<div class="s">${s}</div>`:''}</div>${right||''}</div>`}
+// ---------- Übersicht / Heute ----------
+function onTrip(){const t=iso(today());const ds=stagesDated();return t>=iso(D0())&&t<iso(ds[ds.length-1].to)}
+function vHome(){return onTrip()?vHeute():vUebersicht()}
+function vUebersicht(){const ds=stagesDated();const end=ds[ds.length-1].to;const cs=[...new Set(S.stages.map(s=>s.country))];const days=Math.ceil((D0()-new Date())/864e5);const st=bookedStats();const op=openItems();const nx=op[0];
+ let h=head('Asien-Auszeit 2027',`${dl(D0())} – ${dl(end)}${end.getFullYear()} · ${totalN()+1} Tage · ${cs.length} Länder`,`<button class="ib" data-a="toast" data-k="Einstellungen kommen im echten Bau.">${ic('gear',22)}</button>`);
+ h+=`<div class="card" style="display:flex;padding:14px 16px"><div class="sp"><div class="small mut">Abflug in</div><div class="num" style="font-size:22px;font-weight:600;margin-top:2px">${days>0?days+' Tagen':'–'}</div></div><div style="width:1px;background:var(--line2);margin:0 16px"></div><div class="sp"><div class="small mut">Gebucht</div><div class="num" style="font-size:22px;font-weight:600;margin-top:2px">${st.b} <span class="mut" style="font-size:15px;font-weight:500">von ${st.n}</span></div><div style="height:4px;background:var(--line2);border-radius:2px;margin-top:8px"><div style="width:${Math.round(st.b/Math.max(1,st.n)*100)}%;height:4px;background:var(--ink2);border-radius:2px"></div></div></div></div>`;
+ if(nx)h+=`<div class="pri" style="margin-top:16px;padding:14px 16px 16px"><div class="lab">Als Nächstes</div><div style="font-size:19px;font-weight:600;margin-top:4px;letter-spacing:-.2px">${esc(nx.t)}</div><div class="mut" style="margin-top:4px;display:flex;align-items:center;gap:6px">${ic('cal',14)}${esc(dueTxt(nx.date))} · ${esc(nx.s)}</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="openIt" data-k="0">${nx.i!=null?'Öffnen':'Erledigen'}</button><button class="btn" data-a="toast" data-k="Später: rückt in der Liste nach hinten (im echten Bau).">Später</button></div></div>`;
+ h+=`<div class="sec">Offen<span class="r"><button data-a="page" data-k="offen">alle ${op.length} ›</button></span></div><div class="card">${op.slice(1,5).map((x,k)=>row({icn:x.icn,t:esc(x.t),s:esc(x.s)+(x.price?' · '+kib('Richtpreis'):''),dot:x.date-new Date()<7*864e5?'r':'',a:`data-a="openIt" data-k="${k+1}"`})).join('')}</div>`;
+ const C=S.aiChecks&&S.aiChecks.all;if(C){const o=C.items.filter(x=>!x.st);const f=o.filter(x=>x.level==='fehler').length,w=o.filter(x=>x.level==='warnung').length;
+  h+=`<div class="card" style="margin-top:12px">${row({icn:'spark',kic:1,t:'Reise geprüft',s:`${f} Fehler · ${w} Warnungen · ${o.length-f-w} Optimierungen`,a:'data-a="tab" data-k="ki"'})}</div>`}
+ h+=`<div class="card" style="margin-top:12px">${row({icn:'sun',t:'Vorschau: unterwegs',s:'So sieht die Startseite während der Reise aus',a:'data-a="preview"'})}</div>`;
+ return h}
+function dayItems(t){const out=[];const ds=stagesDated();ds.forEach(d=>{if(d.gap)return;const st=S.stages[d.i];legsOf(st).forEach((l,j)=>{const ld=l.date||iso(d.from);if(ld===t){const pv=d.i>0?byId(S.stages[d.i-1].placeId):null;out.push({time:l.dep||'',icn:(MODES[l.mode]||MODES.car)[0],t:`${l.from||pv?.name||''} → ${l.to||byId(st.placeId)?.name||''}`,s:`${trLabel(st,j)} · ${(MODES[l.mode]||MODES.car)[1]} · ${l.status==='gebucht'?'gebucht':'offen'}`,dot:l.status==='gebucht'?'g':'',a:`data-a="stage" data-k="${d.i}"`})}})});
+ S.places.forEach(p=>{if(p.planned===t&&p.role!=='anchor')out.push({time:p.time||'',icn:'pin',t:p.name,s:`Ausflug ${excNo(p)}${p.tt?.status==='gebucht'?' · gebucht':''}`,dot:p.tt?.status==='gebucht'?'g':'n',a:`data-a="place" data-k="${p.id}"`})});
+ return out.sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'))}
+function vHeute(){const T=today();const t=iso(T);const ds=stagesDated();const cur=stageAt(t);const p=cur?byId(cur.placeId):null;const dayN=Math.round((T-D0())/864e5)+1;const items=dayItems(t);const nx=items[0];const b=budget();
+ let h=head(UI.preview?'Heute <span class="ki" style="vertical-align:middle;font-size:11px">Vorschau</span>':'Heute',`Tag ${dayN} von ${totalN()+1} · ${dl(T)} · ${esc(p?.name||'')}`,UI.preview?`<button class="chip" data-a="preview">Ende</button>`:'');
+ h+=`<div class="qa"><button class="p" data-a="expense">${ic('plus',20,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',20,2)}Beleg lesen</button><button data-a="tab" data-k="geld">${ic('wallet',20,2)}Umrechnen</button></div>`;
+ if(nx)h+=`<div class="pri" style="padding:14px 16px 16px"><div class="lab">Als Nächstes${nx.time?' · '+esc(nx.time):''}</div><div style="font-size:19px;font-weight:600;margin-top:4px;letter-spacing:-.2px">${esc(nx.t)}</div><div class="mut" style="margin-top:3px">${esc(nx.s)}</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="toast" data-k="Navigieren öffnet Google Maps (im echten Bau).">${ic('nav',17,2)}Navigieren</button><button class="btn" ${nx.a}>Details</button></div></div>`;
+ else h+=`<div class="pri" style="padding:14px 16px 16px"><div class="lab">Heute</div><div style="font-size:19px;font-weight:600;margin-top:4px">Freier Tag in ${esc(p?.name||'')}</div><div class="mut" style="margin-top:3px">Nichts geplant</div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn p" style="flex:1" data-a="tab" data-k="orte">Ideen ansehen</button><button class="btn k" data-a="tab" data-k="ki">${ic('spark',16,2.2)}Tagesplan</button></div></div>`;
+ h+=`<div class="sec">Tagesablauf</div><div class="card">${items.map(x=>row({left:`<div class="num" style="width:44px;font-weight:600;color:var(--ink2)">${esc(x.time||'–')}</div>`,t:esc(x.t),s:esc(x.s),dot:x.dot,a:x.a})).join('')}`;
+ if(cur&&cur.nights){const st=S.stages[cur.i];const k=Math.round((T-cur.from)/864e5)+1;h+=row({left:`<div style="width:44px;color:var(--ink3)">${ic('bed',18)}</div>`,t:esc(st.stay?.name||'Unterkunft offen'),s:`Nacht ${k} von ${cur.nights}${st.stay?.status==='gebucht'?' · gebucht':' · offen'}`,a:`data-a="stage" data-k="${cur.i}"`})}
+ h+='</div>';
+ if(b)h+=`<div class="card" style="margin-top:12px;padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Ausgaben heute</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)}</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div></div>`;
+ const tm=dayItems(iso(addDays(T,1)));if(tm.length)h+=`<div class="card" style="margin-top:12px">${row({icn:tm[0].icn,t:`<span class="lab" style="display:block;font-weight:500">Morgen</span>${esc(tm[0].t)}`,s:esc(tm[0].s)+(tm.length>1?` · +${tm.length-1}`:''),dot:tm[0].dot,a:tm[0].a})}</div>`;
+ return h}
+function vOffen(){const op=openItems();return `<button class="back" data-a="back">${ic('back',18)}Übersicht</button>`+head('Offen',`${op.length} Punkte, nach Fälligkeit`)+`<div class="card">${op.map((x,k)=>row({icn:x.icn,t:esc(x.t),s:`${esc(dueTxt(x.date))} · ${esc(x.s)}`,dot:x.date-new Date()<7*864e5?'r':'',a:`data-a="openIt" data-k="${k}"`})).join('')}</div>`}
+// ---------- Route ----------
+let MAP=null;
+function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage();const full=ds.filter(d=>!d.gap&&doneN(d.i)===5).length;
+ let h=head('Route',`${totalN()+1} Tage · ${ds.filter(d=>!d.gap).length} Etappen · ${full} vollständig`,`<button class="ib" data-a="tab" data-k="orte">${ic('search',21)}</button>`);
+ h+=`<div class="seg" style="margin-bottom:12px"><button class="${UI.view==='liste'?'on':''}" data-a="view" data-k="liste">Liste</button><button class="${UI.view==='karte'?'on':''}" data-a="view" data-k="karte">Karte</button></div><div id="map" class="${UI.view==='karte'?'big':''}"></div>`;
+ if(UI.view==='karte')return h;
+ let lastC=null;
+ ds.forEach(d=>{if(d.gap)return;const st=S.stages[d.i];const p=byId(st.placeId);
+  if(st.country!==lastC){const cs=ds.filter(x=>x.country===st.country&&!x.gap);const n=cs.reduce((a,x)=>a+x.nights,0);h+=`<div class="sec" style="margin-top:${lastC?14:6}px">${esc(country(st.country).name)}<span class="r">${fmtD(cs[0].from)}–${fmtD(cs[cs.length-1].to)} · ${n} Nächte</span></div>`;lastC=st.country}
+  const L=legsOf(st);if(d.i>0)L.forEach((l,j)=>{h+=`<button class="tr" data-a="step" data-k="${d.i}" data-s="anreise"><span class="tl">${trLabel(st,j)}</span>${ic((MODES[l.mode]||MODES.car)[0],15)}<span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''} · ${L.length>1&&l.to?esc(l.to):'nach '+esc(p?.name||'')}</span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?kib('Richtpreis'):''}<span class="dot ${l.status==='gebucht'?'g':''}"></span></button>`});
+  const n=doneN(d.i);const sub=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' N':'Durchreise'}${st.stay?.name&&d.nights?' · '+esc(st.stay.name):''}`;
+  if(d.i===fi){const S5=steps(d.i);const nx=S5.find(x=>!x.ok);h+=`<div class="pri" style="padding:14px;margin:4px 0"><button data-a="stage" data-k="${d.i}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left"><div class="stn a">${no[st.id]}</div><div class="sp"><div style="font-size:17px;font-weight:600">${esc(p?.name||'')}</div><div class="ss small">${sub}</div></div><span class="small num" style="color:var(--acc);font-weight:600">${n}/5</span></button><div class="prog" style="margin:12px 0 10px">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><div style="display:flex;align-items:center;gap:10px"><div class="sp small mut">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div></div>`}
+  else h+=`<div class="card" style="margin:4px 0">${row({left:`<div class="stn">${no[st.id]}</div>`,t:esc(p?.name||''),tb:1,s:sub,right:`<span class="small mut num" style="display:flex;align-items:center;gap:5px">${n===5?`<span style="color:var(--ok)">${ic('check',14,2.4)}</span>`:''}${n}/5</span>`,a:`data-a="stage" data-k="${d.i}"`})}</div>`});
+ return h}
+function drawMap(){const el=$('#map');if(!el)return;if(!window.L){el.innerHTML='<div class="empty small">Karte braucht Internet.</div>';return}
+ if(MAP){MAP.remove();MAP=null}const dark=matchMedia('(prefers-color-scheme: dark)').matches;const big=UI.view==='karte';
+ MAP=L.map(el,{zoomControl:false,attributionControl:false,dragging:big,scrollWheelZoom:big,touchZoom:big,doubleClickZoom:big,boxZoom:false,keyboard:false,tap:big});
+ L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark?'dark_all':'light_all'}/{z}/{x}/{y}{r}.png`,{subdomains:'abcd',maxZoom:18}).addTo(MAP);
+ const ds=stagesDated().filter(d=>!d.gap);const no=stageNo();const fi=focusStage();const pts=[];
+ ds.forEach(d=>{const p=byId(d.placeId);if(!p)return;const ll=S.stages[d.i].stay?.ll?[S.stages[d.i].stay.ll.lat,S.stages[d.i].stay.ll.lon]:[p.lat,p.lon];pts.push(ll);const a=d.i===fi;
+  const m=L.marker(ll,{icon:L.divIcon({className:'',html:`<div class="pinl ${a?'a':''}">${no[d.id]}</div>`,iconSize:a?[28,28]:[22,22],iconAnchor:a?[14,14]:[11,11]}),zIndexOffset:a?1000:0}).addTo(MAP);if(big)m.on('click',()=>openStage(d.i))});
+ const ink=getComputedStyle(document.body).getPropertyValue('--ink2').trim()||'#5F6368';
+ L.polyline(pts,{color:ink,weight:1.6,dashArray:'5 6',opacity:.8}).addTo(MAP);
+ if(!big&&fi>=0){const k=Math.max(0,fi-2);MAP.fitBounds(L.latLngBounds(pts.slice(k,fi+3)),{padding:[18,18]})}else MAP.fitBounds(L.latLngBounds(pts),{padding:[24,24]})}
+// ---------- Etappe ----------
+function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const S5=steps(i);const n=S5.filter(x=>x.ok).length;const nxI=S5.findIndex(x=>!x.ok);
+ let h=`<button class="back" data-a="back">${ic('back',18)}Route · ${esc(country(st.country).name)}</button>`;
+ h+=head(esc(p?.name||''),`Etappe ${no} · ${dl(d.from)} – ${dl(d.to)} · ${d.nights?d.nights+' '+(d.nights===1?'Nacht':'Nächte'):'Durchreise'}`,`<button class="ib" data-a="toast" data-k="Karte mit Fokus auf diese Etappe (im echten Bau).">${ic('map',21)}</button><button class="ib" data-a="ki" data-k="s" data-i="${i}" style="color:var(--ki)">${ic('spark',21,2.1)}</button>`);
+ h+=`<div style="display:flex;align-items:center;gap:10px;margin:-4px 0 14px"><div class="prog sp">${S5.map(x=>`<i class="${x.ok?'f':''}"></i>`).join('')}</div><span class="small mut num">${n} von 5</span></div>`;
+ const stepRow=(x,k,now)=>{const m=x.ok?`<div class="stepm ok">${ic('check',15,2.6)}</div>`:`<div class="stepm ${now?'now':'open'}">${k+1}</div>`;
+  const extra=x.k==='unterkunft'&&x.ok&&st.stay?.name?`<div class="small" style="margin-top:6px;color:var(--ink2)">${kib('Bewertung holen')}</div>`:x.k==='anreise'&&!x.ok&&legsOf(st).some(l=>!eurOf(l)&&l.mode!=='flight')?`<div class="small" style="margin-top:6px">${kib('Richtpreis')}</div>`:'';
+  if(now)return `<div class="pri" style="margin:12px 0"><div class="row" style="align-items:flex-start;padding:14px">${m}<div class="sp" style="padding-top:2px"><div class="lab" style="margin-bottom:3px">Nächster Schritt</div><div class="tt" style="font-weight:600">${x.t}</div><div class="ss wrap">${esc(x.sub)}</div>${extra}<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn sm p" data-a="step" data-k="${i}" data-s="${x.k}">Öffnen</button>${x.k==='ausfluege'?`<button class="btn sm k" data-a="ki" data-k="s" data-i="${i}">${ic('spark',14,2.2)}${x.free.length===1?'Tagesplan '+WD[pd(x.free[0]).getDay()]:'Ausflüge vorschlagen'}</button>`:x.k==='anreise'?`<button class="btn sm k" data-a="toast" data-k="Richtpreis über 12Go und Claude (wie heute).">${ic('spark',14,2.2)}Richtpreis</button>`:''}</div></div></div></div>`;
+  return `<button class="row" style="align-items:flex-start" data-a="step" data-k="${i}" data-s="${x.k}">${m}<div class="sp" style="padding-top:2px"><div class="tt">${x.t}</div><div class="ss wrap">${esc(x.sub)}</div>${extra}</div><span class="chev" style="padding-top:4px">${ic('chev',16)}</span></button>`};
+ let open=false;h+='<div class="card">';
+ S5.forEach((x,k)=>{if(k===nxI){h+='</div>'+stepRow(x,k,true);open=true;return}if(open){h+='<div class="card">';open=false}h+=stepRow(x,k,false)});
+ if(!open)h+='</div>';
+ if(p?.note)h+=`<div class="card" style="margin-top:12px">${row({icn:'book',t:'Notiz',s:esc(p.note)})}</div>`;
+ return h.replace(/<div class="card"><\/div>/g,'')}
+function stepSheet(i,k){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const x=steps(i).find(s=>s.k===k);let b='';
+ if(k==='ort')b=kv([['Ort',p?.name],['Land',country(st.country).name],['Zeitraum',`${dl(d.from)} – ${dl(d.to)}`],['Nächte',d.nights||'0 (Durchreise)']]);
+ if(k==='anreise'){const L=legsOf(st);b=L.length?`<div class="card">${L.map((l,j)=>{const pv=i>0?byId(S.stages[i-1].placeId):null;return row({icn:(MODES[l.mode]||MODES.car)[0],t:`${trLabel(st,j)} · ${esc(l.from||pv?.name||'')} → ${esc(l.to||p?.name||'')}`,s:`${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}${l.no?' · '+esc(l.no):''} · ${l.status==='gebucht'?'gebucht':'offen'}${eurOf(l)!=null?' · '+eur(eurOf(l)):''}`,dot:l.status==='gebucht'?'g':''})}).join('')}</div>`:'<div class="empty">Keine Anreise nötig.</div>'}
+ if(k==='unterkunft'){const h=st.stay||{};b=d.nights?kv([['Name',h.name||'–'],['Status',h.status||'offen'],['Bezahlt',h.paid?'ja':'nein'],['Kosten',eurOf(h)!=null?eur(eurOf(h)):'–'],['Check-in',h.cinT||'–'],['Portal',h.portal||'–']]):'<div class="empty">Durchreise, keine Unterkunft nötig.</div>'}
+ if(k==='ausfluege'){const ex=excursionsSt(i);const days=[];for(let q=0;q<Math.max(1,d.nights);q++)days.push(iso(addDays(d.from,q)));
+  b=days.map(t=>{const l=ex.filter(e=>e.planned===t);return `<div class="sec" style="margin:14px 2px 6px">${dl(pd(t))}${!l.length?`<span class="r">${kib('frei')}</span>`:''}</div>${l.length?`<div class="card">${l.map(e=>row({icn:'pin',t:esc(e.name),s:`${excNo(e)}${e.gRating?' · ★ '+String(e.gRating).replace('.',','):''}`,dot:e.tt?.status==='gebucht'?'g':'n'})).join('')}</div>`:''}`}).join('');
+  const un=ex.filter(e=>!e.planned);if(un.length)b+=`<div class="sec" style="margin:14px 2px 6px">Ohne Tag</div><div class="card">${un.map(e=>row({icn:'pin',t:esc(e.name),s:excNo(e)})).join('')}</div>`}
+ if(k==='kosten'){const items=[];if(d.nights)items.push(['Unterkunft',eurOf(st.stay)]);legsOf(st).forEach((l,j)=>items.push([trLabel(st,j)||'Anreise',eurOf(l)]));excursionsSt(i).forEach(e=>{if(e.tt)items.push([e.name,eurOf(e.tt)])});
+  b=`<div class="card" style="padding:4px 14px">${items.map(([t,v])=>`<div class="kv"><span>${esc(t)}</span><b style="font-weight:600;${v==null?'color:var(--warn)':''}">${v==null?'fehlt':eur(v)}</b></div>`).join('')}</div>`}
+ sheet(`<div class="sht">${x.t}</div><div class="mut" style="margin:4px 0 14px">${esc(p?.name||'')} · Etappe ${no}</div>${b}<div style="display:flex;gap:8px;margin-top:16px"><button class="btn p" style="flex:1" data-a="toast" data-k="Bearbeiten öffnet das Formular (im echten Bau). Der Prototyp ändert keine Daten.">Bearbeiten</button><button class="btn" data-a="close">Schließen</button></div>`)}
+const kv=a=>`<div class="card" style="padding:4px 14px">${a.map(([k,v])=>`<div class="kv"><span>${esc(k)}</span><b style="font-weight:600;text-align:right">${esc(v)}</b></div>`).join('')}</div>`;
+// ---------- Orte ----------
+function pState(p){if(p.role==='anchor'&&S.stages.some(s=>s.placeId===p.id))return'Etappe';if(p.attached&&p.anchorId)return'Eingeplant';return'Idee'}
+function vOrte(){const all=S.places.filter(p=>p.country!=='_ext');const q=UI.q.trim().toLowerCase();const f=UI.of;
+ const list=all.filter(p=>(!q||p.name.toLowerCase().includes(q))&&(f==='alle'||pState(p)===f));const cnt=s=>all.filter(p=>pState(p)===s).length;
+ let h=head('Orte',`${cnt('Idee')} Ideen · ${cnt('Eingeplant')} eingeplant · ${cnt('Etappe')} Etappen`);
+ h+=`<div class="card" style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-color:var(--ink3)">${ic('search',19)}<input id="q" value="${esc(UI.q)}" placeholder="Orte suchen …" style="flex:1;border:0;background:transparent;outline:none;font-size:16px;min-width:0"></div>`;
+ h+=`<div class="chips" style="margin-top:12px;margin-bottom:2px">${[['alle','Alle'],['Etappe','Etappen'],['Eingeplant','Eingeplant'],['Idee','Ideen']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-a="of" data-k="${k}">${l}</button>`).join('')}</div>`;
+ const grp=['Etappe','Eingeplant','Idee'];grp.forEach(g=>{const l=list.filter(p=>pState(p)===g);if(!l.length)return;h+=`<div class="sec">${g==='Etappe'?'Etappen':g==='Idee'?'Ideen':g}<span class="r">${l.length}</span></div><div class="card">${l.slice(0,30).map(p=>row({icn:g==='Etappe'?'bed':'pin',t:esc(p.name),s:`${p.gRating?`★ <b style="color:var(--ink);font-weight:600">${String(p.gRating).replace('.',',')}</b>${p.gCount?' ('+p.gCount.toLocaleString('de-DE')+')':''} · `:''}${esc(country(p.country).name)}${g==='Eingeplant'&&p.planned?' · '+dl(pd(p.planned)):''}`,a:`data-a="place" data-k="${p.id}"`})).join('')}${l.length>30?`<div class="row small mut">+ ${l.length-30} weitere</div>`:''}</div>`});
+ if(!list.length)h+='<div class="empty">Nichts gefunden.</div>';
+ if(q)h+=`<div class="sec">Google und OpenStreetMap</div><div class="card">${row({icn:'globe',t:'Weitere Treffer aus Google und OpenStreetMap',s:'kommen im echten Bau in dieselbe Liste'})}</div>`;
+ h+=`<div class="card" style="margin-top:12px">${row({icn:'spark',kic:1,t:'Claude fragen',s:q?`Was ist „${esc(UI.q)}“ – lohnt es sich?`:'Was lohnt sich in der Nähe?',a:'data-a="tab" data-k="ki"'})}</div>`;
+ return h}
+function placeSheet(id){const p=byId(id);if(!p)return;const st=pState(p);const k=exStage(p);
+ sheet(`<div class="sht">${esc(p.name)}</div><div class="mut" style="margin:4px 0 14px">${st} · ${esc(country(p.country).name)}</div>${kv([['Zustand',st],['Etappe',k>=0?`${stageNo()[S.stages[k].id]} ${byId(S.stages[k].placeId)?.name||''}`:'–'],['Tag',p.planned?dl(pd(p.planned)):'–'],['Bewertung',p.gRating?`★ ${String(p.gRating).replace('.',',')}${p.gCount?' ('+p.gCount+')':''}`:'–']])}${p.note?`<div class="small mut" style="margin-top:12px;line-height:1.5">${esc(p.note)}</div>`:''}
+ <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button class="btn p" style="flex:1" data-a="toast" data-k="In Etappe planen: Etappe und Tag wählen (im echten Bau).">${st==='Idee'?'In Etappe planen':'Tag ändern'}</button>${!p.gRating?`<button class="btn k" data-a="toast" data-k="Bewertung holen: Google-Note plus Claude-Zusammenfassung (im echten Bau).">${ic('spark',16,2.2)}Bewertung</button>`:''}<a class="btn" href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" rel="noopener">${ic('map',16)}Maps</a></div>`)}
+// ---------- Geld ----------
+function tripCurs(){const l=[...new Set(S.stages.map(s=>curDefault(s.country)))];['USD','EUR'].forEach(c=>{if(!l.includes(c))l.push(c)});return l}
+function vGeld(){const t=iso(today());const cur=stageAt(t)||stagesDated()[0];const b=budget();if(!UI.cur)UI.cur=curDefault(cur.country);const c=UI.cur;const a=numOf(UI.amt)||0;
+ const toE=UI.dir===1?toEUR(a,c):a;const fromC=UI.dir===1?a:a*(rateOf(c)||1);const usd=(toE||0)*(rateOf('USD')||1);
+ let h=head('Geld',`${b?'Budget '+eur(b.B)+' für zwei · ':''}${esc(country(cur.country).name)}`);
+ h+=`<div class="pri" style="padding:14px 16px 16px"><div style="display:flex;align-items:center"><span class="lab sp">Umrechnen${S.fx?.ts?' · Kurs '+new Date(S.fx.ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}):' · Startkurse'}</span><button class="small" style="color:var(--acc);font-weight:600;display:flex;align-items:center;gap:4px" data-a="swap">${ic('route',14,2)}tauschen</button></div>
+  <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><input id="amt" class="conv num" inputmode="decimal" value="${esc(UI.amt)}" style="flex:1"><span class="mut" style="font-size:16px;font-weight:600">${UI.dir===1?esc(c):'EUR'}</span></div>
+  <div style="display:flex;align-items:baseline;gap:8px;margin-top:2px" id="convOut">${convOut(a,c)}</div>
+  <div class="chips" style="margin-top:12px">${tripCurs().filter(x=>x!=='EUR').map(x=>`<button class="chip ${x===c?'on':''}" data-a="cur" data-k="${x}">${esc(x)}</button>`).join('')}</div></div>`;
+ h+=`<div class="qa" style="margin-top:12px"><button class="p" data-a="expense">${ic('plus',20,2.2)}Ausgabe</button><button class="k" data-a="toast" data-k="Beleg lesen: Kamera oder Galerie, Claude füllt die Ausgabe aus (im echten Bau).">${ic('cam',20,2)}Beleg lesen</button></div>`;
+ if(b)h+=`<div class="card" style="padding:12px 14px"><div style="display:flex;align-items:center"><span class="lab sp">Heute</span><span class="num small" style="font-weight:600">${eur(b.tod)} <span class="mut" style="font-weight:400">von ${eur(b.daily)} frei</span></span></div><div style="height:5px;background:var(--line2);border-radius:3px;margin-top:8px"><div style="width:${Math.min(100,Math.round(b.tod/Math.max(1,b.daily)*100))}%;height:5px;background:var(--ink2);border-radius:3px"></div></div>
+  <div style="display:flex;margin-top:12px">${[['Budget übrig',b.rest],['pro Tag frei',b.daily],['Fixkosten',b.fix]].map(([k,v])=>`<div class="sp"><div class="small mut">${k}</div><div class="num" style="font-size:17px;font-weight:600;margin-top:2px">${eur(v)}</div></div>`).join('')}</div></div>`;
+ else h+=`<div class="card">${row({icn:'wallet',t:'Budget festlegen',s:'noch kein Budget eingetragen'})}</div>`;
+ const ex=(S.expenses||[]).slice().sort((x,y)=>y.date.localeCompare(x.date)).slice(0,5);
+ h+=`<div class="sec">Letzte Ausgaben<span class="r">${(S.expenses||[]).length}</span></div><div class="card">${ex.length?ex.map(e=>row({icn:/Essen/.test(e.cat)?'food':/Transport/.test(e.cat)?'car':/Unterkunft/.test(e.cat)?'bed':'wallet',t:esc(e.txt||e.cat),s:`${dl(pd(e.date))} · ${esc(e.cat||'')}`,right:`<span class="num" style="font-weight:600">${(numOf(e.amt)||0).toLocaleString('de-DE')} ${esc(curSym(e.cur||'EUR'))}</span>`})).join(''):'<div class="empty small">Noch keine Ausgaben.</div>'}</div>`;
+ const miss=stagesDated().filter(d=>!d.gap).reduce((a,d)=>a+steps(d.i)[4].miss.length,0);
+ h+=`<div class="card" style="margin-top:12px">${row({icn:'layers',t:'Kosten je Etappe',s:miss?`${miss} Posten ohne Betrag`:'alle Beträge erfasst',dot:miss?'':'g',a:'data-a="page" data-k="kosten"'})}</div>`;
+ return h}
+function convOut(a,c){const e=UI.dir===1?toEUR(a,c):a;const o=UI.dir===1?null:a*(rateOf(c)||1);const usd=(e||0)*(rateOf('USD')||1);const f=v=>v==null?'–':v.toLocaleString('de-DE',{maximumFractionDigits:v<100?2:0});
+ return UI.dir===1?`<span class="num" style="font-size:20px;font-weight:600;color:var(--acc)">= ${f(e)} €</span>${c!=='USD'?`<span class="small mut">· ${f(usd)} $</span>`:''}`:`<span class="num" style="font-size:20px;font-weight:600;color:var(--acc)">= ${f(o)} ${esc(c)}</span>`}
+function vKosten(){const ds=stagesDated().filter(d=>!d.gap);const no=stageNo();return `<button class="back" data-a="back">${ic('back',18)}Geld</button>`+head('Kosten je Etappe','Unterkunft, Anreise und gebuchte Ausflüge')+`<div class="card">${ds.map(d=>{const st=S.stages[d.i];let c=(eurOf(st.stay)||0)+legsOf(st).reduce((a,l)=>a+(eurOf(l)||0),0);excursionsSt(d.i).forEach(e=>c+=eurOf(e.tt)||0);const m=steps(d.i)[4].miss.length;return row({left:`<div class="stn">${no[st.id]}</div>`,t:esc(byId(st.placeId)?.name||''),s:m?`${m} ohne Betrag`:'vollständig',right:`<span class="num" style="font-weight:600">${eur(c)}</span>`,dot:m?'':'g',a:`data-a="step" data-k="${d.i}" data-s="kosten"`})}).join('')}</div>`}
+// ---------- KI ----------
+function vKI(){const bal=(()=>{try{return JSON.parse(localStorage.getItem('auszeit27_abal')||'null')}catch(e){return null}})();const key=!!localStorage.getItem('auszeit27_akey');const model=(localStorage.getItem('auszeit27_amodel')||'haiku')==='sonnet'?'Sonnet 5.5':'Haiku 5.5';
+ const fi=UI.focus!=null?UI.focus:focusStage();const fs=fi>=0?S.stages[fi]:null;const fName=fs?`E${stageNo()[fs.id]} ${byId(fs.placeId)?.name||''}`:'';const cs=[...new Set(S.stages.map(s=>s.country))];
+ const sc=UI.kiScope;let h=head('KI-Assistent',`Claude · ${model}${bal?' · Guthaben ca. '+bal.usd.toLocaleString('de-DE',{maximumFractionDigits:3})+' $':key?'':' · noch kein Schlüssel'}`,`<button class="ib" data-a="toast" data-k="Protokoll: was die KI geändert hat, mit Rückgängig (im echten Bau).">${ic('clock',21)}</button>`);
+ h+=`<div class="chips" style="margin-bottom:12px"><button class="chip ${sc==='all'?'on':''}" data-a="kisc" data-k="all">Ganze Reise</button>${fs?`<button class="chip ${sc==='s'?'on':''}" data-a="kisc" data-k="s">${esc(fName)}</button>`:''}${cs.map(c=>`<button class="chip ${sc===c?'on':''}" data-a="kisc" data-k="${c}">${esc(country(c).name)}</button>`).join('')}</div>`;
+ const lab=sc==='all'?'zur Reise':sc==='s'?'zu '+(byId(fs?.placeId)?.name||''):'zu '+country(sc).name;
+ h+=`<div class="card" style="display:flex;align-items:center;gap:10px;height:50px;padding:0 6px 0 14px"><input placeholder="Frag ${esc(lab)} …" style="flex:1;border:0;background:transparent;outline:none;font-size:15px;min-width:0" id="kiq"><button data-a="kiask" style="width:38px;height:38px;border-radius:11px;background:var(--ki);color:var(--kit);display:flex;align-items:center;justify-content:center">${ic('spark',19,2.2)}</button></div>`;
+ const T=[['alert',sc==='s'?'Etappe prüfen':'Reise prüfen','Fehler, Risiken'],['pin','Ausflüge vorschlagen','mit Tag'],['wallet','Richtpreise','offene Transfers'],['star','Bewertungen holen','Unterkünfte, Orte'],['cal','Tagesplan','freie Tage'],['flag','Einreise prüfen','Checklisten']];
+ h+=`<div class="sec">Aufgaben</div><div class="grid2">${T.map(([i,t,s])=>`<button class="card tile" data-a="toast" data-k="${esc(t)}: läuft wie in der heutigen App, Ergebnis kommt als Vorschlag (im echten Bau)."><div style="color:var(--ki)">${ic(i,18,2)}</div><div style="font-size:14px;font-weight:600;margin-top:8px">${t}</div><div class="small mut" style="margin-top:2px">${s}</div></button>`).join('')}</div>`;
+ const ck=S.aiChecks&&(S.aiChecks[sc==='s'?fs?.country:sc]||(sc==='all'?null:null));const C=S.aiChecks&&(sc==='all'?S.aiChecks.all:S.aiChecks[sc==='s'?fs?.country:sc]);const it=C?C.items.filter(x=>!x.st):[];
+ const LV={fehler:['Fehler','var(--err)'],warnung:['Warnung','var(--warn)'],optimierung:['Optimierung','var(--ki)']};
+ h+=`<div class="sec">Vorschläge<span class="r">${it.length} offen</span></div>`;
+ h+=it.length?it.slice(0,6).map(x=>{const st=x.sid?S.stages.find(s=>s.id===x.sid):null;const a=x.action;const at=a&&a.type==='nights'&&S.stages[a.stage]?`${byId(S.stages[a.stage].placeId)?.name}: ${S.stages[a.stage].nights} → ${a.nights} Nächte`:'';
+  return `<div class="card" style="border-color:var(--ki);border-width:1.5px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px">${kib('Vorschlag')}<span class="small" style="color:${LV[x.level][1]};font-weight:600">${LV[x.level][0]}</span>${st?`<span class="small mut">· E${stageNo()[st.id]} ${esc(byId(st.placeId)?.name||'')}</span>`:''}</div><div style="font-size:16px;font-weight:600;margin-top:8px">${esc(at||x.title)}</div><div class="mut small" style="margin-top:4px;line-height:1.45">${esc(x.detail)}</div><div style="display:flex;gap:8px;margin-top:12px">${at?'<button class="btn sm p" data-a="toast" data-k="Übernehmen ändert die Daten (im echten Bau; der Prototyp ändert nichts).">Übernehmen</button><button class="btn sm" data-a="toast" data-k="Ändern öffnet das Formular, schon ausgefüllt.">Ändern</button>':st?`<button class="btn sm" data-a="stage" data-k="${S.stages.indexOf(st)}">Ansehen</button>`:''}<button class="btn sm gh" data-a="toast" data-k="Verwerfen blendet den Vorschlag aus.">Verwerfen</button></div></div>`}).join(''):`<div class="card"><div class="empty small">Noch keine Vorschläge für diesen Bereich. „${sc==='s'?'Etappe':'Reise'} prüfen“ erzeugt welche.</div></div>`;
+ return h}
+// ---------- Rahmen ----------
+function sheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheet').classList.add('on');$('#shade').classList.add('on')}
+function closeSheet(){$('#sheet').classList.remove('on');$('#shade').classList.remove('on')}
+let tT=null;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tT);tT=setTimeout(()=>e.classList.remove('on'),3200)}
+function openStage(i){UI.stack.push({k:'stage',i});closeSheet();render()}
+function render(){DS=null;const m=$('#main');if(!ready()){m.innerHTML=head('Prototyp v2','Keine Reisedaten gefunden')+`<div class="card" style="padding:16px;line-height:1.5">Öffne den Prototyp auf dem Gerät, auf dem die Auszeit-App eure Reise gespeichert hat, und unter derselben Adresse (dstindl.github.io). <a href="../" style="color:var(--acc)">Zur heutigen App</a></div>`;$('#nav').innerHTML='';return}
+ const top=UI.stack[UI.stack.length-1];let h;
+ if(top&&top.k==='stage')h=vStage(top.i);else if(top&&top.k==='offen')h=vOffen();else if(top&&top.k==='kosten')h=vKosten();
+ else h=UI.tab==='home'?vHome():UI.tab==='route'?vRoute():UI.tab==='orte'?vOrte():UI.tab==='geld'?vGeld():vKI();
+ m.innerHTML=h;window.scrollTo(0,top?0:(UI.scroll?.[UI.tab]||0));
+ const fab=$('#fab');fab.innerHTML=ic('plus',26,2.2);fab.hidden=!!top||!['route','orte','geld'].includes(UI.tab)||UI.tab==='geld';
+ const it=[['home','home','Übersicht'],['route','route','Route'],['ki','spark','KI'],['orte','pin','Orte'],['geld','wallet','Geld']];
+ $('#nav').innerHTML=it.map(([k,i,l])=>k==='ki'?`<button class="nv kin" data-a="tab" data-k="ki"><div class="kib">${ic('spark',24,2.1)}</div>KI</button>`:`<button class="nv ${UI.tab===k&&!top?'on':''}" data-a="tab" data-k="${k}">${ic(i,23,UI.tab===k?2:1.8)}<span>${l}</span></button>`).join('');
+ if(UI.tab==='route'&&!top)setTimeout(drawMap,0);
+ const q=$('#q');if(q){q.oninput=()=>{UI.q=q.value;const pos=q.selectionStart;render();const n=$('#q');n.focus();n.setSelectionRange(pos,pos)}}
+ const am=$('#amt');if(am){am.oninput=()=>{UI.amt=am.value;$('#convOut').innerHTML=convOut(numOf(am.value)||0,UI.cur)}}}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el)return;const a=el.dataset.a,k=el.dataset.k;
+ const A={
+  tab:()=>{UI.scroll=UI.scroll||{};UI.scroll[UI.tab]=window.scrollY;UI.tab=k;UI.stack=[];if(k==='ki'&&el.dataset.i==null&&!UI.kiSet)UI.kiScope='all';closeSheet();render();window.scrollTo(0,0)},
+  back:()=>{UI.stack.pop();render()},
+  page:()=>{UI.stack.push({k});closeSheet();render()},
+  stage:()=>openStage(+k),
+  step:()=>stepSheet(+k,el.dataset.s),
+  place:()=>placeSheet(k),
+  openIt:()=>{const x=openItems()[+k];if(!x)return;if(x.i!=null){UI.tab='route';UI.stack=[{k:'stage',i:x.i}];render()}else toast('Checkliste öffnen und abhaken (im echten Bau).')},
+  view:()=>{UI.view=k;render()},
+  of:()=>{UI.of=k;render()},
+  cur:()=>{UI.cur=k;render()},
+  swap:()=>{UI.dir=UI.dir===1?-1:1;render()},
+  kisc:()=>{UI.kiScope=k;render()},
+  ki:()=>{UI.tab='ki';UI.stack=[];UI.kiScope='s';UI.focus=+el.dataset.i;render();window.scrollTo(0,0)},
+  kiask:()=>toast('Frage geht an Claude mit dem gewählten Fokus (im Prototyp noch ohne Verbindung).'),
+  preview:()=>{if(UI.preview){UI.preview=null}else{const ds=stagesDated();const d=ds.find(x=>!x.gap&&excursionsSt(x.i).some(e=>e.planned))||ds[Math.min(5,ds.length-1)];const e=excursionsSt(d.i).find(x=>x.planned);UI.preview=e?e.planned:iso(addDays(d.from,1))}UI.tab='home';UI.stack=[];render();window.scrollTo(0,0)},
+  expense:()=>sheet(`<div class="sht">Neue Ausgabe</div><div class="mut" style="margin:4px 0 14px">${dl(today())}</div><input class="fld num" inputmode="decimal" placeholder="Betrag" style="font-size:22px;height:56px"><div class="chips" style="margin:12px -20px">${tripCurs().map((c,n)=>`<span class="chip ${n===0?'on':''}">${esc(c)}</span>`).join('')}</div><input class="fld" placeholder="Wofür? z. B. Abendessen" style="margin-top:4px"><div class="chips" style="margin:12px -20px">${['Essen & Trinken','Transport','Aktivitäten','Einkauf','Sonstiges'].map((c,n)=>`<span class="chip ${n===0?'on':''}">${c}</span>`).join('')}</div><div class="small mut" style="margin:4px 2px 0">Im Prototyp wird nichts gespeichert – Ausgaben weiter in der heutigen App erfassen.</div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn p" style="flex:1" data-a="close">Speichern</button><button class="btn k" data-a="toast" data-k="Beleg lesen (im echten Bau).">${ic('cam',16,2)}Beleg</button></div>`),
+  plus:()=>sheet(`<div class="sht">Hinzufügen</div><div class="mut" style="margin:4px 0 14px">Ein Ablauf für alles Neue</div><div class="card">${[['book','Buchung einlesen','Mail, PDF oder Screenshot – Claude liest sie aus'],['pin','Ort','suchen und als Idee merken oder einplanen'],['wallet','Ausgabe','Betrag, Währung, Kategorie'],['route','Etappe','Ort und Nächte, an der richtigen Stelle']].map(([i,t,s])=>row({icn:i,t,s,a:`data-a="toast" data-k="${t}: im echten Bau."`})).join('')}</div>`),
+  close:()=>closeSheet(),
+  toast:()=>toast(k)};
+ if(A[a]){e.preventDefault();A[a]()}});
+window.addEventListener('resize',()=>{if(MAP)MAP.invalidateSize()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render());
+render();
+</script></body></html>
