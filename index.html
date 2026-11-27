@@ -350,8 +350,9 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .tld.tf{background:var(--accs);color:var(--acc)}
 .tlt{font-size:14px;font-weight:600;line-height:1.35;padding-top:4px}
 .tls{font-size:12px;color:var(--ink2);line-height:1.45;margin-top:2px}
-.tlp{font-size:14px;font-weight:600;white-space:nowrap;padding-top:4px}
-.tlx{display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:12.5px;font-weight:600;color:var(--ki);background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
+.tlp{font-size:14px;font-weight:600;white-space:nowrap;padding-top:4px;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.tlq{font-size:10.5px;font-weight:600;line-height:1;padding:3px 6px;border-radius:5px}.tlq.ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}.tlq.wn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.tlx{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin-top:7px;font-size:12.5px;font-weight:600;color:var(--ki);background:none;border:0;padding:0;cursor:pointer;font-family:inherit}
 .cnw{color:var(--warn);margin-top:2px;line-height:1.45}.cnn{margin-top:4px;line-height:1.45}
 .fxl{margin:-4px 0 12px 38px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;position:relative}
 .fxl.mid::before{content:'';position:absolute;left:-26px;top:-5px;bottom:-14px;border-left:2px solid var(--line)}
@@ -1245,8 +1246,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_24';
+const APP_VERSION='0.91_25';
 const CHANGELOG=[
+ {v:'0.91_25',d:'27.11.2026',items:['Flugpreise: Die App fragt Google Flights jetzt im vollständigen Modus ab (wie im Browser). Die schnelle Abfrage lieferte teils deutlich falsche Preise – bisherige Flugpreise bitte einmal „neu laden“','Einstellungen → Reise → Reisende: Zahl der Personen für die Flugsuche und für Preise je Person bei Transfers (Bus, Zug, Boot); Claude wählt die Fahrzeuggröße danach','Verbindungen: bei mehreren Teilstrecken steht an jedem Preis, ob er echt ist (Angebote, Google Flights) oder geschätzt']},
  {v:'0.91_24',d:'27.11.2026',items:['Verbindungen: nur noch eine Suche. Claude vergleicht alle Verkehrsmittel – ist ein Flug dabei, holt die App danach automatisch die Flüge mit echten Preisen aus Google Flights und rechnet sie in die Option ein (Taxi + Flug + Taxi = ein Preis für zwei)','Ergebnis neu gegliedert: Überblick aller Optionen oben, jede Option als Ablauf mit Teilstrecken, Zeiten und Preis je Teilstrecke. Beim Flug „passende Flüge“ aufklappen, anderen Flug wählen, Anbieter laden','Übernehmen trägt beim Flug Zeiten, Flugnummern, Flughäfen und den Preis laut Google Flights ein','Unterkunft: Anbieterliste in sauberen Spalten (Anbieter | Preis), „pro Nacht · für eure Daten“ einmal darüber statt in jeder Zeile']},
  {v:'0.91_23',d:'27.11.2026',items:['Karte: Transfers tragen jetzt ihre Nummer (T5, T6.1 …) direkt auf der Linie – antippen öffnet den Transfer','Heute: Karte im Vollbild wie die Routenkarte (mit Zurück, Ausschnitt und Standort)']},
  {v:'0.91_22',d:'27.11.2026',items:['Flüge mit echten Preisen aus Google Flights (über den Preis-Dienst): unter Verbindungen „Flüge suchen“ – Flughäfen in der Nähe, euer Datum, 2 Personen; Flüge mit Zeiten, Umstiegen, Dauer und Preis für zwei, Preisniveau laut Google. „Alle Anbieter“ zeigt Airline, Trip.com, Kiwi & Co. mit Preisen (1 Abfrage), „Übernehmen“ füllt den Flug-Transfer komplett','Dafür den Worker-Code einmal aktualisieren (Version 2) – die App zeigt die Schritte an']},
@@ -2283,7 +2285,10 @@ Object.assign(window.KIA=window.KIA||{},{
  rateStay:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st||!st.stay)return;if(!aiKey())return kiNoKey();delete st.stay.gNone;delete st.stay.gRating;RQ.s.add(st.id);toast('Claude sucht die Bewertung …',6000);rateFlush().then(()=>{if(sheetOpen())staySheet(i)})},
  mapMin:(el)=>{mapPrefSet('min',+el.dataset.k);mapFilterSheet();drawMap()}});
 // ===================== Verbindungen: alle Verkehrsmittel vergleichen, mehrstufig übernehmen =====================
-const PAX=2;
+// Reisende: aus den Einstellungen (Standard 2) – für Flugsuche und Preise je Person bei Transfers
+const paxN=()=>{const n=Math.round(+((typeof S!=='undefined'&&S&&S.settings&&S.settings.pax)||2));return n>=1&&n<=9?n:2};
+const paxTxt=(n=paxN())=>n===1?'für eine Person':n===2?'für zwei':n===3?'für drei':n===4?'für vier':`für ${n} Personen`;
+const paxP=(n=paxN())=>n===1?'eine Person':n+' Personen';
 const AI_CONN_SYS=`Du planst Transfers in Süd- und Südostasien für eine Reise-App (zwei Reisende mit Gepäck) und vergleichst ALLE sinnvollen Verbindungen einer Strecke.
 Vorgehen: Rufe die angegebene 12Go-Seite ab bzw. nutze die Websuche (12go.asia, Bookaway, Rome2Rio, Bahn- und Busfahrpläne; für Flüge Skyscanner-Routenseiten wie skyscanner.de/routes/fra/han/…, Google Flights und Fluggesellschaften). Prüfe jedes Verkehrsmittel: Privatfahrer/Taxi, Linien- und Schlafbus/Limousine, Zug, Flug (inklusive Wege zu und von den Flughäfen), Boot – und sinnvolle Kombinationen mit Umstieg.
 Antworte am Ende NUR mit JSON ohne Kommentare:
@@ -2298,6 +2303,8 @@ Preisregeln (wichtig, damit Preise bei jeder Suche gleich bleiben):
 - Jedes Segment bekommt einen Preis; kurze Taxi-Zubringer notfalls geschätzt (psrc "Schätzung").
 - Nennt der Auftrag eine frühere Recherche, ist sie der Ausgangswert: Behalte ihre Preise, wenn deine Quellen sie bestätigen oder nichts Belastbares zeigen. Weiche nur mit konkreter Quelle um mehr als 25 % ab und nenne den Grund in "chg". Angebote (offers) aber immer genau so abschreiben, wie sie in der Quelle stehen.
 Weitere Regeln: 2–5 Optionen, die es auf dieser Strecke wirklich gibt, verschiedene Verkehrsmittel abdecken. dur_h = Gesamtdauer in Stunden (Zahl) inklusive Umstiegen. segments in Reihenfolge, ein Segment je Verkehrsmittelwechsel (z. B. Taxi zum Bahnhof, Zug, Taxi zur Unterkunft); eine direkte Verbindung hat genau ein Segment. src = "Schätzung", wenn keine aktuellen Angebote gefunden wurden. Nichts erfinden.`;
+function connSys(){const n=paxN();if(n===2)return AI_CONN_SYS;const veh=n<=3?'(Limousine oder SUV, 4–5 Sitze)':n<=6?'(Van oder Minibus, 7–9 Sitze)':'(Minibus)';
+ return AI_CONN_SYS.replace('(zwei Reisende mit Gepäck)',`(${n===1?'eine Person':n+' Reisende'} mit Gepäck)`).replace('die App rechnet selbst für zwei Personen','die App rechnet selbst für '+paxP(n)).replace('für zwei Personen mit Gepäck (Limousine oder SUV, 4–5 Sitze)',`für ${paxP(n)} mit Gepäck ${veh}`).replace('nur Fahrzeuge mit mindestens 3 Plätzen',`nur Fahrzeuge mit mindestens ${Math.max(3,n+1)} Plätzen`)}
 const CRIT={bal:'Ausgewogen',fast:'Schnellste',cheap:'Günstigste'};
 const critPref=()=>{try{return localStorage.getItem('auszeit27_v2crit')||'bal'}catch(e){return 'bal'}};
 const num0=v=>{const n=+v;return isFinite(n)&&n>0?n:null};
@@ -2307,12 +2314,12 @@ function connSeg(s){s=s||{};const mode=MODE_IN[String(s.mode||'').toLowerCase()]
  const r={mode,from:String(s.from||'').slice(0,80),to:String(s.to||'').slice(0,80),dur:String(s.dur||''),dep:/^\d{1,2}:\d{2}$/.test(s.dep||'')?String(s.dep).padStart(5,'0'):'',ops:s.ops?String(s.ops).slice(0,60):'',
   min:num0(s.price_min!=null?s.price_min:s.min),max:num0(s.price_max!=null?s.price_max:s.max),cur:segCur(s.cur),per,veh:per==='vehicle'&&s.vehicle?String(s.vehicle).slice(0,40):'',psrc:s.psrc?String(s.psrc).slice(0,40):''};if(mode==='flight'){const ia=x=>/^[A-Za-z]{3}$/.test(x||'')?String(x).toUpperCase():null;r.fi=ia(s.from_iata);r.ti=ia(s.to_iata)}
  const O=connOffers(s,per);if(O)Object.assign(r,{offers:O.list,min:O.min,max:O.max,mid:O.mid,cur:'EUR',on:O.n,oall:O.all});return r}
-function segEur(s){if(s.min==null&&s.max==null)return null;const c=s.cur||'EUR';const a=toEUR(s.min||s.max,c),b=toEUR(s.max||s.min,c);if(a==null||b==null)return null;const m=s.mid!=null?toEUR(s.mid,c):(a+b)/2;const f=s.per==='vehicle'?1:PAX;return [a*f,b*f,m*f]}
+function segEur(s){if(s.min==null&&s.max==null)return null;const c=s.cur||'EUR';const a=toEUR(s.min||s.max,c),b=toEUR(s.max||s.min,c);if(a==null||b==null)return null;const m=s.mid!=null?toEUR(s.mid,c):(a+b)/2;const f=s.per==='vehicle'?1:paxN();return [a*f,b*f,m*f]}
 // Richtpreis aus echten Angeboten, von der App bestimmt: Median der drei günstigsten passenden Angebote
 const seatsOf=t=>{const m=/(\d{1,2})\s*-?\s*(?:pax|seats?|sitze|sitzer|seater|plätze)/i.exec(t||'');return m?+m[1]:null};
 function connOffers(s,per){const L=(Array.isArray(s.offers)?s.offers:[]).map(x=>{x=x||{};const cur=segCur(x.cur||s.cur);const price=num0(x.price);const e=price?toEUR(price,cur):null;
   return {op:String(x.op||'').slice(0,40),cls:String(x.cls||'').slice(0,40),seats:num0(x.seats)||seatsOf(x.cls),price,cur,e:e?Math.round(e*100)/100:null,dep:/^\d{1,2}:\d{2}$/.test(x.dep||'')?String(x.dep).padStart(5,'0'):'',rt:num0(x.rating)}}).filter(x=>x.e).slice(0,8);
- if(!L.length)return null;let c=L;if(per==='vehicle'){const ok=c.filter(x=>!x.seats||x.seats>=3);if(ok.length)c=ok}c=[...c].sort((a,b)=>a.e-b.e||a.op.localeCompare(b.op));const t=c.slice(0,3);t.forEach(x=>x.use=1);
+ if(!L.length)return null;let c=L;if(per==='vehicle'){const ok=c.filter(x=>!x.seats||x.seats>=Math.max(3,paxN()+1));if(ok.length)c=ok}c=[...c].sort((a,b)=>a.e-b.e||a.op.localeCompare(b.op));const t=c.slice(0,3);t.forEach(x=>x.use=1);
  return {list:[...L].sort((a,b)=>(b.use||0)-(a.use||0)||a.e-b.e).slice(0,6),min:t[0].e,max:t[t.length-1].e,mid:med(t.map(x=>x.e)),n:t.length,all:L.length}}
 function connNorm(o){const segs=(Array.isArray(o.segments)?o.segments:[]).map(connSeg).slice(0,5);
  let tmin=0,tmax=0,tmid=0,known=0;segs.forEach(s=>{const e=segEur(s);if(e){tmin+=e[0];tmax+=e[1];tmid+=e[2];known++}});let part=segs.length>0&&known<segs.length;
@@ -2331,14 +2338,14 @@ const med=a=>{const s=[...a].sort((x,y)=>x-y);const n=s.length;return n?(n%2?s[(
 function connMins(R){const m={};(R&&R.opts||[]).forEach((o,k)=>{const v=connEur(o);if(!(v>0))return;const key=connKey(o);if(!m[key]||v<m[key].v)m[key]={v,k}});return m}
 function connHist(l){if(!Array.isArray(l.prh)){l.prh=[];Object.entries(connMins(l.conn)).forEach(([k,x])=>l.prh.push({k,v:Math.round(x.v),ts:l.conn.ts||Date.now()}))}return l.prh}
 function connStats(l){const H={};connHist(l).forEach(h=>(H[h.k]=H[h.k]||[]).push(h.v));const out={};Object.entries(H).forEach(([k,a])=>out[k]={med:med(a),n:a.length});return out}
-function connAnchor(l){const st=connStats(l);const lines=Object.entries(st).map(([k,x])=>`- ${connKeyTxt(k)}: ≈ ${Math.round(x.med)} € für zwei${x.n>1?` (Median aus ${x.n} Suchen)`:''}`);if(!lines.length)return '';
+function connAnchor(l){const st=connStats(l);const lines=Object.entries(st).map(([k,x])=>`- ${connKeyTxt(k)}: ≈ ${Math.round(x.med)} € ${paxTxt()}${x.n>1?` (Median aus ${x.n} Suchen)`:''}`);if(!lines.length)return '';
  const V=new Set();((l.conn&&l.conn.opts)||[]).forEach(o=>o.segs.forEach(s=>{if(s.per==='vehicle'&&(s.min||s.max))V.add(`- Fahrzeugpreis ${s.from&&s.to?s.from+' → '+s.to:'direkt'}: ${s.min||s.max}${s.max&&s.min&&s.max!==s.min?'–'+s.max:''} ${s.cur||'EUR'} je Fahrzeug${s.veh?' ('+s.veh+')':''}${s.psrc?', Quelle '+s.psrc:''}`)}));
- return `\nFrühere Recherche zu dieser Strecke (Ausgangswert, Preise für zwei Personen):\n${[...lines,...[...V].slice(0,4)].join('\n')}`}
+ return `\nFrühere Recherche zu dieser Strecke (Ausgangswert, Preise für ${paxP()}):\n${[...lines,...[...V].slice(0,4)].join('\n')}`}
 function connRecord(l,R){const prev=connStats(l);R.dev={};Object.entries(connMins(R)).forEach(([key,x])=>{const p=prev[key];if(p&&p.med>0&&Math.abs(x.v-p.med)/p.med>0.3)R.dev[x.k]={prev:Math.round(p.med),n:p.n};l.prh.push({k:key,v:Math.round(x.v),ts:R.ts})});
  const cnt={};l.prh=l.prh.slice().reverse().filter(h=>(cnt[h.k]=(cnt[h.k]||0)+1)<=6).reverse()}
 function connGot(i,j){const L=legsOf(S.stages[i]);const l=L[j];if(!l)return 0;let t=eurOf(l)||0;if(l.cg){let n=1;while(L[j+n]&&L[j+n].cg===l.cg){t+=eurOf(L[j+n])||0;n++}}return Math.round(t)}
 const nfmt=v=>Math.round(v).toLocaleString('de-DE');
-const segPr=s=>{if(s.min==null&&s.max==null)return '';if(s.offers){const f=x=>nfmt(x);return `${f(s.min)}${Math.round(s.max)!==Math.round(s.min)?'–'+f(s.max):''} € ${s.per==='vehicle'?'je Fahrzeug':'p. P.'} · ${(s.oall||s.on)===s.on?(s.on===1?'aus 1 Angebot':'aus '+s.on+' Angeboten'):'aus '+s.on+' von '+s.oall+' Angeboten'}`}const c=s.cur||'EUR';const e=segEur(s);const f=s.per==='vehicle'?1:PAX;
+const segPr=s=>{if(s.min==null&&s.max==null)return '';if(s.offers){const f=x=>nfmt(x);return `${f(s.min)}${Math.round(s.max)!==Math.round(s.min)?'–'+f(s.max):''} € ${s.per==='vehicle'?'je Fahrzeug':'p. P.'} · ${(s.oall||s.on)===s.on?(s.on===1?'aus 1 Angebot':'aus '+s.on+' Angeboten'):'aus '+s.on+' von '+s.oall+' Angeboten'}`}const c=s.cur||'EUR';const e=segEur(s);const f=s.per==='vehicle'?1:paxN();
  return `${nfmt(s.min||s.max)}${s.max&&s.min&&s.max!==s.min?'–'+nfmt(s.max):''} ${curSym(c)} ${s.per==='vehicle'?'je Fahrzeug':'p. P.'}${c!=='EUR'&&e?` (≈ ${eur((e[0]+e[1])/2/f)})`:''}`};
 function connMarks(opts){const ok=opts.filter(o=>connEur(o)>0);if(!ok.length)return{};const c0=Math.min(...ok.map(connEur)),d0=Math.min(...opts.map(o=>o.durH||99));
  const sc=o=>connEur(o)/c0+(o.durH||99)/d0+0.25*connTr(o);const arg=f=>opts.reduce((b,o,k)=>f(o)<f(opts[b])?k:b,0);
@@ -2354,10 +2361,10 @@ function connEnds(i){const st=S.stages[i];const L=legsOf(st);const d=stagesDated
  return {from:a.from,to:b.to,date:a.date,fromT:I0.from||a.from,toT:I1.to||b.to,km,modes:L.map(l=>modeLabel(l.mode||'car')).join(' + ')}}
 const trBase=st=>trLabel(st,0).replace(/\.\d+$/,'');
 async function aiConn(i){const c=connEnds(i);const url=`https://12go.asia/en/travel/${trSlug(c.from)}/${trSlug(c.to)}`;const km=c.km?` (Luftlinie ca. ${c.km} km)`:'';
- const l0=legsOf(S.stages[i])[0]||{};const msg=`Strecke: ${c.from} → ${c.to}${km}, ${country(S.stages[i].country).name}. Datum: ${c.date}. 2 Reisende mit Gepäck. Start: ${c.fromT}. Ziel: ${c.toT}. Bisher geplant: ${c.modes}.\n12Go-Seite: ${url}${connAnchor(l0)}`;
- const call=(k,txt)=>{const base={system:AI_CONN_SYS,max:4500,timeout:150000,messages:[{role:'user',content:txt}]};
+ const l0=legsOf(S.stages[i])[0]||{};const msg=`Strecke: ${c.from} → ${c.to}${km}, ${country(S.stages[i].country).name}. Datum: ${c.date}. ${paxN()} Reisende mit Gepäck. Start: ${c.fromT}. Ziel: ${c.toT}. Bisher geplant: ${c.modes}.\n12Go-Seite: ${url}${connAnchor(l0)}`;
+ const call=(k,txt)=>{const base={system:connSys(),max:4500,timeout:150000,messages:[{role:'user',content:txt}]};
   if(k==='fetch')return aiCall(Object.assign(base,{tools:[wfTool(2,['12go.asia','www.12go.asia'])],beta:'web-fetch-2025-09-10'}));
-  if(k==='both'){const v=localStorage.getItem('auszeit27_awsv');return aiCall(Object.assign(base,{system:AI_CONN_SYS+AI_WS_YES,tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:3},wfTool(3,CONN_DOM)],beta:'web-fetch-2025-09-10'}))}
+  if(k==='both'){const v=localStorage.getItem('auszeit27_awsv');return aiCall(Object.assign(base,{system:connSys()+AI_WS_YES,tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:3},wfTool(3,CONN_DOM)],beta:'web-fetch-2025-09-10'}))}
   return aiCallWeb(base,4)};
  const parse=(r,k)=>{const J=aiJson(r.text);const opts=(Array.isArray(J.options)?J.options:[]).map(connNorm).filter(o=>o.tmin>0||o.durH).slice(0,5);if(!opts.length)throw new Error('keine Verbindung gefunden');
   const W=J.why&&typeof J.why==='object'?J.why:{};return {opts,why:{fast:String(W.fastest||''),cheap:String(W.cheapest||''),bal:String(W.balanced||'')},chg:J.chg&&J.chg!=='null'?String(J.chg).slice(0,240):'',src:String(J.src||(k==='fetch'?'12go.asia':r.ws?'Websuche':'Schätzung')),url,date:c.date,ts:Date.now(),usd:r.usd,model:r.model,how:k}};
@@ -2429,7 +2436,7 @@ function connAsk(i,k,pv,ret){const st=S.stages[i];const B=connBuild(i,k,pv);if(!
  const rows=B.legs.map((x,n)=>row({icn:(MODES[x.mode]||MODES.car)[0],w2:1,t:`${lab(n)} · ${esc(modeLabel(x.mode))} · ${esc(x.from||(n===0?E.fromT:B.legs[n-1].to||''))} → ${esc(x.to||(n===B.legs.length-1?E.toT:''))}`,
   s:[dl(pd(x.date||B.def)),x.dep?x.dep+(x.arr?'–'+x.arr:''):'',x.dur,x.airline||x.op,x.cost?'≈ '+eur(+x.cost):''].filter(Boolean).map(v=>esc(String(v))).join(' · ')})).join('');
  const rep=L.every(legEmpty)?'Trägt die Verbindung in den offenen Transfer ein.':`Ersetzt ${L.length===1?'den bisherigen Transfer':'die bisherigen '+L.length+' Teilstrecken'}${bk.length?` – davon ${bk.map(l=>trLabel(st,L.indexOf(l))).join(', ')} gebucht oder bezahlt. Deren Buchungsdaten gehen verloren (Rückgängig bleibt möglich).`:'.'}`;
- sheet(`<div class="sht">Verbindung übernehmen</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">${esc(B.o.title||modeLabel(B.o.mode))} · ≈ ${eur(B.mid)} für zwei</div>
+ sheet(`<div class="sht">Verbindung übernehmen</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">${esc(B.o.title||modeLabel(B.o.mode))} · ≈ ${eur(B.mid)} ${paxTxt()}</div>
  <div class="card">${rows}</div><div class="small" style="margin:10px 4px 0;line-height:1.45;color:var(${bk.length?'--warn':'--ink2'})">${rep}</div>
  ${lbl('Schon gebucht?')}${seg('cfSt',[['offen','Nein, offen'],['gebucht','Ja, gebucht']],'offen')}
  ${lbl('Schon bezahlt?')}${seg('cfPd',[['0','Nein'],['1','Ja, bezahlt']],'0')}
@@ -4203,17 +4210,17 @@ const flT=s=>String(s||'').slice(11,16);const flDur=m=>!m?'':m<60?`${m} min`:`${
 const flAp=c=>{const a=AIRPORTS.find(x=>x[0]===c);return a?{v:`Flughafen ${a[2]} (${c})`,ll:{lat:a[3],lon:a[4]},city:a[2]}:{v:c||'',ll:null,city:c||''}};
 function flNorm(x,best){const F=Array.isArray(x&&x.flights)?x.flights:[];const pr=num0(x&&x.price);if(!F.length||!pr)return null;const ap=o=>o||{};
  return {price:pr,dur:num0(x.total_duration),best:!!best,tok:typeof x.booking_token==='string'?x.booking_token:'',segs:F.map(f=>({a:ap(f.departure_airport).id,at:ap(f.departure_airport).time,b:ap(f.arrival_airport).id,bt:ap(f.arrival_airport).time,al:String(f.airline||'').slice(0,40),no:String(f.flight_number||'').slice(0,12),dur:num0(f.duration)})),lay:(Array.isArray(x.layovers)?x.layovers:[]).map(l=>({id:l.id,dur:num0(l.duration),ov:!!l.overnight}))}}
-function flUrl(F){return F.url||`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${F.A.join(',')} to ${F.B.join(',')} on ${F.date} one way 2 adults`)}&hl=de&gl=de&curr=EUR`}
+function flUrl(F){return F.url||`https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${F.A.join(',')} to ${F.B.join(',')} on ${F.date} one way ${F.pax||2} adults`)}&hl=de&gl=de&curr=EUR`}
 const flRefresh=()=>connRefresh();
 async function flSearch(i,Q){const st=S.stages[i];if(!st)return;const E=Q||flEnds(i);if(!E.A.length||!E.B.length)return toast('Kein Flughafen in der Nähe gefunden – Von/Nach im Transfer auf einen Flughafen setzen.',6000);
  UI.flBusy=st.id;UI.flT0=Date.now();UI.flErr=null;flRefresh();busyTick();const q0=pxUse();
- try{pxCount();const J=await pxGet(`/serp?engine=google_flights&departure_id=${E.A.join(',')}&arrival_id=${E.B.join(',')}&outbound_date=${E.date}&type=2&adults=2&currency=EUR&hl=de&gl=de`);
+ const pax=paxN();try{pxCount();const J=await pxGet(`/serp?engine=google_flights&departure_id=${E.A.join(',')}&arrival_id=${E.B.join(',')}&outbound_date=${E.date}&type=2&adults=${pax}&currency=EUR&hl=de&gl=de&deep_search=true`);
   const L=[...(J.best_flights||[]).map(x=>flNorm(x,1)),...(J.other_flights||[]).map(x=>flNorm(x,0))].filter(Boolean).slice(0,24);const PI=J.price_insights||null;
-  st.fl={ts:Date.now(),A:E.A,B:E.B,date:E.date,opts:L,url:J.search_metadata&&typeof J.search_metadata.google_flights_url==='string'?J.search_metadata.google_flights_url:'',ins:PI?{lo:num0(PI.lowest_price),lvl:String(PI.price_level||''),rng:Array.isArray(PI.typical_price_range)?PI.typical_price_range.map(num0):null}:null,q:pxUse()-q0};save();if(!L.length)UI.flErr={k:st.id,m:'Google Flights fand für diesen Tag keine Flüge zwischen '+E.A.join('/')+' und '+E.B.join('/')+'.'}}
+  st.fl={ts:Date.now(),A:E.A,B:E.B,date:E.date,pax,deep:1,opts:L,url:J.search_metadata&&typeof J.search_metadata.google_flights_url==='string'?J.search_metadata.google_flights_url:'',ins:PI?{lo:num0(PI.lowest_price),lvl:String(PI.price_level||''),rng:Array.isArray(PI.typical_price_range)?PI.typical_price_range.map(num0):null}:null,q:pxUse()-q0};save();if(!L.length)UI.flErr={k:st.id,m:'Google Flights fand für diesen Tag keine Flüge zwischen '+E.A.join('/')+' und '+E.B.join('/')+'.'}}
  catch(e){UI.flErr={k:st.id,m:/engine nicht erlaubt/.test(e.message||'')?'Der Worker kennt Google Flights noch nicht – bitte den Worker-Code aktualisieren.':'Google Flights: '+(e.message||e)};if(/engine nicht erlaubt/.test(e.message||''))pxStSet({v:1})}
  UI.flBusy=null;flRefresh()}
 async function flBook(i,k){const st=S.stages[i];const F=st&&st.fl;const o=F&&F.opts[k];if(!o||!o.tok||UI.flBk)return;UI.flBk=st.id+':'+k;flRefresh();
- try{pxCount();const J=await pxGet(`/serp?engine=google_flights&booking_token=${encodeURIComponent(o.tok)}&departure_id=${F.A.join(',')}&arrival_id=${F.B.join(',')}&outbound_date=${F.date}&type=2&adults=2&currency=EUR&hl=de&gl=de`);
+ try{pxCount();const J=await pxGet(`/serp?engine=google_flights&booking_token=${encodeURIComponent(o.tok)}&departure_id=${F.A.join(',')}&arrival_id=${F.B.join(',')}&outbound_date=${F.date}&type=2&adults=${F.pax||2}&currency=EUR&hl=de&gl=de${F.deep?'&deep_search=true':''}`);
   const B=(Array.isArray(J.booking_options)?J.booking_options:[]).map(b=>b&&(b.together||b.departing)).filter(Boolean).map(b=>({by:String(b.book_with||'').slice(0,30),price:num0(b.price),air:!!b.airline})).filter(b=>b.by&&b.price).sort((a,b)=>a.price-b.price).slice(0,9);
   o.bo=B;o.boTs=Date.now();F.q=(F.q||0)+1;save()}catch(e){toast('Google Flights: '+esc(e.message||e),6000)}UI.flBk=null;flRefresh()}
 function flApply(i,k){const st=S.stages[i];const F=st&&st.fl;const o=F&&F.opts[k];if(!o)return;const L=legsOf(st);const snap=JSON.stringify(L);let j=L.findIndex(l=>l.mode==='flight');
@@ -4221,13 +4228,13 @@ function flApply(i,k){const st=S.stages[i];const F=st&&st.fl;const o=F&&F.opts[k
  const s0=o.segs[0],s1=o.segs[o.segs.length-1];const A=flAp(s0.a),B=flAp(s1.b);const d=String(s0.at||'').slice(0,10);const def=iso(stagesDated()[i].from);
  Object.assign(l,{mode:'flight',status:'offen',paid:false,dep:flT(s0.at),arr:flT(s1.bt),dur:flDur(o.dur),airline:[...new Set(o.segs.map(s=>s.al).filter(Boolean))].join(' / '),no:o.segs.map(s=>s.no).filter(Boolean).join(', '),from:A.v,to:B.v,cost:String(o.price),cur:'EUR',src:'Google Flights',note:[o.lay.length?'Umstieg '+o.lay.map(x=>`${x.id} (${flDur(x.dur)})`).join(', '):'Direktflug',`Preis laut Google Flights ${fmtD(new Date(F.ts))}`].join(' · ')});
  if(A.ll)l.fromLL=A.ll;else delete l.fromLL;if(B.ll)l.toLL=B.ll;else delete l.toLL;if(d&&d!==def)l.date=d;else delete l.date;['costEst','redo','rw','rwD','ki','depX'].forEach(x=>delete l[x]);F.sel=k;syncMode(st);save();UI.keepY=true;render();
- UI.undo=()=>{const s2=S.stages.find(s=>s.id===st.id);if(s2){s2.legs=JSON.parse(snap);syncMode(s2);if(s2.fl)delete s2.fl.sel}save();render()};toast(`Flug übernommen: ${esc(l.airline)} ${esc(l.dep)}–${esc(l.arr)} · ${eur(o.price)} für zwei. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
+ UI.undo=()=>{const s2=S.stages.find(s=>s.id===st.id);if(s2){s2.legs=JSON.parse(snap);syncMode(s2);if(s2.fl)delete s2.fl.sel}save();render()};toast(`Flug übernommen: ${esc(l.airline)} ${esc(l.dep)}–${esc(l.arr)} · ${eur(o.price)} ${paxTxt(F.pax||2)}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
 const flBoH=(o,F)=>(o.bo||[]).map((x,n)=>`<a class="plink g ${n===0?'best':''}" href="${esc(flUrl(F))}" target="_blank" rel="noopener"><b>${esc(x.by)}</b><span class="num">${esc(eur(x.price))}</span>${ic('chev',14)}<span class="pls">${x.air?'Airline':'Portal'}</span></a>`).join('');
 function flCard(o,k,i,F){const st=S.stages[i];const s0=o.segs[0],s1=o.segs[o.segs.length-1];const plus=String(s1.bt).slice(0,10)>String(s0.at).slice(0,10)?' <span class="small" style="color:var(--warn)">+1</span>':'';
  const cheap=F.opts.reduce((m,x,n)=>x.price<F.opts[m].price?n:m,0);const b=[k===0?['Empfehlung','k']:null,k===cheap?['Günstigste','']:null,F.sel===k?['übernommen','ok']:null].filter(Boolean);
  const stops=o.lay.length?`${o.lay.length} Stopp${o.lay.length>1?'s':''} · ${o.lay.map(x=>`${x.id} ${flDur(x.dur)}${x.ov?' über Nacht':''}`).join(', ')}`:'Direktflug';const busy=UI.flBk===st.id+':'+k;
  return `<div class="card cn ${k===0?'top':''}" style="padding:12px 14px;margin:8px 0">${b.length?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${b.map(x=>`<span class="bdg2 ${x[1]}">${x[0]}</span>`).join('')}</div>`:''}
- <div style="display:flex;gap:10px;align-items:baseline"><div class="sp" style="font-size:16px;font-weight:600">${ic('plane',15)} ${flT(s0.at)} – ${flT(s1.bt)}${plus}</div><div style="text-align:right"><div class="num" style="font-weight:700">${eur(o.price)}</div><div class="small mut">für zwei</div></div></div>
+ <div style="display:flex;gap:10px;align-items:baseline"><div class="sp" style="font-size:16px;font-weight:600">${ic('plane',15)} ${flT(s0.at)} – ${flT(s1.bt)}${plus}</div><div style="text-align:right"><div class="num" style="font-weight:700">${eur(o.price)}</div><div class="small mut">${paxTxt(F.pax||2)}</div></div></div>
  <div class="small" style="margin-top:4px;line-height:1.45;color:var(--ink2)">${esc([...new Set(o.segs.map(s=>s.al))].join(' / '))} · ${esc(o.segs.map(s=>s.no).join(', '))}<br>${esc(s0.a)} → ${esc(s1.b)} · ${flDur(o.dur)} · ${esc(stops)}</div>
  ${o.bo?`<div style="margin-top:8px">${flBoH(o,F)}<div class="small mut" style="margin:6px 0 0;line-height:1.45">Pfeil öffnet Google Flights mit dieser Suche – dort den Anbieter antippen.</div></div>`:''}
  <div class="act">${busy?kiBusyH('lädt Anbieter …',Date.now(),6,{sm:1}):o.tok&&!o.bo?`<button class="btn sm kio" data-a="flBook" data-k="${i}" data-o="${k}">${ic('search',14,2.2)}Alle Anbieter · 1 Abfrage</button>`:''}<button class="btn sm ${F.sel===k?'':'p'}" data-a="flApply" data-k="${i}" data-o="${k}">${F.sel===k?'Erneut übernehmen':'Übernehmen'}</button></div></div>`}
@@ -4269,7 +4276,7 @@ function cnTot(segs){let a=0,b=0,m=0,k=0;segs.forEach(s=>{const e=segEur(s);if(e
  return {tmin:Math.round(a),tmax:Math.round(Math.max(a,b)),tmid:Math.round(m),part:k<segs.length,real:nr&&nr===segs.length?2:nr?1:0}}
 // Option mit echtem Flug (Preis für zwei laut Google Flights)
 function cnEff(st,R,k,crit){const o=R.opts[k];const b=flBlock(o);const F=st.fl;if(!b||!F||!Array.isArray(F.opts)||!F.opts.length)return o;
- const i=S.stages.indexOf(st);if(i>=0&&F.date!==flEnds(i).date)return o;
+ const i=S.stages.indexOf(st);if(i>=0&&F.date!==flEnds(i).date)return o;if(!F.deep||(F.pax||2)!==paxN())return o;
  const C=cnCands(F,b);if(!C.length)return Object.assign({},o,{fxNo:b});
  const P=R.fp&&R.fp[k];const n=P&&P.ts===F.ts&&C.some(x=>x.n===P.n)?P.n:cnPickF(C,crit);const f=F.opts[n];const s0=f.segs[0],s1=flEnd(f);
  const g={mode:'flight',from:apCity(s0.a),to:apCity(s1.b),fi:s0.a,ti:s1.b,dur:flDur(f.dur),dep:flT(s0.at),ops:[...new Set(f.segs.map(s=>s.al).filter(Boolean))].join(' / '),min:f.price,max:f.price,mid:f.price,cur:'EUR',per:'vehicle',psrc:'Google Flights',gf:f,gn:n};
@@ -4279,31 +4286,33 @@ function cnEff(st,R,k,crit){const o=R.opts[k];const b=flBlock(o);const F=st.fl;i
  if(b.a===0)x.dep=g.dep;
  if(segs.every(s=>s.gf||s.mode==='car')){x.mode='flight';x.title=f.lay.length?'Flug über '+[...new Set(f.lay.map(l=>apCity(l.id)))].join(' und '):'Direktflug'}
  x.fx={b,C,n,F};return x}
-cnOpts=function(st){const l=legsOf(st)[0];const R=l&&l.conn;if(!R)return [];const crit=critPref();return R.opts.map((o,k)=>cnEff(st,R,k,crit))};
+// Summen immer mit der aktuellen Zahl der Reisenden (gespeicherte Summen galten für die Zahl bei der Suche)
+const cnRe=o=>{if(!o.segs||!o.segs.length)return o;const t=cnTot(o.segs);if(!t.tmin&&!t.tmax)return o;if(t.part&&!o.part)return o;return Object.assign({},o,{tmin:t.tmin,tmax:t.tmax,tmid:t.tmid})};
+cnOpts=function(st){const l=legsOf(st)[0];const R=l&&l.conn;if(!R)return [];const crit=critPref();return R.opts.map((o,k)=>{const x=cnEff(st,R,k,crit);return x===o?cnRe(o):x})};
 // Suche: erst Claude, dann – nur wenn ein Flug dabei ist – Google Flights (Ergebnis bis 12 Std. wiederverwendet)
 async function cnSearch(i){const st=S.stages[i];if(!st)return;const fx=flOn()&&flV2();
  if(!aiKey()){if(fx&&flRelevant(i))return flSearch(i);return kiNoKey()}
  const R=await connRun(i,0);if(!R||!fx)return R;
  const Q=cnFlQuery(i,R);if(!Q||!Q.A.length||!Q.B.length)return R;
- const F=st.fl;if(F&&F.date===Q.date&&Array.isArray(F.opts)&&F.opts.length&&Q.A.every(c=>(F.A||[]).includes(c))&&Q.B.every(c=>(F.B||[]).includes(c))&&Date.now()-F.ts<12*3600e3){connRefresh();return R}
+ const F=st.fl;if(F&&F.deep&&(F.pax||2)===paxN()&&F.date===Q.date&&Array.isArray(F.opts)&&F.opts.length&&Q.A.every(c=>(F.A||[]).includes(c))&&Q.B.every(c=>(F.B||[]).includes(c))&&Date.now()-F.ts<12*3600e3){connRefresh();return R}
  await flSearch(i,Q);return R}
 // ---------- Darstellung ----------
 const flStops=f=>f.lay.length?`${f.lay.length} Stopp${f.lay.length>1?'s':''} (${f.lay.map(x=>`${x.id} ${flDur(x.dur)}${x.ov?' über Nacht':''}`).join(', ')})`:'direkt';
 const flPlus=f=>String(flEnd(f).bt).slice(0,10)>String(f.segs[0].at).slice(0,10)?'<span class="pl1">+1</span>':'';
 function cnFlList(s,o,k,i,st,mid){const F=o.fx.F;const C=[...o.fx.C].sort((a,b)=>a.f.price-b.f.price||(a.f.dur||0)-(b.f.dur||0));const fo=F.opts[s.gn];const busy=UI.flBk===st.id+':'+s.gn;
  const rows=C.map(x=>{const g=x.f;const on=x.n===s.gn;return `<button class="fxr${on?' on':''}" data-a="cnFp" data-k="${i}" data-o="${k}" data-f="${x.n}"><span class="fxd"></span><span class="sp"><span class="fxt">${flT(g.segs[0].at)}–${flT(flEnd(g).bt)}${flPlus(g)}</span><span class="fxs">${esc([...new Set(g.segs.map(q=>q.al))].join(' / '))} · ${flDur(g.dur)} · ${g.lay.length?g.lay.length+' Stopp'+(g.lay.length>1?'s':'')+' '+g.lay.map(l=>l.id).join(', '):'direkt'}${g.lay.some(l=>l.ov)?' · über Nacht':''}</span></span><span class="num">${eur(g.price)}</span></button>`}).join('');
- return `<div class="fxl${mid?' mid':''}"><div class="fxh">${C.length>1?`${C.length} Flüge`:'Flug'} ${esc(o.fx.b.fi||C[0].f.segs[0].a)} → ${esc(o.fx.b.ti||flEnd(C[0].f).b)} · ${dl(pd(F.date))} · Preise für zwei</div>${rows}
+ return `<div class="fxl${mid?' mid':''}"><div class="fxh">${C.length>1?`${C.length} Flüge`:'Flug'} ${esc(o.fx.b.fi||C[0].f.segs[0].a)} → ${esc(o.fx.b.ti||flEnd(C[0].f).b)} · ${dl(pd(F.date))} · Preise ${paxTxt(F.pax||2)}</div>${!F.deep?`<div class="small" style="color:var(--warn);line-height:1.45;margin:2px 0 4px">Ältere Schnellabfrage – die Preise können deutlich abweichen. Bitte „neu laden“.</div>`:''}${rows}
  ${fo&&fo.bo?`<div class="fxbo"><div class="fxh">Anbieter für den Flug um ${flT(fo.segs[0].at)}</div>${flBoH(fo,F)}<div class="small mut" style="margin-top:6px;line-height:1.45">Pfeil öffnet Google Flights mit dieser Suche – dort den Anbieter antippen.</div></div>`:''}
  <div class="fxa">${busy?kiBusyH('lädt Anbieter …',Date.now(),6,{sm:1}):fo&&fo.tok&&!fo.bo?`<button class="btn sm kio" data-a="flBook" data-k="${i}" data-o="${s.gn}">${ic('search',14,2.2)}Anbieter · 1 Abfrage</button>`:''}<a class="btn sm" href="${esc(flUrl(F))}" target="_blank" rel="noopener">${ic('link',13)}Google Flights</a></div>
  <div class="small mut" style="margin-top:8px;line-height:1.45">Stand ${fmtD(new Date(F.ts))}${F.ins&&F.ins.lvl?` · Preisniveau ${esc(PLVL[F.ins.lvl]||F.ins.lvl)}${F.ins.rng&&F.ins.rng.length===2&&F.ins.rng[0]?` (üblich ${eur(F.ins.rng[0])}–${eur(F.ins.rng[1])})`:''}`:''} · <button class="lkb" data-a="cnFlRe" data-k="${i}">neu laden · 1 Abfrage</button></div></div>`}
 function cnSegRow(s,n,o,k,i,one,st,last){const ic0=ic((MODES[s.mode]||MODES.car)[0],15);const end=last?' end':'';
  if(s.gf){const f=s.gf;const s0=f.segs[0],s1=flEnd(f);const open=UI.cnFx===st.id+':'+k;const C=o.fx.C;
-  return `<div class="tli${end}"><span class="tld tf">${ic0}</span><div class="sp"><div class="tlt">Flug ${esc(s0.a)} → ${esc(s1.b)} · ${flT(s0.at)}–${flT(s1.bt)}${flPlus(f)}</div><div class="tls">${esc([s.ops,f.segs.map(x=>x.no).filter(Boolean).join(', ')].filter(Boolean).join(' · '))}<br>${flDur(f.dur)} · ${esc(flStops(f))}</div>
-  <button class="tlx" data-a="cnFx" data-k="${i}" data-o="${k}"><span class="bdg2 ok">Google Flights</span>${C.length>1?`${C.length} passende Flüge`:'Anbieter'}${ic(open?'up':'down',14,2.2)}</button></div>${one?'':`<div class="tlp num">${eur(f.price)}</div>`}</div>${open?cnFlList(s,o,k,i,st,!last):''}`}
+  return `<div class="tli${end}"><span class="tld tf">${ic0}</span><div class="sp"><div class="tlt">Flug ${esc(s0.a)} → ${esc(s1.b)} · ${flT(s0.at)}–${flT(s1.bt)}${flPlus(f)}</div><div class="tls">${esc(['Google Flights',s.ops,f.segs.map(x=>x.no).filter(Boolean).join(', ')].filter(Boolean).join(' · '))}<br>${flDur(f.dur)} · ${esc(flStops(f))}</div>
+  <button class="tlx" data-a="cnFx" data-k="${i}" data-o="${k}">${C.length>1?`${C.length} Flüge vergleichen`:'Anbieter ansehen'}${ic(open?'up':'down',14,2.2)}</button></div>${one?'':`<div class="tlp"><span class="num">${eur(f.price)}</span><span class="tlq ok">echt</span></div>`}</div>${open?cnFlList(s,o,k,i,st,!last):''}`}
  const e=segEur(s);const flB=s.mode==='flight'&&UI.flBusy===st.id;const no=s.mode==='flight'&&o.fxNo&&n>=o.fxNo.a&&n<=o.fxNo.b;
  const t=s.from||s.to?`${esc(s.from||'')} → ${esc(s.to||'')}`:esc(modeLabel(s.mode));
- const sub=[!one&&s.dep?'ab '+s.dep:'',!one?s.dur:'',s.ops,segPr(s),s.veh,!s.offers&&s.psrc?s.psrc:''].filter(Boolean).map(v=>esc(String(v))).join(' · ');
- return `<div class="tli${end}"><span class="tld${s.mode==='flight'?' tf':''}">${ic0}</span><div class="sp"><div class="tlt">${t}</div>${sub?`<div class="tls">${sub}</div>`:''}${flB?'<div class="tls" style="color:var(--ki)"><span class="spin"></span> echter Flugpreis aus Google Flights …</div>':no?`<div class="tls" style="color:var(--warn)">Google Flights: kein passender Flug ${esc(o.fxNo.fi||'')}${o.fxNo.ti?' → '+esc(o.fxNo.ti):''} an diesem Tag</div>`:''}</div>${!one&&e?`<div class="tlp num">≈ ${eur(e[2])}</div>`:''}</div>`}
+ const sub=[!one&&s.dep?'ab '+s.dep:'',!one?s.dur:'',s.ops,segPr(s),s.veh,!s.offers&&s.psrc&&!/sch[äa]tz/i.test(s.psrc)?'Quelle: '+s.psrc:''].filter(Boolean).map(v=>esc(String(v))).join(' · ');
+ return `<div class="tli${end}"><span class="tld${s.mode==='flight'?' tf':''}">${ic0}</span><div class="sp"><div class="tlt">${t}</div>${sub?`<div class="tls">${sub}</div>`:''}${flB?'<div class="tls" style="color:var(--ki)"><span class="spin"></span> echter Flugpreis aus Google Flights …</div>':no?`<div class="tls" style="color:var(--warn)">Google Flights: kein passender Flug ${esc(o.fxNo.fi||'')}${o.fxNo.ti?' → '+esc(o.fxNo.ti):''} an diesem Tag</div>`:''}</div>${!one&&e?`<div class="tlp"><span class="num">≈ ${eur(e[2])}</span><span class="tlq ${s.offers?'ok':'wn'}">${s.offers?'echt':'Schätzung'}</span></div>`:''}</div>`}
 function cnCard2(o,k,m,R,applied,i,st){const dv=!o.fx&&R.dev&&R.dev[k];const crit=critPref();
  const bd=[k===m.bal?['Empfehlung','k']:null,k===m.fast?['Schnellste','']:null,k===m.cheap?['Günstigste','']:null].filter(Boolean);const rb=o.real!=null?[['Geschätzt','wn'],['Teils geschätzt','wn'],['Echte Preise','ok']][o.real]:null;
  const g='cn:'+st.id;const on=!applied&&pickHas(g,k);const dim=!on&&pickGet(g)!=null;
@@ -4313,7 +4322,7 @@ function cnCard2(o,k,m,R,applied,i,st){const dv=!o.fx&&R.dev&&R.dev[k];const cri
  const got=applied?connGot(i,0):0;
  return `<div class="card cn cn2 ${k===m[crit]?'top':''} ${on?'pk':''} ${dim?'dim':''}" id="cn${k}" ${applied?'':pickA(g,k)}>
  ${on||bd.length||rb?`<div class="cnb">${on?pkBadge:''}${bd.map(b=>`<span class="bdg2 ${b[1]}">${b[0]}</span>`).join('')}${rb?`<span class="bdg2 ${rb[1]}">${rb[0]}</span>`:''}</div>`:''}
- <div class="cnh"><div class="sp"><div class="cnt">${ic((MODES[o.mode]||MODES.car)[0],16)}<span>${esc(o.title||modeLabel(o.mode))}</span></div><div class="cns">${esc(sub)}</div></div><div class="cnp">${o.tmin?`<b class="num">≈ ${eur(connEur(o))}</b><span>für zwei</span>`:'<b class="num">–</b>'}</div></div>
+ <div class="cnh"><div class="sp"><div class="cnt">${ic((MODES[o.mode]||MODES.car)[0],16)}<span>${esc(o.title||modeLabel(o.mode))}</span></div><div class="cns">${esc(sub)}</div></div><div class="cnp">${o.tmin?`<b class="num">≈ ${eur(connEur(o))}</b><span>${paxTxt()}</span>`:'<b class="num">–</b>'}</div></div>
  <div class="tl">${G.map((s,n)=>cnSegRow(s,n,o,k,i,one,st,n===G.length-1)).join('')}</div>
  ${warn.map(t=>`<div class="small cnw">${esc(t)}</div>`).join('')}${o.note?`<div class="small mut cnn">${esc(o.note)}</div>`:''}${offList(o)}${o.fx?'':flightLinks(o,R,i)}
  <div class="act">${applied?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}übernommen${got&&Math.abs(got-connEur(o))>3?' mit ≈ '+eur(got):''}</span>`:`<button class="btn sm ${on||(k===m[crit]&&pickGet(g)==null)?'p':''}" data-a="cnApply" data-k="${i}" data-j="0" data-o="${k}">${G.length>1?`Übernehmen (${G.length} Teilstrecken)`:'Übernehmen'}</button>${dv?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="0" data-o="${k}" data-pv="1">Mit ≈ ${eur(dv.prev)}</button>`:''}`}</div></div>`}
@@ -4324,12 +4333,12 @@ function flStand(i){const st=S.stages[i];const F=st.fl;const I=F.ins;const L=F.o
  return `<div class="sec" style="margin-top:18px">Flüge (Google Flights)</div><div class="small mut kmeta" style="margin:4px 2px 4px"><span class="bdg2">Google</span><span class="sp">${esc(F.A.join('/'))} → ${esc(F.B.join('/'))} · ${dl(pd(F.date))} · ${fmtD(new Date(F.ts))}${I&&I.lvl?` · Preisniveau ${esc(PLVL[I.lvl]||I.lvl)}`:''}</span></div>${L.map((o,k)=>flCard(o,k,i,F)).join('')}<div class="chips wrapc" style="margin:10px 0 18px">${lnk(esc(flUrl(F)),'Google Flights')}</div>`}
 vConn=function(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Transfer nicht gefunden.</div>';
  const L=legsOf(st);const l=L[0];const d=stagesDated()[i];const E=connEnds(i);const crit=critPref();const R=l&&l.conn;const key=st.id+':0';const F=st.fl;const fx=flOn()&&flV2();const fr=flRelevant(i);
- const Fok=F&&Array.isArray(F.opts)&&F.opts.length&&F.date===flEnds(i).date;
+ const Fok=F&&F.deep&&Array.isArray(F.opts)&&F.opts.length&&F.date===flEnds(i).date&&(F.pax||2)===paxN();const Fold=F&&Array.isArray(F.opts)&&F.opts.length&&!Fok;
  let h=backBtn()+head('Verbindungen',[`${trBase(st)} · ${esc(E.fromT)} → ${esc(E.toT)}`,dl(l.date?pd(l.date):d.from),E.km?'ca. '+E.km.toLocaleString('de-DE')+' km':'',L.length>1?L.length+' Teilstrecken':'']);
  const cb=UI.cnBusy===key,fb=UI.flBusy===st.id;
  const lab=aiKey()?(R?'Neu suchen':'Verbindungen suchen'):fx&&fr?(F?'Flüge neu suchen':'Flüge suchen'):'Verbindungen suchen';
  const btn=cb?kiBusyH('Claude vergleicht alle Verkehrsmittel …',UI.cnT0,30):fb?kiBusyH('Google Flights: Flüge und Preise für euren Tag …',UI.flT0,6):kiBtnH(lab,`data-a="cnRun" data-k="${i}" data-j="0"`);
- h+=`<div class="card kcard" style="padding:14px 16px"><div style="font-weight:600">Was ist euch wichtig?</div>${!R&&!aiKey()?`<div class="small mut" style="margin-top:4px;line-height:1.5">Für den Vergleich aller Verkehrsmittel braucht die App einen Claude-Schlüssel (Einstellungen → KI und Dienste).${fx&&fr?' Flüge mit echten Preisen holt sie auch ohne direkt aus Google Flights.':''}</div>`:!R?`<div class="small mut" style="margin-top:4px;line-height:1.5">Claude vergleicht alle sinnvollen Verbindungen – Fahrer, Bus, Zug, Boot und Flug, direkt und mit Umstieg – mit Preis für zwei und Dauer.${fx?' Ist ein Flug dabei, holt die App die Flüge mit echten Preisen aus Google Flights und rechnet sie ein (1 Abfrage).':''}</div>`:''}<div class="seg" style="margin-top:10px">${Object.entries(CRIT).map(([k,v])=>`<button class="${crit===k?'on':''}" data-a="cnCrit" data-k="${k}">${v}</button>`).join('')}</div><div class="act">${btn}</div></div>`;
+ h+=`<div class="card kcard" style="padding:14px 16px"><div style="font-weight:600">Was ist euch wichtig?</div>${!R&&!aiKey()?`<div class="small mut" style="margin-top:4px;line-height:1.5">Für den Vergleich aller Verkehrsmittel braucht die App einen Claude-Schlüssel (Einstellungen → KI und Dienste).${fx&&fr?' Flüge mit echten Preisen holt sie auch ohne direkt aus Google Flights.':''}</div>`:!R?`<div class="small mut" style="margin-top:4px;line-height:1.5">Claude vergleicht alle sinnvollen Verbindungen – Fahrer, Bus, Zug, Boot und Flug, direkt und mit Umstieg – mit Preis ${paxTxt()} und Dauer.${fx?' Ist ein Flug dabei, holt die App die Flüge mit echten Preisen aus Google Flights und rechnet sie ein (1 Abfrage).':''}</div>`:''}<div class="seg" style="margin-top:10px">${Object.entries(CRIT).map(([k,v])=>`<button class="${crit===k?'on':''}" data-a="cnCrit" data-k="${k}">${v}</button>`).join('')}</div><div class="act">${btn}</div></div>`;
  if(fr&&flOn()&&!flV2())h+=`<div class="card kb"><div class="small" style="line-height:1.5;color:var(--warn)">Für echte Flugpreise den Worker-Code einmal aktualisieren: kopieren, bei Cloudflare im Worker unter „Edit code“ alles ersetzen und „Deploy“, dann hier prüfen.</div><div class="act"><button class="btn sm" data-a="pxCopyCode">${ic('copy',14)}Worker-Code kopieren</button><button class="btn sm p" data-a="flPing">Prüfen</button></div></div>`;
  if(UI.cnErr&&UI.cnErr.k===key&&!cb)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.cnErr.m)}</div></div>`;
  if(UI.flErr&&UI.flErr.k===st.id&&!fb)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.flErr.m)}</div></div>`;
@@ -4340,9 +4349,9 @@ vConn=function(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.sta
   if(O.length>=3)h+=cnOverview(O,m,crit);
   h+=`<div class="small mut" style="margin:${O.length>=3?'10px':'-2px'} 2px 10px;line-height:1.45">${R.dev&&Object.keys(R.dev).length?'Bei „Neu suchen“ gelten die früheren Preise als Ausgangswert. ':''}Übernehmen ersetzt ${L.length>1?'alle '+L.length+' Teilstrecken':'den Transfer'} und füllt alle Felder${gx?' – beim Flug Zeiten, Flugnummern und Preis laut Google Flights':''}.</div>`;
   h+=connSort(O,crit).map(({o,k})=>cnCard2(o,k,m,R,l.connSel===k,i,st)).join('');
-  if(fx&&!gx&&!fb){if(Fok)h+=flStand(i);else if(hasF)h+=`<div class="act" style="margin:4px 0 8px"><button class="btn sm kio" data-a="cnFlRe" data-k="${i}">${ic('plane',14)}Echte Flugpreise laden · 1 Google-Abfrage</button></div>`;else if(fr)h+=`<div class="small mut" style="margin:12px 4px 4px;line-height:1.45">Claude schlägt hier keinen Flug vor.</div><div class="act" style="margin:4px 0 8px"><button class="btn sm kio" data-a="flRun" data-k="${i}">${ic('plane',14)}Trotzdem Flüge prüfen · 1 Google-Abfrage</button></div>`}
+  if(fx&&!gx&&!fb){if(Fok)h+=flStand(i);else if(hasF)h+=`${Fold?`<div class="small" style="margin:12px 4px 4px;line-height:1.45;color:var(--warn)">${!F.deep?'Die bisherigen Flugpreise stammen aus einer ungenauen Schnellabfrage.':(F.pax||2)!==paxN()?`Die bisherigen Flugpreise gelten ${paxTxt(F.pax||2)}.`:'Die bisherigen Flugpreise gelten für ein anderes Datum.'}</div>`:''}<div class="act" style="margin:4px 0 8px"><button class="btn sm kio" data-a="cnFlRe" data-k="${i}">${ic('plane',14)}${Fold?'Flugpreise neu laden':'Echte Flugpreise laden'} · 1 Google-Abfrage</button></div>`;else if(fr)h+=`<div class="small mut" style="margin:12px 4px 4px;line-height:1.45">Claude schlägt hier keinen Flug vor.</div><div class="act" style="margin:4px 0 8px"><button class="btn sm kio" data-a="flRun" data-k="${i}">${ic('plane',14)}Trotzdem Flüge prüfen · 1 Google-Abfrage</button></div>`}
   h+=`<div class="chips wrapc" style="margin-top:12px">${connLinks(i)}</div>`;
-  {const g='cn:'+st.id;const k=pickGet(g);const o=k!=null&&O[+k];if(o&&l.connSel!==+k)h+=pickBar(esc(o.title||modeLabel(o.mode)),`≈ ${eur(connEur(o))} für zwei · ${esc(o.dur||'')}`,`<button class="btn p sm" data-a="cnApply" data-k="${i}" data-j="0" data-o="${k}">${ic('check',14,2.6)}Übernehmen</button>`)}}
+  {const g='cn:'+st.id;const k=pickGet(g);const o=k!=null&&O[+k];if(o&&l.connSel!==+k)h+=pickBar(esc(o.title||modeLabel(o.mode)),`≈ ${eur(connEur(o))} ${paxTxt()} · ${esc(o.dur||'')}`,`<button class="btn p sm" data-a="cnApply" data-k="${i}" data-j="0" data-o="${k}">${ic('check',14,2.6)}Übernehmen</button>`)}}
  else if(Fok)h+=flStand(i);
  return h};
 Object.assign(window.KIA,{
@@ -4353,6 +4362,16 @@ Object.assign(window.KIA,{
  cnFp:(el)=>{const i=+el.dataset.k,k=+el.dataset.o,n=+el.dataset.f;const st=S.stages[i];const l=st&&legsOf(st)[0];const R=l&&l.conn;const F=st&&st.fl;if(!R||!F)return;R.fp=R.fp||{};R.fp[k]={n,ts:F.ts};if(l.connSel===k)delete l.connSel;save();UI.keepY=true;render()},
  cnJump:(el)=>{const c=document.getElementById('cn'+el.dataset.o);if(c)c.scrollIntoView({behavior:'smooth',block:'start'})},
  cnFlRe:(el)=>{const i=+el.dataset.k;const st=S.stages[i];const l=st&&legsOf(st)[0];const Q=l&&l.conn?cnFlQuery(i,l.conn):null;flSearch(i,Q||undefined)}});
+
+// ===== Reisende (0.91_25): Zahl aus den Einstellungen für Flugsuche und Preise je Person =====
+IC.users='<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>';
+{const s1=vSettings;vSettings=function(){const h=s1.apply(this,arguments);const n=paxN();const k='<div class="sec">Reise</div><div class="card">';
+ const row=`<button class="row" style="align-items:flex-start" data-a="paxEdit"><div class="ic0">${ic('users',17)}</div><div class="sp"><div style="display:flex;align-items:baseline;gap:10px"><div class="tt sp">Reisende</div><span class="small" style="color:var(--ink);font-weight:500;white-space:nowrap">${n} ${n===1?'Person':'Personen'}</span></div><div class="ss wrap" style="margin-top:3px">für die Flugsuche und für Preise je Person bei Transfers (Bus, Zug, Boot)</div></div><span class="chev" style="padding-top:2px">${ic('chev',16)}</span></button>`;
+ return h.includes(k)?h.replace(k,k+row):h}}
+Object.assign(window.KIA,{paxEdit:()=>{const n=paxN();sheet(`<div class="sht">Reisende</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Die Zahl gilt für die Flugsuche (Google Flights) und für Preise je Person bei Transfers – Bus, Zug, Boot und Flug. Privatfahrer und Taxi zählen je Fahrzeug; die passende Fahrzeuggröße wählt Claude nach dieser Zahl.</div>
+ ${seg('paxN',[1,2,3,4,5,6].map(x=>[x,String(x)]),n)}
+ ${btns(`<button class="btn p" style="flex:1" data-a="paxSave">Speichern</button>`,`<button class="btn gh" data-a="close">Abbrechen</button>`)}`)},
+ paxSave:()=>{const v=+gv('paxN');if(!(v>=1&&v<=9))return;const old=paxN();S.settings.pax=v;save();closeSheet();render();if(v!==old)toast(`Reisende: ${v} – neue Such- und Flugpreise gelten ${paxTxt(v)}. Bisherige Flugpreise bitte neu laden.`,6000)}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
