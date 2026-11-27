@@ -278,6 +278,25 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .hleg{display:flex;gap:14px;align-items:center;font-size:12px;color:var(--ink2);padding:10px 4px 0;flex-wrap:wrap}.hleg span{display:inline-flex;align-items:center;gap:6px}
 .hleg .dt{width:10px;height:10px;border-radius:5px;background:var(--c2)}.hleg .dn{width:9px;height:9px;border-radius:5px;border:2px solid var(--c1)}
 .kcard{margin-bottom:10px}
+/* 0.91_06 Kriterien-Zeilen und Ergebnis-Zeilen */
+.crows{margin-top:8px;border-top:1px solid var(--line2)}
+.crow{border-bottom:1px solid var(--line2)}
+.crh{display:flex;width:100%;align-items:center;gap:10px;padding:11px 0;text-align:left;background:none;border:0;color:inherit;font:inherit}
+.crl{font-size:13.5px;font-weight:500;flex:none}
+.crv{flex:1;min-width:0;text-align:right;color:var(--ink2);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crc{color:var(--ink3);display:flex}.crc svg{transition:transform .18s}.crow.on .crc svg{transform:rotate(90deg)}
+.crb{display:none;padding:0 0 12px}.crow.on .crb{display:block}.crow.on .crv{color:var(--ink)}
+.crb .frow{margin-top:0}.crb .fl0{margin-top:0}
+.rws{margin-top:10px;border-top:1px solid var(--line2)}
+.rw{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--line2);font-size:13px;line-height:1.45;align-items:baseline}
+.rw:last-child{border-bottom:0}
+.rwl{width:82px;flex:none;color:var(--ink3);font-size:12px}
+.rwv{flex:1;min-width:0;overflow-wrap:anywhere}.rwv .bdg2{margin:1px 0}
+/* Geräte */
+.dvme{font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--accs);color:var(--acc);margin-left:6px;vertical-align:1px}
+.gstep{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)}.gstep:last-child{border-bottom:0}
+.gstep b.n{width:24px;height:24px;border-radius:12px;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.crow:last-child{border-bottom:0}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1147,8 +1166,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_05';
+const APP_VERSION='0.91_06';
 const CHANGELOG=[
+ {v:'0.91_06',d:'27.11.2026',items:['Unterkunft und Ausflüge suchen: „Eure Kriterien“ steht schon vor der ersten Suche oben – als kurze Zeilen (Preis, Ausstattung, Zahlung, Art, Bewertung, Sonstiges), die sich zum Ändern aufklappen','Ergebnisse einheitlich: Unterkünfte, Ausflüge und Verbindungen zeigen ihre Angaben in festen Zeilen (z. B. Pro Nacht, Portale, Bewertung, Lage, Zahlung) – leichter zu vergleichen','Einstellungen → Geräte: alle Geräte am Abgleich mit App-Version und letzter Aktivität, dazu eine Schritt-für-Schritt-Anleitung zum Verbinden','Claude-Schlüssel: Links zum Guthaben-Aufladen und zu den API-Schlüsseln in der Claude Console']},
  {v:'0.91_05',d:'27.11.2026',items:['KI-Knopf einheitlich: lila, immer am Ende der obersten Karte (Unterkunft, Ausflüge, Verbindungen, Kostenanalyse, Reise prüfen); während der Suche hell-lila mit Spinner, Fortschritt und Laufzeit – auch bei „Echten Preis holen“, Einreise und Reisehinweisen. Mit Ergebnissen klappen die Kriterien zu einer Kurzfassung zusammen','Echte Preise zuerst: alle KI-Suchen holen erst Preise für eure Daten, dann echte Ab-Preise (Booking, Agoda, Trip.com, Expedia, Kayak, 12Go, GetYourGuide …); geschätzt wird nur ohne jede Quelle. „Echten Preis holen“ zeigt, welche Portale geprüft wurden','Zurück geht immer genau einen Schritt – auch zurück ins Popup, aus dem eine Seite geöffnet wurde (z. B. Unterkunft → Vorschläge → Zurück)','Ausflüge: Infotext (Wikipedia, sonst Claude) im Popup und in den Vorschlägen; Google-Bewertung hat Vorrang und wird nicht mehr durch Tripadvisor ersetzt','Karte: Antippen öffnet zuerst ein Info-Popup, „Öffnen“ springt in die Route','Heute: Karte mit den Zielen von heute (orange, nummeriert) und der nächsten zwei Tage (blau)']},
  {v:'0.91_04',d:'26.11.2026',items:['Unterkünfte und Ausflüge suchen: Der Knopf „Vorschläge suchen“ zeigt während der Suche selbst den Spinner, die Laufzeit und einen geschätzten Fortschritt – die Anzeige unter dem Hinweistext entfällt']},
  {v:'0.91_03',d:'26.11.2026',items:['Kostenanalyse: Während Claude analysiert, zeigt eine Karte oben einen Fortschrittsbalken mit dem aktuellen Arbeitsschritt, der Laufzeit und der Zahl der Posten – auch auf der Karte unter Geld und im KI-Kasten; die Seite springt beim Start nach oben']},
@@ -1526,7 +1546,8 @@ function startSheet(){sheet(`<div class="sht">Reisebeginn</div><div class="mut" 
 function keySheet(k){const ai=k==='ai';const has=ai?!!aiKey():!!gplKey();const bal=aiBal();
  sheet(`<div class="sht">${ai?'Claude':'Google-Suche'}</div><div class="mut" style="margin:4px 0 10px;line-height:1.45">${ai?'API-Schlüssel von platform.claude.com. Kosten zahlt ihr direkt bei Anthropic.':'Places-API-Schlüssel aus der Google Cloud Console. 1.000 Abfragen pro Monat sind frei.'} Der Schlüssel bleibt nur auf diesem Gerät.</div>
  ${fld('kKey','Schlüssel','',{type:'password',ph:has?'gespeichert – zum Ändern neu eingeben':'einfügen',attr:'autocomplete="off"'})}
- ${ai?`${lbl('Modell')}${seg('mdl',[['haiku','Haiku 5.5 · günstig'],['sonnet','Sonnet 5.5 · genauer']],aiModel())}${fld('kBal','Guthaben in Dollar',bal?String(bal.usd).replace('.',','):'',{num:1,ph:'nach dem Aufladen eintragen'})}<div class="small mut" style="margin:6px 2px 0">Die App zieht die Kosten jeder Anfrage ab.</div>`:''}
+ ${ai?`${lbl('Modell')}${seg('mdl',[['haiku','Haiku 5.5 · günstig'],['sonnet','Sonnet 5.5 · genauer']],aiModel())}${fld('kBal','Guthaben in Dollar',bal?String(bal.usd).replace('.',','):'',{num:1,ph:'nach dem Aufladen eintragen'})}<div class="small mut" style="margin:6px 2px 0">Die App zieht die Kosten jeder Anfrage ab. Nach dem Aufladen den neuen Stand hier eintragen.</div>
+ <div class="card" style="margin-top:12px"><a class="row" href="https://platform.claude.com/settings/billing" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ic0" style="color:var(--ki)">${ic('wallet',17)}</div><div class="sp"><div class="tt">Guthaben aufladen</div><div class="ss">Claude Console · Billing · „Buy credits“</div></div><span class="chev">${ic('link',15)}</span></a><a class="row" href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ic0" style="color:var(--ki)">${ic('spark',17)}</div><div class="sp"><div class="tt">API-Schlüssel verwalten</div><div class="ss">Claude Console · API Keys</div></div><span class="chev">${ic('link',15)}</span></a></div>`:''}
  ${btns(`<button class="btn p" style="flex:1" data-a="keySave" data-k="${k}">Speichern</button>`,has?`<button class="btn gh" style="color:var(--err)" data-a="keyDel" data-k="${k}">Entfernen</button>`:`<button class="btn" data-a="close">Abbrechen</button>`)}`)}
 function noteSheet(id){const p=byId(id);if(!p)return;sheet(`<div class="sht">Notiz</div><div class="mut" style="margin:4px 0 10px">${esc(p.name)}</div><textarea class="fld" id="nTxt" rows="6">${esc(p.note||'')}</textarea>${btns(`<button class="btn p" style="flex:1" data-a="noteSave" data-k="${id}">Speichern</button>`,`<button class="btn" data-a="close">Abbrechen</button>`)}`)}
 
@@ -2260,9 +2281,9 @@ function offList(o){const S2=o.segs.filter(s=>s.offers);if(!S2.length)return '';
 function connCard(o,k,m,R,applied,i,j,bk){const dv=R.dev&&R.dev[k];const badges=[k===m.bal?'Empfehlung':'',k===m.fast?'Schnellste':'',k===m.cheap?'Günstigste':''].filter(Boolean);const rb=o.real!=null?REAL[o.real]:null;const crit=critPref();const why=k===m[crit]&&R.why[crit]?R.why[crit]:'';
  const g='cn:'+S.stages[i].id;const on=!applied&&pickHas(g,k);const dim=!on&&pickGet(g)!=null;return `<div class="card cn ${k===m[crit]?'top':''} ${on?'pk':''} ${dim?'dim':''}" ${applied?'':pickA(g,k)}><div style="display:flex;gap:6px;flex-wrap:wrap">${on?pkBadge:''}${badges.map(b=>`<span class="bdg2 ${b==='Empfehlung'?'k':''}">${b}</span>`).join('')}${rb?`<span class="bdg2 ${rb[1]}">${rb[0]}</span>`:''}</div>
  <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic((MODES[o.mode]||MODES.car)[0],15)} ${esc(o.title||modeLabel(o.mode))}</div><div class="num" style="font-weight:700;white-space:nowrap">${o.tmin?'≈ '+eur(connEur(o)):'–'}</div></div>
- <div class="small mut" style="margin-top:3px">${[o.dur||(o.durH?o.durH.toLocaleString('de-DE')+' Std.':''),connTr(o)?connTr(o)+(connTr(o)===1?' Umstieg':' Umstiege'):'direkt',o.dep&&'ab '+o.dep,o.tmin&&o.tmax&&o.tmin!==o.tmax?eur(o.tmin)+'–'+eur(o.tmax)+' für zwei':'für zwei'].filter(Boolean).join(' · ')}</div>
- ${o.segs.length>1?`<div class="segs">${o.segs.map(s=>`<div class="segl">${segLine(s)}</div>`).join('')}</div>`:o.segs[0]&&segPr(o.segs[0])?`<div class="small mut" style="margin-top:3px">Preis: ${esc([segPr(o.segs[0]),o.segs[0].veh,o.segs[0].psrc].filter(Boolean).join(' · '))}</div>`:''}${o.real===0?'<div class="small" style="margin-top:4px;color:var(--warn);line-height:1.45">Geschätzt: Auf 12Go und in der Websuche fand Claude für diese Verbindung keine konkreten Angebote – Richtwert aus ähnlichen Strecken.</div>':''}${o.part?'<div class="small" style="margin-top:4px;color:var(--warn)">Für eine Teilstrecke fehlt der Preis.</div>':''}${offList(o)}${flightLinks(o,R,i)}${dv?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">${dv.n>1?`Frühere Suchen (Median aus ${dv.n})`:'Frühere Suche'}: ≈ ${eur(dv.prev)} – jetzt ≈ ${eur(connEur(o))}. ${R.chg?esc(R.chg):o.real===2?'Laut den aktuell gelisteten Angeboten.':'Claude nennt keinen Grund – im Zweifel den früheren Wert nehmen.'}</div>`:''}
- ${o.ops||o.note?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc([o.ops,o.note].filter(Boolean).join(' · '))}</div>`:''}${why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(why)}</div>`:''}
+ ${rws([['Dauer',esc([o.dur||(o.durH?o.durH.toLocaleString('de-DE')+' Std.':''),connTr(o)?connTr(o)+(connTr(o)===1?' Umstieg':' Umstiege'):'direkt'].filter(Boolean).join(' · '))],['Abfahrt',o.dep?esc('ab '+o.dep):''],['Preis',o.tmin?`<b class="num" style="font-weight:600">≈ ${eur(connEur(o))}</b> für zwei${o.tmin&&o.tmax&&o.tmin!==o.tmax?` <span class="mut">(${eur(o.tmin)}–${eur(o.tmax)})</span>`:''}${o.segs.length===1&&o.segs[0]&&segPr(o.segs[0])?`<br><span class="mut">${esc([segPr(o.segs[0]),o.segs[0].veh,o.segs[0].psrc].filter(Boolean).join(' · '))}</span>`:''}`:''],['Anbieter',esc(o.ops||'')]])}
+ ${o.segs.length>1?`<div class="segs">${o.segs.map(s=>`<div class="segl">${segLine(s)}</div>`).join('')}</div>`:''}${o.real===0?'<div class="small" style="margin-top:4px;color:var(--warn);line-height:1.45">Geschätzt: Auf 12Go und in der Websuche fand Claude für diese Verbindung keine konkreten Angebote – Richtwert aus ähnlichen Strecken.</div>':''}${o.part?'<div class="small" style="margin-top:4px;color:var(--warn)">Für eine Teilstrecke fehlt der Preis.</div>':''}${offList(o)}${flightLinks(o,R,i)}${dv?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">${dv.n>1?`Frühere Suchen (Median aus ${dv.n})`:'Frühere Suche'}: ≈ ${eur(dv.prev)} – jetzt ≈ ${eur(connEur(o))}. ${R.chg?esc(R.chg):o.real===2?'Laut den aktuell gelisteten Angeboten.':'Claude nennt keinen Grund – im Zweifel den früheren Wert nehmen.'}</div>`:''}
+ ${o.note?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc(o.note)}</div>`:''}${why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(why)}</div>`:''}
  <div class="act">${applied?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}übernommen${(g=>g&&Math.abs(g-connEur(o))>1?' mit ≈ '+eur(g):'')(connGot(i,j))}</span>`:bk?'<span class="small mut">Transfer ist schon gebucht</span>':`<button class="btn sm ${on||(k===m[crit]&&pickGet(g)==null)?'p':''}" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}">${o.segs.length>1?`Übernehmen (${o.segs.length} Teilstrecken)`:'Übernehmen'}</button>${dv?`<button class="btn sm" data-a="cnApply" data-k="${i}" data-j="${j}" data-o="${k}" data-pv="1">Mit ≈ ${eur(dv.prev)}</button>`:''}`}</div></div>`}
 function vConn(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Transfer nicht gefunden.</div>';const L=legsOf(st);const j=0;const l=L[0];const d=stagesDated()[i];const E=connEnds(i);const I={from:E.fromT,to:E.toT,km:E.km};const crit=critPref();
  const R=l&&l.conn;const key=st.id+':'+j;
@@ -2426,7 +2447,7 @@ let BB_TICK=null;function busyTick(){if(BB_TICK)return;BB_TICK=setInterval(()=>{
  if(!L.length&&!UI.hoBusy&&!UI.exBusy){clearInterval(BB_TICK);BB_TICK=null;return}
  L.forEach(b=>{const s=(Date.now()-Number(b.dataset.bt0))/1000;const f=b.querySelector('.bfill');if(f)f.style.width=bbPct(s,Number(b.dataset.tau))+'%';const c=b.querySelector('.bclk');if(c)c.textContent=bbClk(s)})},1000)}
 async function hotRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];hcSync();const c=hcOf(st);hcSave();
- UI.hoBusy=st.id;UI.hoT0=Date.now();UI.hoErr=null;UI.hcOpen=null;hotRefresh();busyTick();try{const R=await aiHotels(i,c);st.hsug=R;save()}catch(e){UI.hoErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.hoBusy=null;hotRefresh()}
+ UI.hoBusy=st.id;UI.hoT0=Date.now();UI.hoErr=null;UI.critOpen=null;hotRefresh();busyTick();try{const R=await aiHotels(i,c);st.hsug=R;save()}catch(e){UI.hoErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.hoBusy=null;hotRefresh()}
 // Einzelne Unterkunft: Preise je Portal für die Reisedaten und Zahlungsarten prüfen
 async function hotCheck(i,k){if(!aiKey())return kiNoKey();const st=S.stages[i];const R=st.hsug;const o=R&&R.opts[k];if(!o)return;const d=stagesDated()[i];const place=(byId(st.placeId)||{}).name||pname(st);
  UI.hoChk=st.id+':'+k;UI.hoChkT0=Date.now();hotRefresh();busyTick();
@@ -2449,31 +2470,34 @@ function payRow(o,want){const W=want||[];const known=(o.pay||[]).length>0;const 
 function priceRow(o,nn){nn=nn||1;const P=o.prices||[];if(!P.length)return '';return `<div class="small" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center"><span class="mut">Preise:</span>${P.map((p,n)=>`<span class="bdg2 ${n===0?'ok':''}" title="${esc(nfmt(p.min)+(p.max!==p.min?'–'+nfmt(p.max):'')+' '+p.cur)}">${esc(p.src)} ${esc(eur(p.e))}/N${nn>1?` = ${esc(eur(p.e*nn))}`:''}${p.dated?' ·&nbsp;eure Daten':' ·&nbsp;ab'}</span>`).join('')}</div>`}
 function hotLinks(o,st,place){const q=o.name+', '+place;return [lnk(hLinkB(o.links.booking,st)||hBook(q,st),hLinkB(o.links.booking,st)?'Booking (Hotelseite)':'Booking'),hLinkA(o.links.agoda,st)?lnk(hLinkA(o.links.agoda,st),'Agoda'):'',lnk(hLinkE(o.links.expedia,st)||hExp(q,st),'Expedia'),hLinkT(o.links.trip,st)?lnk(hLinkT(o.links.trip,st),'Trip.com'):'',lnk(hMaps(o.name+' '+place),'Google Maps')].join('')}
 function hotCard(o,k,M,i,st,R){const d=stagesDated()[i];const nn=Math.max(1,d.nights);const place=(byId(st.placeId)||{}).name||pname(st);const cur=st.stay&&st.stay.name&&st.stay.name.toLowerCase()===o.name.toLowerCase();const busy=UI.hoChk===st.id+':'+k;
- const b=[k===M.best?['Empfehlung','k']:null,k===M.cheap?['Günstigste','']:null,k===M.top?['Beste Bewertung','']:null,[o.real?'Echte Preise':'Geschätzt',o.real?'ok':'wn']].filter(Boolean);const want=((R.crit||{}).pay)||[];
- const g='ho:'+st.id;const on=!cur&&pickHas(g,k);const dim=!on&&pickGet(g)!=null;return `<div class="card cn ${k===M.best?'top':''} ${on?'pk':''} ${dim?'dim':''}" ${cur?'':pickA(g,k)}><div style="display:flex;gap:6px;flex-wrap:wrap">${on?pkBadge:''}${b.map(x=>`<span class="bdg2 ${x[1]}">${x[0]}</span>`).join('')}</div>
- <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic('bed',15)} ${esc(o.name)}</div><div style="text-align:right;white-space:nowrap">${o.pn?`<div class="num" style="font-weight:700">≈ ${eur(o.pn*nn)}<span class="small mut" style="font-weight:500"> gesamt</span></div><div class="small mut num" style="margin-top:2px">≈ ${eur(o.pn)} /Nacht · ${nN(nn)}</div>`:'<div class="num" style="font-weight:700">–</div><div class="small mut">Preis unbekannt</div>'}</div></div>
- <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([o.type,o.area,o.dist].filter(Boolean).join(' · '))}</div>
- <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([rtTxt(o),!o.prices.length&&o.pn?'Preis geschätzt':''].filter(Boolean).join(' · '))}</div>
- ${!o.real&&o.pn?`<div class="small" style="margin-top:4px;color:var(--warn);line-height:1.45">Geschätzt: Kein Portal zeigte für dieses Haus einen Preis – ${o.appEst?'die App hat ihn aus den echten Preisen der anderen Vorschläge abgeleitet':'Claude hat ihn aus echten Preisen ähnlicher Häuser der Gegend abgeleitet'}. „Echten Preis holen“ sucht gezielt bei Booking, Agoda, Trip.com, Expedia und Kayak.</div>`:''}${priceRow(o,nn)}${payRow(o,want)}
- ${o.match.length||o.miss.length?`<div class="chips wrapc" style="margin-top:8px">${o.match.map(a=>`<span class="bdg2 ok">${ic('check',11,2.6)} ${esc(a)}</span>`).join('')}${o.miss.map(a=>`<span class="bdg2 wn">${ic('x',11,2.6)} ${esc(a)}</span>`).join('')}</div>`:''}
- ${o.amen.length?`<div class="small mut" style="margin-top:6px;line-height:1.45">${esc(o.amen.join(' · '))}</div>`:''}${o.why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(o.why)}</div>`:''}
+ const b=[k===M.best?['Empfehlung','k']:null,k===M.cheap?['Günstigste','']:null,k===M.top?['Beste Bewertung','']:null,[o.real?'Echte Preise':'Geschätzt',o.real?'ok':'wn']].filter(Boolean);const W=((R.crit||{}).pay)||[];const wish=[...(((R.crit||{}).am)||[]),...W];
+ const g='ho:'+st.id;const on=!cur&&pickHas(g,k);const dim=!on&&pickGet(g)!=null;
+ const prc=(o.prices||[]).map((p,n)=>`<span class="bdg2 ${n===0?'ok':''}">${esc(p.src)} ${esc(eur(p.e))}${p.dated?' · eure Daten':' · ab'}</span>`).join(' ');
+ const pay=(()=>{const known=(o.pay||[]).length>0;const show=[...new Set([...W,...(o.pay||[])])];if(!show.length)return '';return known?show.map(p=>{const ok=o.pay.includes(p);return `<span class="bdg2 ${ok?'ok':W.includes(p)?'wn':''}">${ic(ok?'check':'x',11,2.6)} ${esc(p)}</span>`}).join(' ')+(o.paySrc?` <span class="mut small">${esc(o.paySrc)}</span>`:''):'<span class="mut">unbekannt</span>'})();
+ return `<div class="card cn ${k===M.best?'top':''} ${on?'pk':''} ${dim?'dim':''}" ${cur?'':pickA(g,k)}><div style="display:flex;gap:6px;flex-wrap:wrap">${on?pkBadge:''}${b.map(x=>`<span class="bdg2 ${x[1]}">${x[0]}</span>`).join('')}</div>
+ <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic('bed',15)} ${esc(o.name)}</div><div style="text-align:right;white-space:nowrap">${o.pn?`<div class="num" style="font-weight:700">≈ ${eur(o.pn*nn)}</div><div class="small mut">${nN(nn)} gesamt</div>`:'<div class="num" style="font-weight:700">–</div><div class="small mut">Preis unbekannt</div>'}</div></div>
+ <div class="small mut" style="margin-top:2px">${esc(o.type||'Unterkunft')}</div>
+ ${rws([['Pro Nacht',o.pn?`<b class="num" style="font-weight:600">≈ ${eur(o.pn)}</b> <span class="${o.real?'mut':''}" ${o.real?'':'style="color:var(--warn)"'}>· ${esc(o.real?o.psrc:'geschätzt')}</span>`:''],['Portale',prc],['Bewertung',rtTxt(o)?esc(rtTxt(o)):''],['Lage',esc([o.area,o.dist].filter(Boolean).join(' · '))],wish.length?['Wünsche',wishB(o.match,o.miss).trim()]:null,['Zahlung',pay],['Ausstattung',esc((o.amen||[]).join(' · '))]])}
+ ${o.why?`<div class="small" style="margin-top:8px;color:var(--ki);line-height:1.45">${esc(o.why)}</div>`:''}
+ ${!o.real&&o.pn?`<div class="small" style="margin-top:6px;color:var(--warn);line-height:1.45">Kein Portal zeigte für dieses Haus einen Preis – ${o.appEst?'abgeleitet aus den echten Preisen der anderen Vorschläge':'abgeleitet aus echten Preisen ähnlicher Häuser der Gegend'}. „Echten Preis holen“ sucht gezielt weiter.</div>`:''}
  ${o.chk?`<div class="small mut" style="margin-top:6px;line-height:1.45">${kib('Geprüft')} ${fmtD(new Date(o.chk.ts))}: ${o.chk.n?o.chk.n+' echte'+(o.chk.n>1?' Preise':'r Preis'):'kein Portal zeigte einen Preis'}${o.chk.pay?', Zahlungsarten gefunden':', Zahlungsarten nicht gefunden'}${o.chk.note?' – '+esc(o.chk.note):''}${o.chk.tried?`<br>Geprüft: ${esc(o.chk.tried)}`:''}${o.chk.usd?' · '+cents(o.chk.usd):''}</div>`:''}
- <div class="chips wrapc" style="margin-top:8px">${hotLinks(o,st,place)}</div>
+ <div class="chips wrapc" style="margin-top:10px">${hotLinks(o,st,place)}</div>
  <div class="act">${busy?kiBusyH('prüft Preise …',UI.hoChkT0,30,{sm:1}):`<button class="btn sm kio" data-a="hoChk" data-k="${i}" data-o="${k}">${ic('spark',14,2.2)}${o.real?'Preise & Zahlung prüfen':'Echten Preis holen'}</button>`}${cur?`<span class="small" style="color:var(--ok);font-weight:600;display:inline-flex;align-items:center;gap:5px">${ic('check',14,2.4)}eingetragen</span>`:`<button class="btn sm ${on||(k===M.best&&pickGet(g)==null)?'p':''}" data-a="hoAsk" data-k="${i}" data-o="${k}">Übernehmen</button>`}</div></div>`}
 const tg=(g,v,on)=>`<button class="chip ${on?'on':''}" data-a="hcTog" data-g="${g}" data-k="${esc(v)}">${esc(v)}</button>`;
+function hcVals(c){const j=a=>a.length?a.join(', '):'egal';return {pr:c.min&&c.max?`${c.min}–${c.max} €`:c.max?`bis ${c.max} €`:c.min?`ab ${c.min} €`:'egal',am:j(c.am),pay:j(c.pay),ty:j(c.ty),rt:c.rt?'ab '+String(c.rt).replace('.',','):'egal',free:c.free||'–'}}
+function hcSumUpd(){const c=UI.hc;if(c)critSet('hc',hcVals(c))}
 function hcSum(c){const L=[];L.push(c.min&&c.max?`${c.min}–${c.max} €/Nacht`:c.max?`bis ${c.max} €/Nacht`:c.min?`ab ${c.min} €/Nacht`:'Preis egal');c.am.forEach(a=>L.push(a));c.pay.forEach(a=>L.push(a));c.ty.forEach(a=>L.push(a));if(c.rt)L.push('ab '+String(c.rt).replace('.',','));if(c.free)L.push(c.free.length>28?c.free.slice(0,27)+'…':c.free);return L}
-function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=hcOf(st);const R=st.hsug;const place=(byId(st.placeId)||{}).name||pname(st);const chg='onchange="hcSync();hcSave()"';
+function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=hcOf(st);const R=st.hsug;const place=(byId(st.placeId)||{}).name||pname(st);const chg='onchange="hcSync();hcSave();hcSumUpd()"';
  let h=backBtn()+head('Unterkunft finden',[esc(place),`${dl(d.from)} – ${dl(d.to)}`,nN(d.nights)]);
  const kbtn=UI.hoBusy===st.id?kiBusyH('Claude sucht Unterkünfte …',UI.hoT0,40):kiBtnH(R?'Neu suchen':'Vorschläge suchen',`data-a="hcRun" data-k="${i}"`);
- if(R&&R.opts&&UI.hcOpen!==st.id)h+=kiCritCard('Eure Kriterien',hcSum(c),`data-a="hcEdit" data-k="${st.id}"`,kbtn);
- else h+=`<div class="card" style="padding:14px 16px"><div style="font-weight:600">Was ist euch wichtig?</div><div class="small mut" style="margin-top:2px">Vorausgewählt: eure letzten Einstellungen</div>
- <div class="frow">${fld('hcMin','Preis pro Nacht ab (€)',c.min,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}${fld('hcMax','bis (€, für zwei)',c.max,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}</div><div class="small mut" id="hcTot" data-n="${Math.max(1,d.nights)}" style="margin:6px 2px 0">${hcTotTxt(c.min,c.max,Math.max(1,d.nights))}</div>
- ${lbl('Ausstattung')}<div class="chips wrapc">${H_AM.map(a=>tg('am',a,c.am.includes(a))).join('')}</div>
- ${lbl('Zahlung möglich mit')}<div class="chips wrapc">${H_PAY.map(a=>tg('pay',a,c.pay.includes(a))).join('')}</div>
- ${lbl('Art')}<div class="chips wrapc">${H_TY.map(a=>tg('ty',a,c.ty.includes(a))).join('')}</div>
- ${lbl('Bewertung')}<div class="seg">${H_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="hcRate" data-k="${k}">${v}</button>`).join('')}</div>
- ${fld('hcFree','Sonstiges (nur diese Etappe)',c.free,{ph:'z. B. nahe Altstadt, Meerblick, großes Bett',attr:chg})}
- <div class="act">${kbtn}</div></div>`;
+ const V=hcVals(c);const op=k=>UI.critOpen==='hc:'+k;
+ h+=critCard('Eure Kriterien','Vorausgewählt: eure letzten Einstellungen · antippen zum Ändern',
+  critRow('hc','pr','Preis pro Nacht',V.pr,`<div class="frow">${fld('hcMin','ab (€)',c.min,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}${fld('hcMax','bis (€, für zwei)',c.max,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}</div><div class="small mut" id="hcTot" data-n="${Math.max(1,d.nights)}" style="margin:6px 2px 0">${hcTotTxt(c.min,c.max,Math.max(1,d.nights))}</div>`,op('pr'))+
+  critRow('hc','am','Ausstattung',V.am,`<div class="chips wrapc">${H_AM.map(a=>tg('am',a,c.am.includes(a))).join('')}</div>`,op('am'))+
+  critRow('hc','pay','Zahlung mit',V.pay,`<div class="chips wrapc">${H_PAY.map(a=>tg('pay',a,c.pay.includes(a))).join('')}</div>`,op('pay'))+
+  critRow('hc','ty','Art',V.ty,`<div class="chips wrapc">${H_TY.map(a=>tg('ty',a,c.ty.includes(a))).join('')}</div>`,op('ty'))+
+  critRow('hc','rt','Bewertung',V.rt,`<div class="seg">${H_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="hcRate" data-k="${k}">${v}</button>`).join('')}</div>`,op('rt'))+
+  critRow('hc','free','Sonstiges',V.free,fld('hcFree','Nur diese Etappe',c.free,{ph:'z. B. nahe Altstadt, Meerblick, großes Bett',attr:chg}),op('free')),kbtn);
  if(!R||!R.opts)h+=`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Expedia, Hotels.com, Trip.com und Kayak – zuerst echte Preise für eure Daten, dann echte Ab-Preise der Portale; geschätzt wird nur, wenn kein Portal einen Preis zeigt. „Echten Preis holen“ sucht für ein Haus gezielt weiter. ca. 4–10 ct je Suche</div>`;
  if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
  if(R&&R.opts){R.opts.forEach(o=>{o.prices=o.prices||[];o.pay=o.pay||[];o.links=o.links||{}});const M=hotMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
@@ -2502,8 +2526,8 @@ function hoDo(F){const A=UI.hoAsk;UI.hoAsk=null;if(!A)return;const st=S.stages[A
  toast(`Unterkunft übernommen: ${esc(o.name)}${tot?' · ≈ '+eur(tot):''}${F.booked?' · gebucht':''}${F.paid?' · bezahlt':''}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
 Object.assign(window.KIA=window.KIA||{},{
  hoOpen:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st)return;UI.hc=null;go(UI.tab,[...UI.stack,{k:'hotels',sid:st.id}])},
- hcTog:(el)=>{hcSync();const c=UI.hc;if(!c)return;const L=c[el.dataset.g];const v=el.dataset.k;const n=L.indexOf(v);if(n>=0)L.splice(n,1);else L.push(v);el.classList.toggle('on',n<0);hcSave()},
- hcRate:(el)=>{hcSync();if(!UI.hc)return;UI.hc.rt=el.dataset.k;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));hcSave()},
+ hcTog:(el)=>{hcSync();const c=UI.hc;if(!c)return;const L=c[el.dataset.g];const v=el.dataset.k;const n=L.indexOf(v);if(n>=0)L.splice(n,1);else L.push(v);el.classList.toggle('on',n<0);hcSave();hcSumUpd()},
+ hcRate:(el)=>{hcSync();if(!UI.hc)return;UI.hc.rt=el.dataset.k;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));hcSave();hcSumUpd()},
  hcRun:(el)=>hotRun(+el.dataset.k),
  hcEdit:(el)=>{UI.hcOpen=el.dataset.k;UI.keepY=true;render()},
  hoChk:(el)=>hotCheck(+el.dataset.k,+el.dataset.o),
@@ -2551,7 +2575,7 @@ Object.assign(window.KIA=window.KIA||{},{
 
 // Preisrahmen pro Nacht → Gesamtrahmen für den Zeitraum
 function hcTotTxt(a,b,n){a=parseFloat(String(a||'').replace(',','.'));b=parseFloat(String(b||'').replace(',','.'));const f=v=>eur(Math.round(v*n));if(!(a>0)&&!(b>0))return `Gesamt für ${nN(n)}: ohne Preisrahmen`;return `Gesamt für ${nN(n)}: ${a>0&&b>0?f(a)+' – '+f(b):a>0?'ab '+f(a):'bis '+f(b)}`}
-function hcTot(){const e=$('#hcTot');if(!e)return;e.textContent=hcTotTxt(($('#hcMin')||{}).value,($('#hcMax')||{}).value,+e.dataset.n||1)}
+function hcTot(){const e=$('#hcTot');if(!e)return;e.textContent=hcTotTxt(($('#hcMin')||{}).value,($('#hcMax')||{}).value,+e.dataset.n||1);hcSync();hcSave();hcSumUpd()}
 // ===================== Ausflüge finden (KI) – analog zu Unterkunft und Verbindungen =====================
 const E_IN=['Natur','Wandern','Kultur & Tempel','Strand & Baden','Märkte & Essen','Bootstour','Höhlen','Aussichtspunkte','Abenteuer','Entspannung & Spa','Fotospots','Abseits der Massen'];
 const E_MOB=['zu Fuß','Roller','Taxi/Grab','Geführte Tour'];
@@ -2586,7 +2610,7 @@ Sonstiges: ${c.free||'–'}.`;
  catch(e){if(!(aiWsIsToolErr(e.message||'')||/fetch|beta|^tool$/i.test(e.message||'')))throw e;r=await aiCallWeb({system:AI_EX_SYS,max:5000,timeout:150000,messages:[{role:'user',content:msg}]},5)}
  const J=aiJson(r.text);const opts=(Array.isArray(J.items)?J.items:[]).map(x=>exNorm(x,days)).filter(x=>x.name).slice(0,8);if(!opts.length)throw new Error('keine passenden Ausflüge gefunden');
  return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd:r.usd,crit:{in:c.in,mob:c.mob,dur:c.dur,rt:c.rt,bud:c.bud,free:c.free},from:iso(d.from),to:iso(d.to)}}
-async function exRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];ecSync();const c=ecOf(st);ecSave();UI.exBusy=st.id;UI.exT0=Date.now();UI.exErr=null;UI.ecOpen=null;UI.picks['ex:'+st.id]=null;exRefresh();busyTick();
+async function exRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];ecSync();const c=ecOf(st);ecSave();UI.exBusy=st.id;UI.exT0=Date.now();UI.exErr=null;UI.critOpen=null;UI.picks['ex:'+st.id]=null;exRefresh();busyTick();
  try{const R=await aiEx(i,c);st.esug=R;save();exRate(i)}catch(e){UI.exErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.exBusy=null;exRefresh()}
 // fehlende Bewertungen nachholen, bevor übernommen wird
 async function exRate(i){const st=S.stages[i];const R=st.esug;if(!R||!aiKey()||!autoRate())return;const L=R.opts.filter(o=>o.gRating==null&&!o.gNone).slice(0,8);if(!L.length)return;const place=(byId(st.placeId)||{}).name||pname(st);
@@ -2598,30 +2622,31 @@ const exPrice=o=>o.per==='free'?'Eintritt frei':o.two!=null?`≈ ${eur(o.two)}`:
 const gyg=q=>`https://www.getyourguide.de/s/?q=${encodeURIComponent(q)}`;const tadv=q=>`https://www.tripadvisor.de/Search?q=${encodeURIComponent(q)}`;
 function exMarks(opts){const R=opts.map((o,k)=>({k,r:o.gRating||0})).filter(x=>x.r);return {best:0,top:R.length?R.reduce((a,b)=>b.r>a.r?b:a).k:-1}}
 function exCard(o,k,M,i,st,R){const g='ex:'+st.id;const done=exIn(i,o);const on=!done&&pickHas(g,k);const any=pickN(g)>0;const place=(byId(st.placeId)||{}).name||pname(st);const rb=UI.rtBusy&&UI.rtBusy.has(g);
- const b=[k===M.best?['Empfehlung','k']:null,k===M.top?['Beste Bewertung','']:null,[o.per==='free'?'Eintritt frei':o.real?'Echte Preise':'Geschätzt',o.per==='free'||o.real?'ok':'wn']].filter(Boolean);
+ const b=[k===M.best?['Empfehlung','k']:null,k===M.top?['Beste Bewertung','']:null,[o.per==='free'?'Eintritt frei':o.real?'Echte Preise':'Geschätzt',o.per==='free'||o.real?'ok':'wn']].filter(Boolean);const C=R.crit||{};const wish=[...(C.in||[]),...(C.mob||[])];
+ const pr=o.per==='free'?'<b style="font-weight:600">Eintritt frei</b>':o.two!=null?`<b class="num" style="font-weight:600">${exPrice(o)}</b> für zwei${o.per==='person'&&o.pp?` · ${eur(o.pp)} p. P.`:o.per==='group'?' · pro Gruppe':''} <span class="${o.real?'mut':''}" ${o.real?'':'style="color:var(--warn)"'}>· ${esc(o.real?(o.psrc||'Quelle'):'geschätzt')}</span>`:'';
+ const rt=o.gRating!=null?`<span class="rtg">★ ${r1(o.gRating)}</span>${o.gCount?` <span class="mut">(${Number(o.gCount).toLocaleString('de-DE')})</span>`:''} <span class="mut">· ${esc(o.gSrc||'Google Maps')}</span>`:rb?'<span style="color:var(--ki)"><span class="spin"></span>wird geholt …</span>':'<span class="mut">keine gefunden</span>';
  return `<div class="card cn ${k===M.best?'top':''} ${on?'pk':''} ${!on&&any?'dim':''}" ${done?'':pickA(g,k)}><div style="display:flex;gap:6px;flex-wrap:wrap">${on?pkBadge:''}${done?`<span class="bdg2 ok">${ic('check',11,2.8)} eingeplant</span>`:''}${b.map(x=>`<span class="bdg2 ${x[1]}">${x[0]}</span>`).join('')}</div>
- <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic('pin',15)} ${esc(o.name)}</div><div style="text-align:right;white-space:nowrap"><div class="num" style="font-weight:700">${exPrice(o)}${o.two?'<span class="small mut" style="font-weight:500"> für zwei</span>':''}</div>${o.pp&&o.per==='person'?`<div class="small mut num" style="margin-top:2px">≈ ${eur(o.pp)} p. P.</div>`:o.per==='group'&&o.two?'<div class="small mut" style="margin-top:2px">pro Gruppe</div>':''}</div></div>
- <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([o.kind,o.area,o.dur].filter(Boolean).join(' · '))}</div>
- <div class="small" style="margin-top:4px;line-height:1.45">${o.gRating!=null?`<span class="rtg">★ ${r1(o.gRating)}</span>${o.gCount?` <span class="mut">(${Number(o.gCount).toLocaleString('de-DE')})</span>`:''} <span class="mut">· ${esc(o.gSrc||'Google Maps')}</span>`:rb?'<span style="color:var(--ki)"><span class="spin"></span>Bewertung wird geholt …</span>':'<span class="mut">keine Bewertung gefunden</span>'}</div>
- <div class="small mut" style="margin-top:3px;line-height:1.45">${esc([o.date?'Vorschlag: '+dl(pd(o.date)):'ohne Tag',o.dist,o.best].filter(Boolean).join(' · '))}</div>
- ${o.info?`<div class="small" style="margin-top:6px;line-height:1.5;color:var(--ink)">${esc(o.info)}</div>`:''} ${!o.real&&o.per!=='free'&&o.two!=null?'<div class="small" style="margin-top:4px;color:var(--warn);line-height:1.45">Geschätzt: keine Quelle nannte einen Preis – Richtwert aus ähnlichen Angeboten.</div>':''}
- ${o.match.length||o.miss.length?`<div class="chips wrapc" style="margin-top:8px">${o.match.map(a=>`<span class="bdg2 ok">${ic('check',11,2.6)} ${esc(a)}</span>`).join('')}${o.miss.map(a=>`<span class="bdg2 wn">${ic('x',11,2.6)} ${esc(a)}</span>`).join('')}</div>`:''}
- ${o.why?`<div class="small" style="margin-top:6px;color:var(--ki);line-height:1.45">${esc(o.why)}</div>`:''}${o.tip?`<div class="small mut" style="margin-top:4px;line-height:1.45">Tipp: ${esc(o.tip)}</div>`:''}
- <div class="chips wrapc" style="margin-top:8px">${lnk(hMaps(o.name+' '+place),'Google Maps')}${lnk(gyg(o.name+' '+place),'GetYourGuide')}${lnk(tadv(o.name+' '+place),'Tripadvisor')}</div></div>`}
+ <div style="display:flex;gap:10px;align-items:baseline;margin-top:8px"><div class="sp" style="font-size:15px;font-weight:600;line-height:1.3">${ic('pin',15)} ${esc(o.name)}</div><div class="num" style="font-weight:700;white-space:nowrap">${exPrice(o)}</div></div>
+ <div class="small mut" style="margin-top:2px">${esc([o.kind,o.area].filter(Boolean).join(' · '))}</div>
+ ${o.info?`<div class="small" style="margin-top:8px;line-height:1.5;color:var(--ink)">${esc(o.info)}</div>`:''}
+ ${rws([['Preis',pr],['Bewertung',rt],['Dauer',esc(o.dur)],['Weg',esc(o.dist)],['Beste Zeit',esc(o.best)],['Tag',o.date?'Vorschlag '+esc(dl(pd(o.date))):'<span class="mut">ohne Tag</span>'],wish.length?['Wünsche',wishB(o.match,o.miss).trim()]:null])}
+ ${o.why?`<div class="small" style="margin-top:8px;color:var(--ki);line-height:1.45">${esc(o.why)}</div>`:''}${o.tip?`<div class="small mut" style="margin-top:4px;line-height:1.45">Tipp: ${esc(o.tip)}</div>`:''}
+ <div class="chips wrapc" style="margin-top:10px">${lnk(hMaps(o.name+' '+place),'Google Maps')}${lnk(gyg(o.name+' '+place),'GetYourGuide')}${lnk(tadv(o.name+' '+place),'Tripadvisor')}</div></div>`}
+function ecVals(c){const j=a=>a.length?a.join(', '):'egal';return {in:c.in.length?c.in.join(', '):'offen für alles',dur:(E_DUR.find(x=>x[0]===c.dur)||E_DUR[0])[1],mob:j(c.mob),rt:c.rt?'ab ★ '+String(c.rt).replace('.',','):'egal',bud:c.bud?'bis '+c.bud+' €':'egal',free:c.free||'–'}}
+function ecSumUpd(){const c=UI.ec;if(c)critSet('ec',ecVals(c))}
 function ecSum(c){const L=[...c.in];const du=(E_DUR.find(x=>x[0]===c.dur)||E_DUR[0]);if(c.dur)L.push(du[1]);c.mob.forEach(a=>L.push(a));if(c.rt)L.push('ab ★ '+String(c.rt).replace('.',','));if(c.bud)L.push('bis '+c.bud+' € p. P.');if(c.free)L.push(c.free.length>28?c.free.slice(0,27)+'…':c.free);if(!L.length)L.push('offen für alles');return L}
 const etg=(g,v,on)=>`<button class="chip ${on?'on':''}" data-a="ecTog" data-g="${g}" data-k="${esc(v)}">${esc(v)}</button>`;
-function vExFind(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=ecOf(st);const R=st.esug;const place=(byId(st.placeId)||{}).name||pname(st);const fr=freeDays(i,d);const chg='onchange="ecSync();ecSave()"';
+function vExFind(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=ecOf(st);const R=st.esug;const place=(byId(st.placeId)||{}).name||pname(st);const fr=freeDays(i,d);const chg='onchange="ecSync();ecSave();ecSumUpd()"';
  let h=backBtn()+head('Ausflüge finden',[esc(place),`${dl(d.from)} – ${dl(d.to)}`,fr.length?`${fr.length} ${fr.length===1?'Tag':'Tage'} frei`:'keine ganzen Tage frei']);
  const kbtn=UI.exBusy===st.id?kiBusyH('Claude sucht Ausflüge …',UI.exT0,40):kiBtnH(R?'Neu suchen':'Vorschläge suchen',`data-a="ecRun" data-k="${i}"`);
- if(R&&R.opts&&UI.ecOpen!==st.id)h+=kiCritCard('Eure Kriterien',ecSum(c),`data-a="ecEdit" data-k="${st.id}"`,kbtn);
- else h+=`<div class="card" style="padding:14px 16px"><div style="font-weight:600">Was interessiert euch?</div><div class="small mut" style="margin-top:2px">Vorausgewählt: eure letzten Einstellungen</div>
- ${lbl('Interessen')}<div class="chips wrapc">${E_IN.map(a=>etg('in',a,c.in.includes(a))).join('')}</div>
- ${lbl('Dauer')}<div class="seg">${E_DUR.map(([k,v])=>`<button class="${c.dur===k?'on':''}" data-a="ecSeg" data-g="dur" data-k="${k}">${v}</button>`).join('')}</div>
- ${lbl('Unterwegs')}<div class="chips wrapc">${E_MOB.map(a=>etg('mob',a,c.mob.includes(a))).join('')}</div>
- ${lbl('Bewertung (Google)')}<div class="seg">${E_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="ecSeg" data-g="rt" data-k="${k}">${v}</button>`).join('')}</div>
- <div class="frow">${fld('ecBud','Budget pro Person (€)',c.bud,{half:1,num:1,ph:'egal',attr:chg})}</div>
- ${fld('ecFree','Sonstiges (nur diese Etappe)',c.free,{ph:'z. B. Sonnenaufgang, wenig Touristen, Kochkurs',attr:chg})}
- <div class="act">${kbtn}</div></div>`;
+ const V=ecVals(c);const op=k=>UI.critOpen==='ec:'+k;
+ h+=critCard('Eure Kriterien','Vorausgewählt: eure letzten Einstellungen · antippen zum Ändern',
+  critRow('ec','in','Interessen',V.in,`<div class="chips wrapc">${E_IN.map(a=>etg('in',a,c.in.includes(a))).join('')}</div>`,op('in'))+
+  critRow('ec','dur','Dauer',V.dur,`<div class="seg">${E_DUR.map(([k,v])=>`<button class="${c.dur===k?'on':''}" data-a="ecSeg" data-g="dur" data-k="${k}">${v}</button>`).join('')}</div>`,op('dur'))+
+  critRow('ec','mob','Unterwegs',V.mob,`<div class="chips wrapc">${E_MOB.map(a=>etg('mob',a,c.mob.includes(a))).join('')}</div>`,op('mob'))+
+  critRow('ec','rt','Bewertung (Google)',V.rt,`<div class="seg">${E_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="ecSeg" data-g="rt" data-k="${k}">${v}</button>`).join('')}</div>`,op('rt'))+
+  critRow('ec','bud','Budget p. P.',V.bud,`<div class="frow">${fld('ecBud','Budget pro Person (€)',c.bud,{half:1,num:1,ph:'egal',attr:chg})}</div>`,op('bud'))+
+  critRow('ec','free','Sonstiges',V.free,fld('ecFree','Nur diese Etappe',c.free,{ph:'z. B. Sonnenaufgang, wenig Touristen, Kochkurs',attr:chg}),op('free')),kbtn);
  if(!R||!R.opts)h+=`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht Sehenswürdigkeiten und Touren mit Google-Bewertung, echtem Preis (offizielle Seiten, GetYourGuide, Klook, Viator), Dauer, Weg ab eurer Unterkunft und einem kurzen Infotext und verteilt sie auf die freien Tage. Mehrere antippen, dann übernehmen. ca. 4–9 ct je Suche</div>`;
  if(UI.exErr&&UI.exErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.exErr.m)}</div></div>`;
  if(R&&R.opts){const M=exMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
@@ -2643,8 +2668,8 @@ async function exDo(){const A=UI.exAsk;UI.exAsk=null;if(!A)return;const st=S.sta
  UI.picks['ex:'+st.id]=null;render();toast(n?`${n} ${n===1?'Ausflug':'Ausflüge'} übernommen.`:'Konnte nicht übernommen werden.',4000);rateSoon(S.places.filter(p=>p.ai&&p.gRating==null&&Date.now()-(p.added||0)<600000).map(p=>p.id))}
 Object.assign(window.KIA=window.KIA||{},{
  exOpen:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st)return;UI.ec=null;go(UI.tab,[...UI.stack,{k:'exfind',sid:st.id}])},
- ecTog:(el)=>{ecSync();const c=UI.ec;if(!c)return;const L=c[el.dataset.g];const v=el.dataset.k;const n=L.indexOf(v);if(n>=0)L.splice(n,1);else L.push(v);el.classList.toggle('on',n<0);ecSave()},
- ecSeg:(el)=>{ecSync();if(!UI.ec)return;UI.ec[el.dataset.g]=el.dataset.k;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));ecSave()},
+ ecTog:(el)=>{ecSync();const c=UI.ec;if(!c)return;const L=c[el.dataset.g];const v=el.dataset.k;const n=L.indexOf(v);if(n>=0)L.splice(n,1);else L.push(v);el.classList.toggle('on',n<0);ecSave();ecSumUpd()},
+ ecSeg:(el)=>{ecSync();if(!UI.ec)return;UI.ec[el.dataset.g]=el.dataset.k;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el));ecSave();ecSumUpd()},
  ecRun:(el)=>exRun(+el.dataset.k),
  ecEdit:(el)=>{UI.ecOpen=el.dataset.k;UI.keepY=true;render()},
  exAsk:(el)=>exAsk(+el.dataset.k),
@@ -2850,7 +2875,7 @@ async function gsRun(why){if(!gsOn())return;if(GS.busy){GS.again=true;return}con
  if(sheetOpen()||gsTyping()){GS.pend=true;clearTimeout(GS.t);GS.t=setTimeout(()=>gsRun('retry'),20000);return}
  GS.busy=true;GS.err=null;gsUi();let res={n:0},dr={up:0,down:0};
  try{for(let i=0;i<4;i++){res=await gsOnce(c,key);if(res.ok)break}if(!res.ok)throw new Error('Stand auf GitHub ändert sich gerade – gleich nochmal');
-  dr=await gsDocs(c,key);gsStSet({ts:Date.now()});GS.err=null;
+  dr=await gsDocs(c,key);try{await devSync(c,key)}catch(e){console.warn('Geräte',e)}gsStSet({ts:Date.now()});GS.err=null;
   const parts=[res.n?`${res.n} Änderung${res.n===1?'':'en'} übernommen`:'',dr.down?`${dr.down} Bestätigung${dr.down===1?'':'en'} geladen`:'',(why==='manual'||why==='setup')&&(res.up||dr.up)?'eigene Änderungen hochgeladen':''].filter(Boolean);
   const cf=res.c?`${res.c}× auf beiden Geräten dasselbe geändert – die neuere Änderung gilt`:'';
   if(parts.length||cf)toast(`Abgleich${res.dev&&(res.n||res.c)?' mit „'+esc(res.dev)+'“':''}: ${[parts.join(', '),cf].filter(Boolean).join(' · ')}.`,res.c?7000:5000);
@@ -2908,7 +2933,7 @@ async function gsUnlock(){const c=gsCfg();const sec=($('#gsSec2')||{}).value||''
  try{const {key}=await gsCheckSecret(c,sec);if(!key)throw new Error('Auf GitHub fehlt meta.json – Abgleich bitte neu einrichten.');GS.key=key;if(rem)await gsRemember(key,c.repo);GS.err=null;closeSheet();gsRun('manual')}catch(e){msg(e.message||String(e))}}
 function gsSettings(){const c=gsCfg();const st=gsSt();
  const row=(icn,t,v,s,a,red)=>`<button class="row" style="align-items:flex-start" ${a||''}><div class="ic0" ${red?'style="color:var(--err)"':''}>${ic(icn,17)}</div><div class="sp"><div style="display:flex;align-items:baseline;gap:10px"><div class="tt sp" ${red?'style="color:var(--err)"':''}>${t}</div>${v?`<span class="small" style="color:var(--ink);font-weight:500;white-space:nowrap">${v}</span>`:''}</div>${s?`<div class="ss wrap" style="margin-top:3px">${s}</div>`:''}</div>${a?`<span class="chev" style="padding-top:2px">${ic('chev',16)}</span>`:''}</button>`;
- if(!gsOn())return `<div class="sec">Abgleich</div><div class="card">${row('lock','Abgleich zwischen euren Handys','aus','Privates GitHub-Repository, auf dem Handy verschlüsselt · mit Reise, Einstellungen, KI-Verlauf und geteilten Buchungsbestätigungen','data-a="gsSetup"')}</div>`;
+ if(!gsOn())return `<div class="sec">Abgleich</div><div class="card">${row('lock','Abgleich zwischen euren Handys','aus','Privates GitHub-Repository, auf dem Handy verschlüsselt · mit Reise, Einstellungen, KI-Verlauf und geteilten Buchungsbestätigungen','data-a="gsSetup"')}</div>`+devSection();
  const fmt=t=>new Date(t).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
  const stat=GS.busy?'gleicht ab …':GS.err==='locked'?'gesperrt – Passwort oder PIN eingeben':GS.err==='offline'?'offline – gleicht ab, sobald Netz da ist':GS.err?'Fehler: '+esc(GS.err):st.ts?'zuletzt '+fmt(st.ts):'noch nicht abgeglichen';
  const remd=(()=>{try{const r=JSON.parse(localStorage.getItem(GS_KEY)||'null');return !!(r&&r.repo===c.repo)}catch(e){return false}})();
@@ -2917,7 +2942,7 @@ function gsSettings(){const c=gsCfg();const st=gsSt();
  ${row('key','Passwort auf diesem Gerät',remd?'gemerkt':'nicht gemerkt',remd?'Antippen, um es hier zu vergessen – dann einmal pro App-Start eingeben':'Antippen, um es hier zu merken','data-a="gsRemTog"')}
  ${st.pre?row('undo','Stand vor dem ersten Abgleich','',fmt(st.pre)+' · zurückholen','data-a="gsPreAsk"'):''}
  ${row('x','Abgleich trennen','','Daten auf diesem Gerät bleiben, GitHub bleibt unverändert','data-a="gsOffAsk"',true)}</div>
- <div class="small mut" style="margin:8px 4px 0">Gleicht beim Start, beim Zurückkehren in die App und 15 Sekunden nach jeder Änderung ab. Token und Passwort bleiben nur auf diesem Gerät.</div>`}
+ <div class="small mut" style="margin:8px 4px 0">Gleicht beim Start, beim Zurückkehren in die App und 15 Sekunden nach jeder Änderung ab. Token und Passwort bleiben nur auf diesem Gerät.</div>`+devSection()}
 Object.assign(window.KIA=window.KIA||{},{
  gsSetup:()=>gsSetupSheet(),gsConnect:()=>gsConnect(),gsNow:()=>gsRun('manual'),gsUnlockOpen:()=>gsUnlockSheet(),gsUnlock:()=>gsUnlock(),
  gsFirst:(el)=>{gsStSet({mode:el.dataset.k==='adopt'?'adopt':'merge'});closeSheet();GS.pend=false;toast(el.dataset.k==='adopt'?'Übernehme den Stand von GitHub …':'Führe zusammen …');setTimeout(()=>gsRun('setup'),300)},
@@ -3405,6 +3430,14 @@ const kbKick=()=>{if(document.querySelector('.btn.kbusy[data-bt0]'))busyTick()};
 function kiCritCard(title,chips,editA,btn){return `<div class="card kcard" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:8px"><div class="sp" style="font-weight:600">${title}</div><button class="chip" style="margin:0" ${editA}>Ändern ${ic('chev',13)}</button></div>${chips.length?`<div class="chips wrapc" style="margin-top:8px">${chips.map(t=>`<span class="bdg2">${esc(t)}</span>`).join('')}</div>`:''}<div class="act">${btn}</div></div>`}
 const kiMeta=(src,ts,usd)=>`<div class="small mut kmeta">${kib('KI')}<span class="sp">${esc(src||'Websuche')} · ${fmtD(new Date(ts))}${usd?' · '+cents(usd):''}</span></div>`;
 
+// Ergebniskarten: gleiche Zeilen in gleicher Reihenfolge – leicht zu vergleichen
+const rws=L=>`<div class="rws">${L.filter(Boolean).map(([l,v])=>`<div class="rw"><span class="rwl">${l}</span><span class="rwv">${v==null||v===''?'<span class="mut">–</span>':v}</span></div>`).join('')}</div>`;
+const wishB=(m,x)=>(m||[]).map(a=>`<span class="bdg2 ok">${ic('check',11,2.6)} ${esc(a)}</span>`).join(' ')+' '+(x||[]).map(a=>`<span class="bdg2 wn">${ic('x',11,2.6)} ${esc(a)}</span>`).join(' ');
+// Kriterien-Karte: kurze aufklappbare Zeilen statt langer Liste
+const critRow=(grp,k,label,val,body,open)=>`<div class="crow${open?' on':''}" data-crow="${grp}:${k}"><button class="crh" data-a="critRow" data-k="${grp}:${k}"><span class="crl">${label}</span><span class="crv" data-crv="${grp}:${k}">${esc(val)}</span><span class="crc">${ic('chev',14)}</span></button><div class="crb">${body}</div></div>`;
+function critCard(title,sub,rows,btn){return `<div class="card kcard ccard" style="padding:12px 16px 14px"><div style="font-weight:600">${title}</div>${sub?`<div class="small mut" style="margin-top:2px">${sub}</div>`:''}<div class="crows">${rows}</div><div class="act">${btn}</div></div>`}
+function critSet(grp,vals){Object.entries(vals).forEach(([k,v])=>{const e=document.querySelector(`[data-crv="${grp}:${k}"]`);if(e)e.textContent=v})}
+
 // ---------- Popups im Verlauf: Zurück führt aus einer Seite wieder in das Popup, aus dem sie geöffnet wurde ----------
 ['staySheet','legSheet','placeSheet','stepSheet','mapInfo','wxSheet','disSheet','disAllSheet'].forEach(n=>{const f0=window[n];if(typeof f0!=='function')return;
  window[n]=function(...a){const r=f0.apply(this,a);try{if(sheetOpen())UI.shRe={f:n,a:JSON.parse(JSON.stringify(a))}}catch(e){}kbKick();return r}});
@@ -3512,6 +3545,7 @@ function hmDraw(){const el=$('#hmap');if(!el)return;if(HMAP){try{HMAP.remove()}c
 {const r0=render;render=function(){const r=r0.apply(this,arguments);try{if($('#hmap'))hmDraw();else if(HMAP){try{HMAP.remove()}catch(e){}HMAP=null}kbKick()}catch(e){console.warn(e)}return r}}
 
 Object.assign(window.KIA=window.KIA||{},{
+ critRow:(el)=>{const r=el.closest('.crow');if(!r)return;const on=!r.classList.contains('on');r.parentElement.querySelectorAll('.crow.on').forEach(x=>x.classList.remove('on'));r.classList.toggle('on',on);UI.critOpen=on?el.dataset.k:null},
  miOpen:(el)=>{let r=null;try{r=JSON.parse(el.dataset.r)}catch(e){}miOpen(el.dataset.k,r)},
  hmBig:()=>{UI.hmBig=!UI.hmBig;UI.keepY=true;render()},
  piMore:(el)=>el.classList.toggle('open')});
@@ -3523,6 +3557,48 @@ Object.assign(window.KIA=window.KIA||{},{
   if(b)pre[n]={gRating:Math.round(b.g.gRating*10)/10,gCount:b.g.gCount,gSrc:'Google Maps',gVia:'google'}}catch(e){}}
  const idx=list.map((x,n)=>pre[n]?-1:n).filter(n=>n>=0);if(!idx.length)return {out:pre,usd:0};
  const r=await k0(idx.map(n=>list[n]));idx.forEach((n,m)=>{pre[n]=r.out[m]});return {out:pre,usd:r.usd}}}
+
+// ---------- Mehrere Geräte: verschlüsselte Geräteliste im privaten Repository ----------
+Object.assign(IC,{phone:'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>'});
+const DEV_ID_K='auszeit27_devid',DEV_CACHE='auszeit27_devs';
+function devId(){let v='';try{v=localStorage.getItem(DEV_ID_K)||''}catch(e){}if(!v){v='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);try{localStorage.setItem(DEV_ID_K,v)}catch(e){}}return v}
+function devOs(){const u=navigator.userAgent||'';return /iPhone|iPod/.test(u)?'iPhone':/iPad/.test(u)?'iPad':/Android/.test(u)?'Android':/Macintosh/.test(u)?'Mac':/Windows/.test(u)?'Windows':/Linux/.test(u)?'Linux':'Browser'}
+function devCache(){try{return JSON.parse(localStorage.getItem(DEV_CACHE)||'null')}catch(e){return null}}
+async function devSync(c,key,o={}){const g=await gsGet('devices.bin',c);let L={};if(g){try{L=await gsUnpack(await gsDec(key,g.bytes))||{}}catch(e){L={}}}
+ const id=devId();const me=L[id];const now=Date.now();const want={n:c.dev||gsGuessDev(),os:devOs(),v:APP_VERSION};
+ if(o.del&&o.del!==id)delete L[o.del];
+ const stale=o.del||!me||me.n!==want.n||me.v!==want.v||me.os!==want.os||now-(me.ts||0)>3*3600e3;
+ if(stale){L[id]=Object.assign({first:(me&&me.first)||now},me||{},want,{ts:now});try{await gsPut('devices.bin',await gsEnc(key,await gsPack(L)),g?g.sha:null,'Geräte',c)}catch(e){if(!e.conflict)throw e}}
+ try{localStorage.setItem(DEV_CACHE,JSON.stringify({ts:now,repo:c.repo,L}))}catch(e){}return L}
+const devWhen=t=>{if(!t)return '–';const d=new Date(t);const n=nowD();const td=iso(n)===iso(d)?'heute':iso(addDays(n,-1))===iso(d)?'gestern':d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});return td+' '+d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})};
+function devSection(){const c=gsCfg();const on=gsOn();const D=devCache();const id=devId();
+ if(!on)return `<div class="sec">Geräte</div><div class="card"><button class="row" style="align-items:flex-start" data-a="devGuide"><div class="ic0">${ic('phone',17)}</div><div class="sp"><div class="tt">Mehrere Geräte verbinden</div><div class="ss wrap" style="margin-top:3px">Anleitung: beide Handys teilen Reise, Belege und KI-Verlauf über den Abgleich</div></div><span class="chev">${ic('chev',16)}</span></button></div>`;
+ const L=D&&D.repo===c.repo?D.L:{};if(!L[id])L[id]={n:c.dev||gsGuessDev(),os:devOs(),v:APP_VERSION,ts:gsSt().ts||0};
+ const ids=Object.keys(L).sort((a,b)=>(a===id?-1:b===id?1:(L[b].ts||0)-(L[a].ts||0)));const newest=Object.values(L).map(x=>x.v||'').sort().pop();
+ const rows=ids.map(k=>{const x=L[k];const me=k===id;const ts=me?(gsSt().ts||x.ts):x.ts;const old=x.v&&newest&&x.v<newest;
+  return `<button class="row" style="align-items:flex-start" ${me?'':`data-a="devInfo" data-k="${esc(k)}"`}><div class="ic0">${ic('phone',17)}</div><div class="sp"><div class="tt">${esc(x.n||'Gerät')}${me?'<span class="dvme">dieses Gerät</span>':''}</div><div class="ss wrap" style="margin-top:3px">${esc(x.os||'')} · App ${esc(x.v||'?')}${old?' <span style="color:var(--warn)">· ältere Version</span>':''} · ${me?'abgeglichen':'zuletzt aktiv'} ${esc(devWhen(ts))}</div></div>${me?'':`<span class="chev">${ic('chev',16)}</span>`}</button>`}).join('');
+ return `<div class="sec">Geräte<span class="r"><button data-a="devGuide">+ Gerät verbinden</button></span></div><div class="card">${rows}</div><div class="small mut" style="margin:8px 4px 0;line-height:1.45">${ids.length} ${ids.length===1?'Gerät':'Geräte'} am Abgleich. Ein neues Gerät erscheint nach seinem ersten Abgleich; „zuletzt aktiv“ wird höchstens alle 3 Stunden aktualisiert.</div>`}
+function devGuideSheet(){const c=gsCfg()||{};const on=gsOn();const url=location.origin+location.pathname;const cp=(t,v)=>`<button class="chip" style="margin:6px 6px 0 0" data-a="copyTxt" data-k="${esc(v)}">${ic('copy',13)} ${t}</button>`;
+ const st=(n,t,b)=>`<div class="gstep"><b class="n">${n}</b><div class="sp"><div style="font-weight:600;font-size:14px">${t}</div><div class="small mut" style="margin-top:3px;line-height:1.5">${b}</div></div></div>`;
+ sheet(`<div class="sht">Weiteres Gerät verbinden</div><div class="mut" style="margin:4px 0 10px;line-height:1.45">Alle Geräte nutzen dasselbe private Repository, denselben Token und dasselbe Passwort bzw. dieselbe PIN. Danach teilen sie Reise, Einstellungen, KI-Verlauf und Buchungsbelege.</div>
+ ${on?'':`<div class="card kb" style="border-color:var(--warn)"><div class="small" style="line-height:1.5">Zuerst auf <b>diesem</b> Gerät den Abgleich einrichten – danach die Schritte auf dem neuen Gerät.</div><div class="act"><button class="btn p" style="flex:1" data-a="gsSetup">Abgleich hier einrichten</button></div></div>`}
+ <div class="card" style="padding:4px 14px">
+ ${st(1,'App auf dem neuen Gerät öffnen',`${esc(url)}<br>Android (Chrome): Menü ⋮ → „App installieren“. iPhone (Safari): Teilen → „Zum Home-Bildschirm“.<br>${cp('Link kopieren',url)}`)}
+ ${st(2,'Abgleich öffnen','Dort Einstellungen → Abgleich → „Abgleich zwischen euren Handys“.')}
+ ${st(3,'Repository eintragen',on?`<b>${esc(c.repo)}</b><br>${cp('Repository kopieren',c.repo)}`:'Besitzer/Name des privaten Repositorys, z. B. dstindl/auszeit-daten.')}
+ ${st(4,'Denselben Token einfügen','Am besten aus eurem Passwort-Manager. Die App gibt den Token bewusst nicht weiter – er bleibt auf jedem Gerät für sich. Läuft er ab, neuen Token anlegen und auf allen Geräten unter Abgleich → „ändern“ eintragen.')}
+ ${st(5,'Passwort oder PIN und Gerätename','Dasselbe Passwort bzw. dieselbe PIN wie hier, dazu ein eigener Name, z. B. „iPhone Partnerin“. Dann „Verbinden“.')}
+ ${st(6,'Ersten Abgleich wählen','Neues Gerät ohne eigene Reisedaten: „Stand von GitHub übernehmen“. Hat es schon eigene Änderungen: „Zusammenführen“.')}</div>
+ <div class="small mut" style="margin:10px 4px 0;line-height:1.45">Danach erscheint das Gerät unter Einstellungen → Geräte. Belege gleichen sich beim nächsten Abgleich ab.</div>
+ ${btns(`<button class="btn" style="flex:1" data-a="close">Fertig</button>`)}`)}
+function devInfoSheet(k){const D=devCache();const x=D&&D.L&&D.L[k];if(!x)return;
+ sheet(`<div class="sht">${esc(x.n||'Gerät')}</div><div class="mut" style="margin:4px 0 12px">${esc(x.os||'')} · am Abgleich</div>${kv([['App-Version',x.v||'?'],['Zuletzt aktiv',devWhen(x.ts)],['Verbunden seit',x.first?new Date(x.first).toLocaleDateString('de-DE'):'–']])}
+ <div class="small mut" style="margin:10px 2px 0;line-height:1.45">„Aus der Liste entfernen“ nimmt das Gerät nur aus dieser Übersicht. Gleicht es wieder ab, erscheint es erneut. Um ein verlorenes Handy auszusperren, auf GitHub den Token löschen und einen neuen auf den übrigen Geräten eintragen.</div>
+ ${btns(`<button class="btn" style="flex:1" data-a="close">Schließen</button>`,`<button class="btn gh" style="color:var(--err)" data-a="devDel" data-k="${esc(k)}">Aus der Liste entfernen</button>`)}`)}
+Object.assign(window.KIA=window.KIA||{},{
+ devGuide:()=>devGuideSheet(),devInfo:(el)=>devInfoSheet(el.dataset.k),
+ devDel:async(el)=>{const c=gsCfg();const key=await gsGetKey();if(!c||!key)return toast('Abgleich ist gesperrt.');closeSheet();try{await devSync(c,key,{del:el.dataset.k});toast('Gerät aus der Liste entfernt.');gsUi()}catch(e){toast('Geräte: '+esc(e.message||e))}},
+ copyTxt:async(el)=>{try{await navigator.clipboard.writeText(el.dataset.k);toast('Kopiert.')}catch(e){toast('Kopieren nicht möglich – bitte markieren und kopieren.')}}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
