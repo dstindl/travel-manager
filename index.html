@@ -312,17 +312,17 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .trl{height:12px;width:0;margin:0 auto;border-left:2px dashed var(--line);opacity:.9}
 .trc{border:1.5px solid var(--line);border-radius:16px;background:transparent;overflow:hidden}
 .trc.wn{border-color:var(--warn)}.trc.er{border-color:var(--err)}
-.trh{display:flex;gap:12px;align-items:center;padding:11px 12px 11px 14px;width:100%;text-align:left;cursor:pointer}
+.trh{display:flex;gap:12px;align-items:center;padding:11px 8px 11px 14px;width:100%;text-align:left;cursor:pointer}
+.trr{display:flex;align-items:center;gap:10px;flex:none}.trr .mn{margin:-4px 0 -4px -10px}
 .tri{width:32px;height:32px;border-radius:16px;border:1.5px solid var(--line);display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--ink2)}
 .trt{font-weight:600;font-size:14px;color:var(--ink);line-height:1.3}
 .trs{font-size:12.5px;color:var(--ink2);margin-top:2px;line-height:1.35}
-.trls{margin:0 12px 0 58px;border-top:1px solid var(--line2)}
-.trlr{display:flex;gap:10px;align-items:center;padding:9px 0;width:100%;text-align:left;border-bottom:1px solid var(--line2);color:var(--ink2);font-size:12.5px}
+.trls{margin:0 0 0 58px;border-top:1px solid var(--line2)}
+.trlr{display:flex;gap:10px;align-items:center;padding:9px 38px 9px 0;width:100%;text-align:left;border-bottom:1px solid var(--line2);color:var(--ink2);font-size:12.5px}
 .trlr:last-child{border-bottom:0}
 .trlr .tlb{font-size:11.5px;font-weight:600;color:var(--ink3);min-width:28px}
 .trlr .t{display:block;color:var(--ink);font-weight:500}
 .trc .trwn{font-size:12px;line-height:1.4;margin:-4px 14px 11px 58px}
-.trc .mn{margin:-4px -6px -4px 0}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1195,8 +1195,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_20';
+const APP_VERSION='0.91_21';
 const CHANGELOG=[
+ {v:'0.91_21',d:'27.11.2026',items:['Route: Statuspunkt, KI-Symbol und ⋯ der Transfer-Karten stehen genau auf einer Linie mit denen der Etappen-Karten']},
  {v:'0.91_20',d:'27.11.2026',items:['Route: Transfers als Karten mit Kontur, Etappen gefüllt – einheitlich, die Verbindungslinie läuft mittig zwischen den Karten. Mehrere Teilstrecken stehen in einer Karte (z. B. 6.1, 6.2) mit eigenem Status; ⋯ öffnet das Transfer-Menü','Hinweise färben die Kontur: orange „neu planen“, rot „Buchung passt nicht mehr“']},
  {v:'0.91_19',d:'27.11.2026',items:['Reihenfolge ändern: eigener Modus (⋯-Menü der Etappe oder Etappe lange drücken). Etappen am Griff ziehen; bis „Fertig“ ändert sich nichts. Danach eine Zusammenfassung mit neuer Reihenfolge, betroffenen Buchungen und Transfers, die neu geplant werden – Übernehmen mit Rückgängig','Transfer: Von und Nach zeigen den Standardwert jetzt als echten (hellen) Wert, darunter Vorschläge zum Antippen – Unterkunft, Ort, Flughäfen, Bahnhöfe und Busbahnhöfe in der Nähe. Standardwerte folgen weiter automatisch der Unterkunft','Transfer-Menü (⋯): Bearbeiten, Teilstrecke hinzufügen, Verbindungen vergleichen, „Kein Transfer nötig“ und „Transfer komplett löschen“ (mit Warnung bei Buchungen)']},
  {v:'0.91_18',d:'27.11.2026',items:['Etappe entfernen, verschieben oder einfügen: Der Transfer in die folgende Etappe wird mitgezogen – ungebucht wird er neu angelegt („neu planen“, Start ab der neuen Etappe davor), gebucht bleibt er und ist rot markiert („Gebucht ab … – passt nicht mehr zur Route“)','Vor dem Entfernen zeigt die App alle betroffenen Buchungen: Unterkunft und Transfers der Etappe, der folgende Transfer und gebuchte Termine, deren Datum sich verschiebt','Gebuchte Transfers, deren Datum nicht mehr zur Etappe passt, sind markiert; im Transfer „Passt so“ blendet den Hinweis aus, Speichern gilt als erledigt. Verschieben hat jetzt Rückgängig']},
@@ -4125,7 +4126,7 @@ function trCardH(d,st,L){const i=d.i;
  const date=l=>dl(l.date?pd(l.date):d.from);const lab=trLabel(st,0).replace(/\.\d+$/,'');
  const head=multi?`${esc(lab)} · ${date(l0)} · ${L.length} Teilstrecken`:`${esc(lab)} · ${M0[1]} · ${date(l0)}${l0.dep?' · '+esc(l0.dep):''}`;
  const badges=multi?L.map((l,j)=>disBadge(st.id,j)).join(''):kiF(l0)+disBadge(st.id,0);
- let h=`<div class="trw"><div class="trl"></div><div class="trc ${er?'er':wn?'wn':''}"><div class="trh" role="button" data-a="leg" data-k="${i}" data-j="0"><span class="tri">${ic(multi?(L.some(l=>l.mode==='flight')?'plane':M0[0]):M0[0],15,2)}</span><div class="sp"><div class="trt">${head}${badges}${er?`<span style="color:var(--err);display:inline-flex;vertical-align:-2px;margin-left:6px">${ic('alert',14,2.3)}</span>`:''}</div><div class="trs">${esc(I0.from)} → ${esc(In.to)}</div></div>${spark}<span class="dot ${allB?'g':''}"></span><span class="mn" role="button" aria-label="Transfer-Menü" data-a="trMenu" data-k="${i}" data-j="0">${ic('more',17)}</span></div>`;
+ let h=`<div class="trw"><div class="trl"></div><div class="trc ${er?'er':wn?'wn':''}"><div class="trh" role="button" data-a="leg" data-k="${i}" data-j="0"><span class="tri">${ic(multi?(L.some(l=>l.mode==='flight')?'plane':M0[0]):M0[0],15,2)}</span><div class="sp"><div class="trt">${head}${badges}${er?`<span style="color:var(--err);display:inline-flex;vertical-align:-2px;margin-left:6px">${ic('alert',14,2.3)}</span>`:''}</div><div class="trs">${esc(I0.from)} → ${esc(In.to)}</div></div><span class="trr">${spark}<span class="dot ${allB?'g':''}"></span><span class="mn" role="button" aria-label="Transfer-Menü" data-a="trMenu" data-k="${i}" data-j="0">${ic('more',17)}</span></span></div>`;
  if(multi)h+=`<div class="trls">${L.map((l,j)=>{const I=trInfo(d,null,j);const M=MODES[l.mode]||MODES.car;return `<button class="trlr" data-a="leg" data-k="${i}" data-j="${j}"><span class="tlb">${esc(trLabel(st,j).replace(/^T/,''))}</span><span style="color:var(--ink2);display:inline-flex">${ic(M[0],14,2)}</span><span class="sp" style="line-height:1.35"><span class="t">${M[1]}${l.date&&l.date!==l0.date?' · '+date(l):''}${l.dep?' · '+esc(l.dep):''}${l.op?' · '+esc(l.op):l.airline?' · '+esc(l.airline):''}${kiF(l)}</span>${esc(I.from)} → ${esc(I.to)}</span>${(l.rw||l.rwD)?`<span style="color:var(--err);display:inline-flex">${ic('alert',13,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}"></span></button>`}).join('')}</div>`;
  if(fl)h+=`<div class="trwn">${trFlagLine(fl).replace(/^<span class="small" style="display:block;margin-top:3px;/,'<span style="display:block;')}</div>`;
  return h+`</div><div class="trl"></div></div>`}
