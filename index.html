@@ -1024,16 +1024,19 @@ async function aiCallWeb(o0,maxUses){const sysBase=o0.system||'';const o=Object.
 async function aiCall(o){const k=aiKey();if(!k)throw new Error('Kein Claude-Schlüssel hinterlegt');const M=AI_MODELS[o.model||aiModel()];
  const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),o.timeout||45000);let r,j;
  let msgs=o.messages;const hd={'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};if(o.beta)hd['anthropic-beta']=o.beta;
- const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:hd,body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:msgs},o.tools?{tools:o.tools}:{},o.tools&&o.toolChoice?{tool_choice:o.toolChoice}:{},o.temperature!=null&&noTh?{temperature:o.temperature}:{},noTh?{thinking:{type:'disabled'}}:{}))});
- try{const th=localStorage.getItem('auszeit27_athink')!=='1';r=await send(th);j=await r.json().catch(()=>({}));
-  if(th&&r.status===400&&/thinking/i.test(j?.error?.message||'')){try{localStorage.setItem('auszeit27_athink','1')}catch(e){}r=await send(false);j=await r.json().catch(()=>({}))}
+ // Stufe (effort) je Aufgabe; Nachdenken vorab aus. Lehnt die API etwas ab, nur für diese Anfrage ohne den Parameter wiederholen.
+ let EF=typeof aiEffort==='function'?aiEffort(o,M):null;
+ const send=noTh=>fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal:ctl.signal,headers:hd,body:JSON.stringify(Object.assign({model:M.id,max_tokens:o.max||1500,system:o.system||undefined,messages:msgs},o.tools?{tools:o.tools}:{},o.tools&&o.toolChoice?{tool_choice:o.toolChoice}:{},o.temperature!=null&&noTh?{temperature:o.temperature}:{},noTh?{thinking:aiNoThink(M)}:{},EF?{output_config:{effort:EF}}:{}))});
+ try{let th=true;r=await send(th);j=await r.json().catch(()=>({}));
+  if(r.status===400&&/thinking/i.test(j?.error?.message||'')){th=false;r=await send(th);j=await r.json().catch(()=>({}))}
+  if(EF&&r.status===400&&/effort|output_config/i.test(j?.error?.message||'')){EF=null;r=await send(th);j=await r.json().catch(()=>({}))}
   // lange Werkzeug-Läufe: fortsetzen
   let acc=[...(j.content||[])],ui=0,uo=0,ws=0;const addU=x=>{const u=x.usage||{};ui+=u.input_tokens||0;uo+=u.output_tokens||0;ws+=u.server_tool_use?.web_search_requests||0};if(r.ok)addU(j);
-  for(let n=0;r.ok&&j.stop_reason==='pause_turn'&&n<3;n++){msgs=[...msgs,{role:'assistant',content:j.content}];r=await send(localStorage.getItem('auszeit27_athink')!=='1');j=await r.json().catch(()=>({}));if(r.ok){acc=acc.concat(j.content||[]);addU(j)}}
+  for(let n=0;r.ok&&j.stop_reason==='pause_turn'&&n<3;n++){msgs=[...msgs,{role:'assistant',content:j.content}];r=await send(th);j=await r.json().catch(()=>({}));if(r.ok){acc=acc.concat(j.content||[]);addU(j)}}
   if(r.ok){j.content=acc;j.usage={input_tokens:ui,output_tokens:uo,_ws:ws}}}catch(e){throw new Error(e.name==='AbortError'?'Zeitüberschreitung':'keine Verbindung')}finally{clearTimeout(tm)}
  if(!r.ok){const m=j?.error?.message||('HTTP '+r.status);if(/credit balance/i.test(m)){const b=aiBal()||{ts:Date.now(),used:0};b.usd=0;b.empty=1;aiBalSet(b)}throw new Error(r.status===401?'Schlüssel ungültig':/credit balance/i.test(m)?'Guthaben aufgebraucht – in der Anthropic Console aufladen':r.status===429?'zu viele Anfragen, kurz warten':r.status===529||r.status===503?'Claude ist gerade überlastet':m)}
  const u=j.usage||{};const usd=((u.input_tokens||0)*M.pin+(u.output_tokens||0)*M.pout)/1e6+(u._ws||0)*0.01;aiCount(usd);UI._lastWs=u._ws||0;
- const C=j.content||[];let li=-1;C.forEach((c,n)=>{if(c.type!=='text')li=n});const tail=C.slice(li+1).filter(c=>c.type==='text').map(c=>c.text).join('');const text=tail.trim()?tail:C.filter(c=>c.type==='text').map(c=>c.text).join('');UI.aiLastRaw=text;return {text,usd,model:M.name,stop:j.stop_reason,ws:UI._lastWs||0,blocks:C}}
+ const C=j.content||[];let li=-1;C.forEach((c,n)=>{if(c.type!=='text')li=n});const tail=C.slice(li+1).filter(c=>c.type==='text').map(c=>c.text).join('');const text=tail.trim()?tail:C.filter(c=>c.type==='text').map(c=>c.text).join('');UI.aiLastRaw=text;return {text,usd,model:M.name,eff:EF,stop:j.stop_reason,ws:UI._lastWs||0,blocks:C}}
 function aiStripCm(t){let o='',q=false,e=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){o+=c;if(e)e=false;else if(c==='\\')e=true;else if(c==='"')q=false;continue}if(c==='"'){q=true;o+=c;continue}if(c==='/'&&t[i+1]==='/'){while(i<t.length&&t[i]!=='\n')i++;o+='\n';continue}o+=c}return o}
 function aiJson(t){t=String(t||'').replace(/```(?:json)?/g,'');const a=t.indexOf('{');if(a<0)throw new Error('Antwort nicht lesbar');t=t.slice(a);
  const tryP=x=>{try{return JSON.parse(x)}catch(e){return undefined}};const fix=x=>aiStripCm(x).replace(/,\s*([}\]])/g,'$1');
@@ -1168,8 +1171,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_08';
+const APP_VERSION='0.91_09';
 const CHANGELOG=[
+ {v:'0.91_09',d:'27.11.2026',items:['KI-Stufe (effort) je Aufgabe: Suchen mit Haiku auf „high“ (gründlicher), mit Sonnet auf „medium“ (günstiger); Bewertungen und Infotexte auf „low“, alles andere „medium“. Die Stufe steht neben dem Ergebnis','Nachdenken vorab korrekt abgeschaltet (Sonnet: „between_tools“); kein dauerhaftes Umschalten mehr nach einer abgelehnten Anfrage']},
  {v:'0.91_08',d:'27.11.2026',items:['Unterkunft- und Ausflugssuche: Modell direkt in der Suchkarte wählen (Haiku günstig, Sonnet gründlicher) – mit den Kosten der letzten Suchen','Zuverlässiger mit Haiku: Claude liefert immer 4–6 Vorschläge (ohne gefundenen Preis als Schätzung), unvollständige Antworten werden erkannt, bei zu wenigen Treffern ergänzt eine kurze zweite Runde weitere Häuser bzw. Ausflüge']},
  {v:'0.91_07',d:'27.11.2026',items:['Heute-Karte: Das Info-Popup nach dem Antippen eines Ziels liegt jetzt über der Karte']},
  {v:'0.91_06',d:'27.11.2026',items:['Unterkunft und Ausflüge suchen: „Eure Kriterien“ steht schon vor der ersten Suche oben – als kurze Zeilen (Preis, Ausstattung, Zahlung, Art, Bewertung, Sonstiges), die sich zum Ändern aufklappen','Ergebnisse einheitlich: Unterkünfte, Ausflüge und Verbindungen zeigen ihre Angaben in festen Zeilen (z. B. Pro Nacht, Portale, Bewertung, Lage, Zahlung) – leichter zu vergleichen','Einstellungen → Geräte: alle Geräte am Abgleich mit App-Version und letzter Aktivität, dazu eine Schritt-für-Schritt-Anleitung zum Verbinden','Claude-Schlüssel: Links zum Guthaben-Aufladen und zu den API-Schlüsseln in der Claude Console']},
@@ -2440,14 +2444,14 @@ Zahlung: ${c.pay.length?c.pay.join(', ')+' sollen akzeptiert werden (als Wunsch 
 Unterkunftsart: ${c.ty.length?c.ty.join(', '):'egal'}. Mindestbewertung: ${c.rt?String(c.rt).replace('.',',')+' von 10':'egal'}.
 Sonstiges: ${c.free||'–'}.${h0.name?`\nBisher eingetragen: ${h0.name} (${h0.status||'offen'}) – nicht erneut vorschlagen.`:''}
 Booking-Suche mit Reisedaten: ${hBook(place+', '+cn,st)}`;
- const mdl=kmodel('hotels');const r=await hotCall(AI_HOTEL_SYS,msg,5,6,mdl);let usd=r.usd||0;let J;try{J=aiJson(r.text)}catch(e){J={hotels:[],_cut:1}}let cut=!!J._cut||r.stop==='max_tokens';
+ const mdl=kmodel('hotels');const r=await hotCall(AI_HOTEL_SYS,msg,5,6,mdl);let usd=r.usd||0;const eff=r.eff||null;let J;try{J=aiJson(r.text)}catch(e){J={hotels:[],_cut:1}}let cut=!!J._cut||r.stop==='max_tokens';
  let opts=(Array.isArray(J.hotels)?J.hotels:[]).map(hotNorm).filter(x=>x.name).slice(0,6);let extra=0;
  // zu wenige Treffer (z. B. abgeschnittene Antwort): kurze zweite Runde ergänzt weitere Häuser
  if(opts.length<4){try{const r2=await hotCall(AI_HOTEL_SYS,msg+`\nSchon gefunden (nicht wiederholen): ${opts.map(o=>o.name).join('; ')||'–'}.\nErgänze ${Math.max(2,5-opts.length)} weitere passende Unterkünfte. Kurz halten, echte Preise wo möglich, sonst Schätzung.`,2,3,mdl);usd+=r2.usd||0;
   const J2=aiJson(r2.text);const more=(Array.isArray(J2.hotels)?J2.hotels:[]).map(hotNorm).filter(x=>x.name&&!opts.some(o=>o.name.toLowerCase()===x.name.toLowerCase()));extra=Math.min(more.length,6-opts.length);opts=opts.concat(more).slice(0,6);if(!J.note&&J2.note)J.note=J2.note;if(!J.src&&J2.src)J.src=J2.src}catch(e){console.warn('Nachsuche',e)}}
  if(!opts.length)throw new Error('keine passende Unterkunft gefunden');kcostAdd('hotels',mdl,usd);
  {const RL=opts.filter(o=>o.real&&o.pn).map(o=>o.pn).sort((a,b)=>a-b);if(RL.length)opts.forEach(o=>{if(!o.pn){const m=RL[Math.floor(RL.length/2)];o.pn=o.pmin=o.pmax=m;o.psrc='Schätzung (App)';o.appEst=true}})}
- return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd,model:mdl,cut,extra,crit:{min:c.min,max:c.max,am:c.am,ty:c.ty,pay:c.pay,rt:c.rt,free:c.free},from:iso(d.from),to:iso(d.to)}}
+ return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd,model:mdl,eff,cut,extra,crit:{min:c.min,max:c.max,am:c.am,ty:c.ty,pay:c.pay,rt:c.rt,free:c.free},from:iso(d.from),to:iso(d.to)}}
 // Suchknopf während der KI-Suche: Spinner, Laufzeit und geschätzter Fortschritt im Knopf selbst
 const bbPct=(s,tau)=>Math.min(95,Math.round(100*(1-Math.exp(-s/(tau||40)))));
 const bbClk=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
@@ -2511,7 +2515,7 @@ function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.s
  if(!R||!R.opts)h+=`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Expedia, Hotels.com, Trip.com und Kayak – zuerst echte Preise für eure Daten, dann echte Ab-Preise der Portale; geschätzt wird nur, wenn kein Portal einen Preis zeigt. „Echten Preis holen“ sucht für ein Haus gezielt weiter.</div>`;
  if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
  if(R&&R.opts){R.opts.forEach(o=>{o.prices=o.prices||[];o.pay=o.pay||[];o.links=o.links||{}});const M=hotMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
-  h+=kiMeta(R.src,R.ts,R.usd,R.model)+kiCutNote(R);
+  h+=kiMeta(R.src,R.ts,R.usd,R.model,R.eff)+kiCutNote(R);
   if(R.note||chg2)h+=`<div class="small ${chg2?'':'mut'}" style="margin:-2px 2px 10px;line-height:1.45;${chg2?'color:var(--warn)':''}">${chg2?'Die Reisedaten haben sich seit der Suche geändert. ':''}${esc(R.note||'')}</div>`;
   h+=R.opts.map((o,k)=>hotCard(o,k,M,i,st,R)).join('');
   h+=`<div class="chips wrapc" style="margin-top:12px">${lnk(hBook(place+', '+country(st.country).name,st),'Booking-Suche')}${lnk(hExp(place,st),'Expedia-Suche')}${lnk(hMaps('Hotels '+place),'Google Maps')}</div>`;
@@ -2620,12 +2624,12 @@ Sonstiges: ${c.free||'–'}.`;
  const call=async(m,sN,fN)=>{const base={system:AI_EX_SYS+AI_WS_YES,max:8000,timeout:170000,model:mdl,messages:[{role:'user',content:m}]};const v=localStorage.getItem('auszeit27_awsv');
   try{if(localStorage.getItem('auszeit27_aboth')==='0')throw new Error('tool');return await aiCall(Object.assign({},base,{tools:[{type:WS_VERS.includes(v)?v:WS_VERS[0],name:'web_search',max_uses:sN},{type:'web_fetch_20250910',name:'web_fetch',max_uses:fN,max_content_tokens:12000,allowed_domains:E_DOM}],beta:'web-fetch-2025-09-10'}))}
   catch(e){if(!(aiWsIsToolErr(e.message||'')||/fetch|beta|^tool$/i.test(e.message||'')))throw e;return await aiCallWeb({system:AI_EX_SYS,max:8000,timeout:170000,model:mdl,messages:[{role:'user',content:m}]},sN)}};
- const r=await call(msg,6,3);let usd=r.usd||0;let J;try{J=aiJson(r.text)}catch(e){J={items:[],_cut:1}}let cut=!!J._cut||r.stop==='max_tokens';
+ const r=await call(msg,6,3);let usd=r.usd||0;const eff=r.eff||null;let J;try{J=aiJson(r.text)}catch(e){J={items:[],_cut:1}}let cut=!!J._cut||r.stop==='max_tokens';
  let opts=(Array.isArray(J.items)?J.items:[]).map(x=>exNorm(x,days)).filter(x=>x.name).slice(0,8);let extra=0;
  if(opts.length<4){try{const r2=await call(msg+`\nSchon gefunden (nicht wiederholen): ${opts.map(o=>o.name).join('; ')||'–'}.\nErgänze ${Math.max(2,5-opts.length)} weitere passende Ausflüge. Kurz halten.`,3,1);usd+=r2.usd||0;
   const J2=aiJson(r2.text);const more=(Array.isArray(J2.items)?J2.items:[]).map(x=>exNorm(x,days)).filter(x=>x.name&&!opts.some(o=>o.name.toLowerCase()===x.name.toLowerCase()));extra=Math.min(more.length,8-opts.length);opts=opts.concat(more).slice(0,8);if(!J.src&&J2.src)J.src=J2.src}catch(e){console.warn('Nachsuche',e)}}
  if(!opts.length)throw new Error('keine passenden Ausflüge gefunden');kcostAdd('ex',mdl,usd);
- return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd,model:mdl,cut,extra,crit:{in:c.in,mob:c.mob,dur:c.dur,rt:c.rt,bud:c.bud,free:c.free},from:iso(d.from),to:iso(d.to)}}
+ return {opts,note:String(J.note||'').slice(0,200),src:String(J.src||'').slice(0,80),ts:Date.now(),usd,model:mdl,eff,cut,extra,crit:{in:c.in,mob:c.mob,dur:c.dur,rt:c.rt,bud:c.bud,free:c.free},from:iso(d.from),to:iso(d.to)}}
 async function exRun(i){if(!aiKey())return kiNoKey();const st=S.stages[i];ecSync();const c=ecOf(st);ecSave();UI.exBusy=st.id;UI.exT0=Date.now();UI.exErr=null;UI.critOpen=null;UI.picks['ex:'+st.id]=null;exRefresh();busyTick();
  try{const R=await aiEx(i,c);st.esug=R;save();exRate(i)}catch(e){UI.exErr={k:st.id,m:'Claude: '+(e.message||e)}}UI.exBusy=null;exRefresh()}
 // fehlende Bewertungen nachholen, bevor übernommen wird
@@ -2666,7 +2670,7 @@ function vExFind(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.s
  if(!R||!R.opts)h+=`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht Sehenswürdigkeiten und Touren mit Google-Bewertung, echtem Preis (offizielle Seiten, GetYourGuide, Klook, Viator), Dauer, Weg ab eurer Unterkunft und einem kurzen Infotext und verteilt sie auf die freien Tage. Mehrere antippen, dann übernehmen.</div>`;
  if(UI.exErr&&UI.exErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.exErr.m)}</div></div>`;
  if(R&&R.opts){const M=exMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
-  h+=kiMeta(R.src,R.ts,R.usd,R.model)+kiCutNote(R);
+  h+=kiMeta(R.src,R.ts,R.usd,R.model,R.eff)+kiCutNote(R);
   if(R.note||chg2)h+=`<div class="small ${chg2?'':'mut'}" style="margin:-2px 2px 10px;line-height:1.45;${chg2?'color:var(--warn)':''}">${chg2?'Die Reisedaten haben sich seit der Suche geändert. ':''}${esc(R.note||'')}</div>`;
   h+=R.opts.map((o,k)=>exCard(o,k,M,i,st,R)).join('');
   const g='ex:'+st.id;const n=pickN(g,k=>R.opts[+k]&&!exIn(i,R.opts[+k]));if(n){const L=[...pickGet(g)].map(k=>R.opts[+k]).filter(Boolean);const sum=L.reduce((a,o)=>a+(o.two||0),0);
@@ -3444,7 +3448,7 @@ busyTick=function(){if(BB_TICK)return;BB_TICK=setInterval(()=>{const L=document.
 const kbKick=()=>{if(document.querySelector('.btn.kbusy[data-bt0]'))busyTick()};
 
 function kiCritCard(title,chips,editA,btn){return `<div class="card kcard" style="padding:14px 16px"><div style="display:flex;align-items:center;gap:8px"><div class="sp" style="font-weight:600">${title}</div><button class="chip" style="margin:0" ${editA}>Ändern ${ic('chev',13)}</button></div>${chips.length?`<div class="chips wrapc" style="margin-top:8px">${chips.map(t=>`<span class="bdg2">${esc(t)}</span>`).join('')}</div>`:''}<div class="act">${btn}</div></div>`}
-const kiMeta=(src,ts,usd,mdl)=>`<div class="small mut kmeta">${kib('KI')}<span class="sp">${esc(src||'Websuche')} · ${fmtD(new Date(ts))}${usd?' · '+cents(usd):''}${mdl&&AI_MODELS[mdl]?' · '+AI_MODELS[mdl].name:''}</span></div>`;
+const kiMeta=(src,ts,usd,mdl,eff)=>`<div class="small mut kmeta">${kib('KI')}<span class="sp">${esc(src||'Websuche')} · ${fmtD(new Date(ts))}${usd?' · '+cents(usd):''}${mdl&&AI_MODELS[mdl]?' · '+AI_MODELS[mdl].name+(eff?' · '+eff:''):''}</span></div>`;
 // Hinweis, wenn Claude unvollständig antwortete oder nachgesucht wurde
 const kiCutNote=R=>R&&(R.cut||R.extra)?`<div class="small" style="margin:-4px 2px 10px;line-height:1.45;color:${R.cut&&R.opts.length<4?'var(--warn)':'var(--ink2)'}">${R.extra?`${R.extra} ${R.extra===1?'Vorschlag':'Vorschläge'} in einer zweiten Runde ergänzt. `:''}${R.cut?'Claudes Antwort war unvollständig – fehlende Einträge wurden nachgesucht.':''}${R.opts.length<4?` Nur ${R.opts.length} passende gefunden – Kriterien lockern oder „${AI_MODELS.sonnet.name}“ wählen.`:''}</div>`:'';
 
@@ -3461,7 +3465,7 @@ function kmodel(kind){try{const o=JSON.parse(localStorage.getItem(KMOD_K)||'{}')
 function kmodelSet(kind,m){let o={};try{o=JSON.parse(localStorage.getItem(KMOD_K)||'{}')}catch(e){}o[kind]=m;try{localStorage.setItem(KMOD_K,JSON.stringify(o))}catch(e){}}
 function kcostAdd(kind,m,usd){if(!(usd>0))return;let o={};try{o=JSON.parse(localStorage.getItem(KCOST_K)||'{}')}catch(e){}const k=kind+':'+m;o[k]=[...(o[k]||[]),Math.round(usd*1000)/1000].slice(-5);try{localStorage.setItem(KCOST_K,JSON.stringify(o))}catch(e){}}
 function kcostTxt(kind,m){let L=[];try{L=JSON.parse(localStorage.getItem(KCOST_K)||'{}')[kind+':'+m]||[]}catch(e){}if(!L.length)return 'ca. '+((KC_DEF[kind]||{})[m]||'?');const v=L.slice().sort((a,b)=>a-b)[Math.floor(L.length/2)];return 'zuletzt '+cents(v)}
-function kmodSeg(kind){const m=kmodel(kind);return `<div class="kmod"><div class="lab" style="margin:12px 0 6px">Modell für diese Suche</div><div class="seg">${['haiku','sonnet'].map(k=>`<button class="${m===k?'on':''}" data-a="kmodSet" data-g="${kind}" data-k="${k}"><span style="display:block;font-weight:600">${AI_MODELS[k].name}</span><span class="small" style="display:block;opacity:.75;font-weight:500">${k==='haiku'?'günstig':'gründlicher'} · ${esc(kcostTxt(kind,k))}</span></button>`).join('')}</div></div>`}
+function kmodSeg(kind){const m=kmodel(kind);return `<div class="kmod"><div class="lab" style="margin:12px 0 6px">Modell für diese Suche</div><div class="seg">${['haiku','sonnet'].map(k=>`<button class="${m===k?'on':''}" data-a="kmodSet" data-g="${kind}" data-k="${k}"><span style="display:block;font-weight:600">${AI_MODELS[k].name}</span><span class="small" style="display:block;opacity:.75;font-weight:500">${k==='haiku'?'günstig':'gründlicher'} · Stufe ${AI_EFF.search[k]} · ${esc(kcostTxt(kind,k))}</span></button>`).join('')}</div></div>`}
 function critSet(grp,vals){Object.entries(vals).forEach(([k,v])=>{const e=document.querySelector(`[data-crv="${grp}:${k}"]`);if(e)e.textContent=v})}
 
 // ---------- Popups im Verlauf: Zurück führt aus einer Seite wieder in das Popup, aus dem sie geöffnet wurde ----------
@@ -3626,6 +3630,18 @@ Object.assign(window.KIA=window.KIA||{},{
  devGuide:()=>devGuideSheet(),devInfo:(el)=>devInfoSheet(el.dataset.k),
  devDel:async(el)=>{const c=gsCfg();const key=await gsGetKey();if(!c||!key)return toast('Abgleich ist gesperrt.');closeSheet();try{await devSync(c,key,{del:el.dataset.k});toast('Gerät aus der Liste entfernt.');gsUi()}catch(e){toast('Geräte: '+esc(e.message||e))}},
  copyTxt:async(el)=>{try{await navigator.clipboard.writeText(el.dataset.k);toast('Kopiert.')}catch(e){toast('Kopieren nicht möglich – bitte markieren und kopieren.')}}});
+
+// ---------- Stufe (effort) je Aufgabe ----------
+// Suchen mit vielen Schritten: Haiku high (sucht gründlich, hört nicht zu früh auf), Sonnet medium (weniger Werkzeug-Aufrufe, günstiger).
+// Kurze Aufgaben (Bewertungen, Infotexte): low. Alles andere: medium.
+const AI_EFF={search:{haiku:'high',sonnet:'medium'},light:{haiku:'low',sonnet:'low'},std:{haiku:'medium',sonnet:'medium'}};
+const AI_TASKS=[[AI_HOTEL_SYS,'search'],[AI_HCHK_SYS,'search'],[AI_EX_SYS,'search'],[AI_CONN_SYS,'search'],[AI_COST_SYS,'search'],[AI_ENTRY_SYS,'search'],[AI_PR_SYS,'search'],[AI_PR2_SYS,'search'],[AI_RT_SYS,'light'],[AI_INFO_SYS,'light']].map(([p,t])=>[String(p).slice(0,60),t]);
+function aiTaskOf(o){if(o&&o.task)return o.task;const s=String((o&&o.system)||'');const f=AI_TASKS.find(([p])=>s.startsWith(p));return f?f[1]:'std'}
+function aiEffort(o,M){if(o&&o.effort===false)return null;if(o&&o.effort)return o.effort;const k=Object.keys(AI_MODELS).find(x=>AI_MODELS[x]===M)||'haiku';return (AI_EFF[aiTaskOf(o)]||AI_EFF.std)[k]||'medium'}
+// Sonnet 5.5 antwortet ohne Nachdenken vorab mit „between_tools“, Haiku mit „disabled“
+function aiNoThink(M){return /sonnet/i.test(M.id||'')?{type:'between_tools'}:{type:'disabled'}}
+const aiEffName=e=>({low:'low',medium:'medium',high:'high'})[e]||e;
+try{localStorage.removeItem('auszeit27_athink')}catch(e){}
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
