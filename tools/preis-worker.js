@@ -1,6 +1,7 @@
-// Auszeit 2027 – Preis-Dienst (Cloudflare Worker)
-// Leitet Anfragen der App an Google Hotels (SerpApi) und den Tripadvisor-Preisvergleich (Xotelo) weiter.
+// Auszeit 2027 – Preis-Dienst (Cloudflare Worker) · Version 2
+// Leitet Anfragen der App an SerpApi (Google Hotels, Google Flights, Google-Maps-Routen) und an den Tripadvisor-Preisvergleich (Xotelo) weiter.
 // Geheimnisse (unter Settings → Variables and Secrets): SERPAPI_KEY, APP_TOKEN
+const ENGINES = ['google_hotels', 'google_hotels_autocomplete', 'google_flights', 'google_maps_directions'];
 export default {
   async fetch(req, env) {
     const cors = {
@@ -15,16 +16,16 @@ export default {
     if (!env.APP_TOKEN || req.headers.get('x-app-token') !== env.APP_TOKEN) return json({ error: 'Token falsch' }, 401);
     const u = new URL(req.url);
     let target;
-    if (u.pathname === '/ping') return json({ ok: true, serpapi: !!env.SERPAPI_KEY, v: 1 });
+    if (u.pathname === '/ping') return json({ ok: true, serpapi: !!env.SERPAPI_KEY, v: 2, engines: ENGINES });
     if (u.pathname.startsWith('/xotelo/')) {
       const ep = u.pathname.slice(8);
       if (!['rates', 'search', 'list', 'heatmap'].includes(ep)) return json({ error: 'unbekannt' }, 404);
       target = 'https://data.xotelo.com/api/' + ep + u.search;
-    } else if (u.pathname === '/hotels') {
+    } else if (u.pathname === '/hotels' || u.pathname === '/serp') {
       if (!env.SERPAPI_KEY) return json({ error: 'SERPAPI_KEY fehlt im Worker' }, 500);
       const p = new URLSearchParams(u.search);
       const eng = p.get('engine') || 'google_hotels';
-      if (!['google_hotels', 'google_hotels_autocomplete'].includes(eng)) return json({ error: 'engine nicht erlaubt' }, 400);
+      if (!ENGINES.includes(eng)) return json({ error: 'engine nicht erlaubt' }, 400);
       p.set('engine', eng);
       p.set('api_key', env.SERPAPI_KEY);
       target = 'https://serpapi.com/search.json?' + p.toString();
