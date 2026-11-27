@@ -1,0 +1,7 @@
+# Preis-Dienst der App (Cloudflare Worker)
+# Wird von Cloudflare Workers Builds bei jedem Push automatisch veröffentlicht (Root directory: worker).
+# Keine Geheimnisse hier: SERPAPI_KEY und APP_TOKEN liegen nur als Secrets im Worker bei Cloudflare.
+name = "auszeit2027hotelpreise"
+main = "../tools/preis-worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
