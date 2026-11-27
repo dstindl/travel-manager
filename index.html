@@ -1179,8 +1179,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_17';
+const APP_VERSION='0.91_18';
 const CHANGELOG=[
+ {v:'0.91_18',d:'27.11.2026',items:['Etappe entfernen, verschieben oder einfügen: Der Transfer in die folgende Etappe wird mitgezogen – ungebucht wird er neu angelegt („neu planen“, Start ab der neuen Etappe davor), gebucht bleibt er und ist rot markiert („Gebucht ab … – passt nicht mehr zur Route“)','Vor dem Entfernen zeigt die App alle betroffenen Buchungen: Unterkunft und Transfers der Etappe, der folgende Transfer und gebuchte Termine, deren Datum sich verschiebt','Gebuchte Transfers, deren Datum nicht mehr zur Etappe passt, sind markiert; im Transfer „Passt so“ blendet den Hinweis aus, Speichern gilt als erledigt. Verschieben hat jetzt Rückgängig']},
  {v:'0.91_17',d:'27.11.2026',items:['Ausflüge: „Gut zu wissen“ – Öffnungszeiten direkt aus Google Maps (für den geplanten Tag, sonst die Woche), dazu von Claude Eintritt, beste Zeit, Dauer, Kleidung, Anreise, Tipps und Warnungen. Einmal laden, danach auf beiden Handys auch offline; Kurzfassung im Karten-Popup','Einstellungen: „Gut zu wissen für alle Ausflüge“ lädt alles einmal vor der Reise','Google-Bewertungen kommen mit Google-Schlüssel jetzt direkt aus Google Maps statt über Claude – exakt und ohne KI-Kosten; Claude springt nur ein, wenn Google den Ort nicht findet']},
  {v:'0.91_16',d:'27.11.2026',items:['Sparsame Unterkunftssuche: nur noch 2 Google-Abfragen je Suche – die Liste mit Bestpreisen für eure Daten und alle Anbieter für die Empfehlung. Für weitere Häuser lädt „Alle Anbieter laden“ die volle Liste (je 1 Abfrage); gezeigt werden die günstigsten Anbieter plus Booking, Agoda, Expedia, Trip.com','Google-Hotels-Links öffnen das Haus jetzt direkt mit euren Reisedaten']},
  {v:'0.91_15',d:'27.11.2026',items:['Unterkunftssuche mit Preis-Dienst neu: Die App holt zuerst die Häuser mit Preisen für eure Daten aus Google Hotels (Preisrahmen und Mindestbewertung als Filter), Claude wählt daraus ohne Websuche die 4–6 passendsten aus (ca. 1 ct mit Haiku), danach kommen die Preise je Anbieter. Je Suche ca. 5–8 der 250 freien Google-Abfragen','Google-Bewertung, Adresse und Lage auf der Karte werden beim Übernehmen gleich mit eingetragen','Ohne Preis-Dienst, ohne Treffer oder wenn Google Hotels nicht erreichbar ist, sucht Claude wie bisher im Netz – mit Hinweis','Hotelkarten mit Link „Google Hotels“ und zur Website des Hauses']},
@@ -1374,7 +1375,7 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
   if(UI.rc==='all'&&st.country!==lastC){h+=`<div class="sec" style="margin-top:${lastC?26:8}px">${cname(st.country)}</div>`;lastC=st.country}
   if(firstOf.has(d.i))h+=entryCard(st.country);
   const L=legsOf(st);L.forEach((l,j)=>{const I=trInfo(d,null,j);const M=MODES[l.mode]||MODES.car;
-   h+=`<button class="tr" data-a="leg" data-k="${d.i}" data-j="${j}" style="align-items:flex-start;padding-top:10px;padding-bottom:10px"><span class="tl" style="padding-top:1px">${trLabel(st,j)}</span><span style="padding-top:1px">${ic(M[0],15)}</span><span class="sp"><span style="display:block;color:var(--ink);font-weight:500">${M[1]} · ${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}${kiF(l)}${disBadge(st.id,j)}</span><span style="display:block;margin-top:2px">${esc(I.from)} → ${esc(I.to)}</span></span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?`<span class="ki" style="padding:3px 5px" title="Verbindungen vergleichen">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}" style="margin-top:6px"></span></button>`});
+   h+=`<button class="tr" data-a="leg" data-k="${d.i}" data-j="${j}" style="align-items:flex-start;padding-top:10px;padding-bottom:10px"><span class="tl" style="padding-top:1px">${trLabel(st,j)}</span><span style="padding-top:1px">${ic(M[0],15)}</span><span class="sp"><span style="display:block;color:var(--ink);font-weight:500">${M[1]} · ${dl(l.date?pd(l.date):d.from)}${l.dep?' · '+esc(l.dep):''}${kiF(l)}${disBadge(st.id,j)}${typeof trFlag==='function'?trFlag(l):''}</span><span style="display:block;margin-top:2px">${esc(I.from)} → ${esc(I.to)}</span>${typeof trFlagLine==='function'?trFlagLine(l):''}</span>${l.status!=='gebucht'&&!eurOf(l)&&l.mode!=='flight'?`<span class="ki" style="padding:3px 5px" title="Verbindungen vergleichen">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}" style="margin-top:6px"></span></button>`});
   const n=doneN(d.i);const S5=steps(d.i);const foc=d.i===fi;const pin=st.pinFrom||st.pinTo?`<span style="color:var(--ink3);display:inline-flex;vertical-align:-2px;margin-left:4px" title="Datum fixiert">${ic('lock',12,2)}</span>`:'';
   const dates=`${dl(d.from)} – ${dl(d.to)} · ${d.nights?nN(d.nights):'Durchreise'}`;
   const ex=exOf(d.i);const fr=S5[3].free.length;const stay=st.stay||{};
@@ -3965,6 +3966,52 @@ async function tipsAll(){if(!aiKey()&&!gpOn())return toast('Dafür Claude- oder 
  const A=UI.ta;A.run=0;show();toast(A.stop?`Angehalten: ${A.done} von ${A.n}.`:`„Gut zu wissen“ geladen: ${A.done-A.err} von ${A.n}${A.err?` · ${A.err} mit Hinweis`:''}.`,6000)}
 function tipsRow(){const A=UI.ta;const n=tipsCands().length;return `<button class="row" style="align-items:flex-start" data-a="tipsAll"><div class="ic0">${ic('spark',17)}</div><div class="sp"><div style="display:flex;align-items:baseline;gap:10px"><div class="tt sp">Gut zu wissen für alle Ausflüge</div><span class="small" style="color:var(--ink);font-weight:500;white-space:nowrap">${A&&A.run?A.done+'/'+A.n:n?n+' offen':'fertig'}</span></div><div class="ss wrap" style="margin-top:3px">${A&&A.run?'läuft …':`Öffnungszeiten (Google Maps) und Tipps (Claude) für eingeplante Ausflüge${aiKey()?' · ca. 1–3 ct je Ausflug':''}`}</div></div><span class="chev" style="padding-top:2px">${ic('chev',16)}</span></button>`}
 Object.assign(window.KIA,{tipsLoad:(el)=>tipsLoad(el.dataset.k),tipsAll:()=>tipsAll(),taStop:()=>{if(UI.ta)UI.ta.stop=1;toast('Wird nach den laufenden Ausflügen angehalten …')}});
+
+// ===== Etappen entfernen, verschieben, einfügen: Transfers mitziehen =====
+// Jeder Transfer gehört zur Etappe, in die er führt. Ändert sich die Etappe davor, ist der Transfer überholt:
+// ungebucht → neu planen (frischer Transfer ab der neuen Vor-Etappe), gebucht → bleibt, aber mit Warnung.
+const trBooked=l=>!!l&&l.status==='gebucht';
+const stayBooked=h=>!!h&&!!h.name&&(h.status==='gebucht'||h.paid===true);
+function stPrevMap(A){const m={};let pv=null;A.forEach(s=>{if(s.gap)return;m[s.id]=pv;pv=s.id});return m}
+function stFromMap(A){const m={};let d=D0();A.forEach(s=>{m[s.id]=iso(d);d=addDays(d,s.nights)});return m}
+const stNm=(A,id)=>{const s=A.find(x=>x.id===id);return s?pname(s):'Frankfurt'};
+function trImpact(A,B){const p0=stPrevMap(A),p1=stPrevMap(B),f0=stFromMap(A),f1=stFromMap(B);const out=[];
+ B.forEach(s=>{if(s.gap||!(s.id in p0))return;const L=Array.isArray(s.legs)?s.legs:(s.noTr?[]:[{}]);const delta=dDiff(f1[s.id],f0[s.id]);const route=p0[s.id]!==p1[s.id];
+  if(route&&L.length)out.push({id:s.id,route:true,p0:p0[s.id],p1:p1[s.id],n0:stNm(A,p0[s.id]),n1:stNm(B,p1[s.id]),booked:L.some(trBooked),f0:f0[s.id],f1:f1[s.id]});
+  else if(delta&&L.some(l=>trBooked(l)||l.date))out.push({id:s.id,route:false,delta,booked:L.some(trBooked),f0:f0[s.id],f1:f1[s.id]});
+  if(delta&&stayBooked(s.stay))out.push({id:s.id,stay:true,delta,f0:f0[s.id],f1:f1[s.id]})});return out}
+function trGuessMode(st,prev,old){const a=prev?byId(prev.placeId):FRA_LL;const b=byId(st.placeId);const km=a&&b&&a.lat!=null&&b.lat!=null?hav(a,b):9999;if(!prev||km>450)return 'flight';return old&&old!=='flight'?old:'car'}
+function trApply(A){const B=S.stages;const I=trImpact(A,B);const res={redo:[],warn:[]};
+ I.forEach(x=>{const st=B.find(s=>s.id===x.id);if(!st)return;if(x.stay){res.warn.push({t:`Unterkunft ${st.stay.name} (gebucht): Etappe beginnt jetzt ${dl(pd(x.f1))} statt ${dl(pd(x.f0))}`,id:st.id,k:'stay'});return}
+  const L=legsOf(st);
+  if(x.route&&!x.booked){const prev=B.find(s=>s.id===x.p1)||null;st.legs=[{mode:trGuessMode(st,prev,L[0]&&L[0].mode),status:'offen',redo:{from:x.n0,ts:Date.now()}}];syncMode(st);res.redo.push({id:st.id,t:`${pname(st)}: Start jetzt ${x.n1} statt ${x.n0}`});return}
+  L.forEach((l,j)=>{if(x.route){if(trBooked(l)){if(l.rw&&l.rw.prev===x.p1)delete l.rw;else if(!l.rw)l.rw={prev:x.p0,from:x.n0,ts:Date.now()}}}
+   if(x.delta){if(trBooked(l)){if(!l.date)l.date=x.f0;if(l.date===x.f1)delete l.rwD;else l.rwD={date:l.date,ts:Date.now()}}else if(l.date){l.date=iso(addDays(pd(l.date),x.delta))}}});
+  L.forEach((l,j)=>{if(l.rw||l.rwD)res.warn.push({t:`${trLabel(st,j)||'Transfer'} nach ${pname(st)} (gebucht): ${l.rw?`ab ${l.rw.from} gebucht, Start jetzt ${x.n1||stNm(B,stPrevMap(B)[st.id])}`:`gebucht für ${dl(pd(l.rwD.date))}, Etappe beginnt ${dl(pd(x.f1))}`}`,id:st.id,j,k:'leg'})})});
+ UI.trLast=res;return res}
+{const t0=tryStages;tryStages=function(){const A=S.stages.map(s=>({...s}));const ok=t0.apply(this,arguments);if(ok&&!UI.trHold)trApply(A);return ok}}
+// Hinweis nach dem Verschieben (mit Rückgängig)
+moveStage=(m0=>function(i,j){const snap=JSON.stringify(S.stages);UI.trLast=null;const ok=m0.apply(this,arguments);if(ok&&UI.trLast&&(UI.trLast.warn.length||UI.trLast.redo.length)){const R=UI.trLast;UI.undo=()=>{S.stages=JSON.parse(snap);save();render()};
+ setTimeout(()=>toast(`Etappe verschoben.${R.warn.length?` <b style="color:var(--err)">${R.warn.length} ${R.warn.length===1?'Buchung passt':'Buchungen passen'} nicht mehr</b>`:''}${R.redo.length?` · ${R.redo.length} ${R.redo.length===1?'Transfer':'Transfers'} neu planen`:''} <button class="tb" data-a="undo">Rückgängig</button>`,8000),30)}return ok})(moveStage);
+// Kennzeichnung in der Route
+function trFlag(l){return l&&(l.rw||l.rwD)?`<span style="color:var(--err);display:inline-flex;vertical-align:-2px;margin-left:6px">${ic('alert',14,2.3)}</span>`:l&&l.redo?` <span class="small" style="color:var(--warn);font-weight:600;margin-left:4px">neu planen</span>`:''}
+function trFlagLine(l){if(!l)return '';if(l.rw)return `<span class="small" style="display:block;margin-top:3px;color:var(--err);line-height:1.4">Gebucht ab ${esc(l.rw.from)} – passt nicht mehr zur Route. Umbuchen oder stornieren.</span>`;if(l.rwD)return `<span class="small" style="display:block;margin-top:3px;color:var(--err);line-height:1.4">Gebucht für ${esc(dl(pd(l.rwD.date)))} – passt nicht mehr zu den Etappendaten.</span>`;if(l.redo)return `<span class="small" style="display:block;margin-top:3px;color:var(--warn);line-height:1.4">Etappe davor geändert (vorher ab ${esc(l.redo.from)}) – Transfer neu planen.</span>`;return ''}
+// Speichern im Transfer-Formular gilt als erledigt
+legSave=(s0=>function(){const f=UI.f?{i:UI.f.i,j:UI.f.j}:null;const r=s0.apply(this,arguments);if(f){const st=S.stages[f.i];const l=st&&legsOf(st)[f.j];if(l&&(l.redo||l.rw||l.rwD)){delete l.redo;delete l.rw;delete l.rwD;save();UI.keepY=true;if(!sheetOpen())render()}}return r})(legSave);
+// Vor dem Entfernen: betroffene Buchungen und Transfers zeigen
+function rmImpact(i){const s=S.stages[i];const out={bk:[],info:[]};if(stayBooked(s.stay))out.bk.push(`Unterkunft ${s.stay.name} ist ${s.stay.paid?'bezahlt':'gebucht'} – wird mit entfernt. Stornierung prüfen.`);
+ legsOf(s).forEach((l,j)=>{if(trBooked(l))out.bk.push(`${trLabel(s,j)||'Transfer'} nach ${pname(s)} ist gebucht – wird mit entfernt. Stornierung prüfen.`)});
+ const copy=S.stages.map(x=>({...x}));copy.splice(i,1);const g=fillGaps(copy);const B=g.order||copy;
+ trImpact(S.stages,B).forEach(x=>{const st=S.stages.find(z=>z.id===x.id);if(!st)return;
+  if(x.stay)out.bk.push(`Unterkunft ${st.stay.name} (gebucht): Etappe beginnt danach ${dl(pd(x.f1))} statt ${dl(pd(x.f0))}`);
+  else if(x.route)(x.booked?out.bk:out.info).push(x.booked?`Transfer nach ${pname(st)} ist ab ${x.n0} gebucht – startet danach in ${x.n1} und passt nicht mehr.`:`Transfer nach ${pname(st)} wird neu geplant: Start dann ${x.n1} statt ${x.n0}.`);
+  else if(x.booked)out.bk.push(`Gebuchter Transfer nach ${pname(st)}: Etappe beginnt danach ${dl(pd(x.f1))} statt ${dl(pd(x.f0))}`)});return out}
+rmAsk=(r0=>function(i){const r=r0.apply(this,arguments);const b=$('#sheet .fbtn');if(!b)return r;const X=rmImpact(i);
+ const li=(L,c)=>L.map(t=>`<div style="display:flex;gap:8px;margin:5px 0;line-height:1.45"><span style="color:${c};font-weight:700">•</span><span>${esc(t)}</span></div>`).join('');
+ let h='';if(X.bk.length)h+=`<div class="card" style="border-color:var(--err);padding:12px 14px;margin:0 0 12px"><div style="color:var(--err);font-weight:600;display:flex;align-items:center;gap:6px">${ic('alert',15,2.3)}Achtung: Buchungen betroffen</div>${li(X.bk,'var(--err)')}</div>`;
+ if(X.info.length)h+=`<div style="margin:0 2px 12px">${li(X.info,'var(--warn)')}</div>`;if(h)b.insertAdjacentHTML('beforebegin',h);return r})(rmAsk);
+legSheet=(l0=>function(i,j){const r=l0.apply(this,arguments);const st=S.stages[i];const l=st&&legsOf(st)[j];if(l&&(l.rw||l.rwD||l.redo)&&sheetOpen()&&!$('#sheet .trw')){const a=$('#sheet .sht');const sub=a&&a.nextElementSibling;(sub||a).insertAdjacentHTML('afterend',`<div class="card trw" style="border-color:var(${l.redo?'--warn':'--err'});padding:10px 14px;margin:0 0 12px">${trFlagLine(l)}<button class="small" style="color:var(--ki);font-weight:600;margin-top:6px" data-a="trOk" data-k="${i}" data-j="${j}">Passt so – Hinweis ausblenden</button></div>`)}return r})(legSheet);
+Object.assign(window.KIA,{trOk:(el)=>{const st=S.stages[+el.dataset.k];const l=st&&legsOf(st)[+el.dataset.j];if(l){delete l.redo;delete l.rw;delete l.rwD;save()}const c=el.closest('.trw');if(c)c.remove();UI.keepY=true;toast('Hinweis ausgeblendet.')}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
