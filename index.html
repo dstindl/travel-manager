@@ -297,6 +297,7 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .gstep{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line2)}.gstep:last-child{border-bottom:0}
 .gstep b.n{width:24px;height:24px;border-radius:12px;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
 .crow:last-child{border-bottom:0}
+#hmap{position:relative;z-index:0;isolation:isolate}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1166,8 +1167,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_06';
+const APP_VERSION='0.91_07';
 const CHANGELOG=[
+ {v:'0.91_07',d:'27.11.2026',items:['Heute-Karte: Das Info-Popup nach dem Antippen eines Ziels liegt jetzt über der Karte']},
  {v:'0.91_06',d:'27.11.2026',items:['Unterkunft und Ausflüge suchen: „Eure Kriterien“ steht schon vor der ersten Suche oben – als kurze Zeilen (Preis, Ausstattung, Zahlung, Art, Bewertung, Sonstiges), die sich zum Ändern aufklappen','Ergebnisse einheitlich: Unterkünfte, Ausflüge und Verbindungen zeigen ihre Angaben in festen Zeilen (z. B. Pro Nacht, Portale, Bewertung, Lage, Zahlung) – leichter zu vergleichen','Einstellungen → Geräte: alle Geräte am Abgleich mit App-Version und letzter Aktivität, dazu eine Schritt-für-Schritt-Anleitung zum Verbinden','Claude-Schlüssel: Links zum Guthaben-Aufladen und zu den API-Schlüsseln in der Claude Console']},
  {v:'0.91_05',d:'27.11.2026',items:['KI-Knopf einheitlich: lila, immer am Ende der obersten Karte (Unterkunft, Ausflüge, Verbindungen, Kostenanalyse, Reise prüfen); während der Suche hell-lila mit Spinner, Fortschritt und Laufzeit – auch bei „Echten Preis holen“, Einreise und Reisehinweisen. Mit Ergebnissen klappen die Kriterien zu einer Kurzfassung zusammen','Echte Preise zuerst: alle KI-Suchen holen erst Preise für eure Daten, dann echte Ab-Preise (Booking, Agoda, Trip.com, Expedia, Kayak, 12Go, GetYourGuide …); geschätzt wird nur ohne jede Quelle. „Echten Preis holen“ zeigt, welche Portale geprüft wurden','Zurück geht immer genau einen Schritt – auch zurück ins Popup, aus dem eine Seite geöffnet wurde (z. B. Unterkunft → Vorschläge → Zurück)','Ausflüge: Infotext (Wikipedia, sonst Claude) im Popup und in den Vorschlägen; Google-Bewertung hat Vorrang und wird nicht mehr durch Tripadvisor ersetzt','Karte: Antippen öffnet zuerst ein Info-Popup, „Öffnen“ springt in die Route','Heute: Karte mit den Zielen von heute (orange, nummeriert) und der nächsten zwei Tage (blau)']},
  {v:'0.91_04',d:'26.11.2026',items:['Unterkünfte und Ausflüge suchen: Der Knopf „Vorschläge suchen“ zeigt während der Suche selbst den Spinner, die Laufzeit und einen geschätzten Fortschritt – die Anzeige unter dem Hinweistext entfällt']},
