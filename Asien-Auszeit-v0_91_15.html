@@ -1179,8 +1179,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_14';
+const APP_VERSION='0.91_15';
 const CHANGELOG=[
+ {v:'0.91_15',d:'27.11.2026',items:['Unterkunftssuche mit Preis-Dienst neu: Die App holt zuerst die Häuser mit Preisen für eure Daten aus Google Hotels (Preisrahmen und Mindestbewertung als Filter), Claude wählt daraus ohne Websuche die 4–6 passendsten aus (ca. 1 ct mit Haiku), danach kommen die Preise je Anbieter. Je Suche ca. 5–8 der 250 freien Google-Abfragen','Google-Bewertung, Adresse und Lage auf der Karte werden beim Übernehmen gleich mit eingetragen','Ohne Preis-Dienst, ohne Treffer oder wenn Google Hotels nicht erreichbar ist, sucht Claude wie bisher im Netz – mit Hinweis','Hotelkarten mit Link „Google Hotels“ und zur Website des Hauses']},
  {v:'0.91_14',d:'27.11.2026',items:['Portal-Links aus Google Hotels öffnen jetzt zuverlässig: Booking, Expedia und Hotels.com mit euren Reisedaten, andere Anbieter über die Seite des Hauses in Google Hotels (Googles eigene Weiterleitungen funktionierten außerhalb von Google nicht – Fehler 400)']},
  {v:'0.91_13',d:'27.11.2026',items:['Preise für eure Daten über einen eigenen Preis-Dienst (Cloudflare Worker, kostenlos): Google Hotels über SerpApi (250 Abfragen/Monat frei) und Tripadvisor – je Anbieter mit direktem Link zum Angebot. Einstellungen → KI und Dienste → „Preise für eure Daten“ mit Schritt-für-Schritt-Anleitung, Worker-Code zum Kopieren und Token-Erzeugung']},
  {v:'0.91_12',d:'27.11.2026',items:['Unterkunftsvorschläge: Nach der Suche lädt die App automatisch die Preise für eure Daten über den Tripadvisor-Preisvergleich (Xotelo, kostenlos, ohne Konto) – Booking, Agoda, Expedia, Hotels.com, Trip.com u. a. je Haus, mit Link. „Preis für eure Daten holen“ versucht erst Tripadvisor, dann Claude. Unter den Ergebnissen steht, wie viele Häuser gefunden wurden']},
@@ -2544,7 +2545,7 @@ function hcSumUpd(){const c=UI.hc;if(c)critSet('hc',hcVals(c))}
 function hcSum(c){const L=[];L.push(c.min&&c.max?`${c.min}–${c.max} €/Nacht`:c.max?`bis ${c.max} €/Nacht`:c.min?`ab ${c.min} €/Nacht`:'Preis egal');c.am.forEach(a=>L.push(a));c.pay.forEach(a=>L.push(a));c.ty.forEach(a=>L.push(a));if(c.rt)L.push('ab '+String(c.rt).replace('.',','));if(c.free)L.push(c.free.length>28?c.free.slice(0,27)+'…':c.free);return L}
 function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.stages[i];if(!st)return backBtn()+'<div class="empty">Etappe nicht gefunden.</div>';const d=stagesDated()[i];const c=hcOf(st);const R=st.hsug;const place=(byId(st.placeId)||{}).name||pname(st);const chg='onchange="hcSync();hcSave();hcSumUpd()"';
  let h=backBtn()+head('Unterkunft finden',[esc(place),`${dl(d.from)} – ${dl(d.to)}`,nN(d.nights)]);
- const kbtn=UI.hoBusy===st.id?kiBusyH('Claude sucht Unterkünfte …',UI.hoT0,40):kiBtnH(R?'Neu suchen':'Vorschläge suchen',`data-a="hcRun" data-k="${i}"`);
+ const kbtn=UI.hoBusy===st.id?kiBusyH(UI.hoStep||'Claude sucht Unterkünfte …',UI.hoT0,UI.hoTau||40):kiBtnH(R?'Neu suchen':'Vorschläge suchen',`data-a="hcRun" data-k="${i}"`);
  const V=hcVals(c);const op=k=>UI.critOpen==='hc:'+k;
  h+=critCard('Eure Kriterien','Vorausgewählt: eure letzten Einstellungen · antippen zum Ändern',
   critRow('hc','pr','Preis pro Nacht',V.pr,`<div class="frow">${fld('hcMin','ab (€)',c.min,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}${fld('hcMax','bis (€, für zwei)',c.max,{half:1,num:1,ph:'egal',attr:chg+' oninput="hcTot()"'})}</div><div class="small mut" id="hcTot" data-n="${Math.max(1,d.nights)}" style="margin:6px 2px 0">${hcTotTxt(c.min,c.max,Math.max(1,d.nights))}</div>`,op('pr'))+
@@ -2553,7 +2554,7 @@ function vHotels(top){const i=S.stages.findIndex(s=>s.id===top.sid);const st=S.s
   critRow('hc','ty','Art',V.ty,`<div class="chips wrapc">${H_TY.map(a=>tg('ty',a,c.ty.includes(a))).join('')}</div>`,op('ty'))+
   critRow('hc','rt','Bewertung',V.rt,`<div class="seg">${H_RT.map(([k,v])=>`<button class="${String(c.rt)===k?'on':''}" data-a="hcRate" data-k="${k}">${v}</button>`).join('')}</div>`,op('rt'))+
   critRow('hc','free','Sonstiges',V.free,fld('hcFree','Nur diese Etappe',c.free,{ph:'z. B. nahe Altstadt, Meerblick, großes Bett',attr:chg}),op('free')),kbtn,UI.hoBusy===st.id?'':kmodSeg('hotels'));
- if(!R||!R.opts)h+=`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Expedia, Hotels.com, Trip.com und Kayak – zuerst echte Preise für eure Daten, dann echte Ab-Preise der Portale; geschätzt wird nur, wenn kein Portal einen Preis zeigt. „Echten Preis holen“ sucht für ein Haus gezielt weiter.</div>`;
+ if(!R||!R.opts)h+=typeof ghOn==='function'&&ghOn()?`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Die Häuser kommen mit Preisen für eure Daten direkt aus Google Hotels; Claude wählt die passendsten aus (ohne Websuche). Je Suche ca. 5–8 der 250 freien Google-Abfragen im Monat.</div>`:`<div class="small mut" style="margin:8px 4px 14px;line-height:1.45">Claude sucht auf Booking.com, Agoda, Expedia, Hotels.com, Trip.com und Kayak – zuerst echte Preise für eure Daten, dann echte Ab-Preise der Portale; geschätzt wird nur, wenn kein Portal einen Preis zeigt. „Echten Preis holen“ sucht für ein Haus gezielt weiter.</div>`;
  if(UI.hoErr&&UI.hoErr.k===st.id)h+=`<div class="card kb" style="border-color:var(--err)"><div class="small" style="color:var(--err)">${esc(UI.hoErr.m)}</div></div>`;
  if(R&&R.opts){R.opts.forEach(o=>{o.prices=o.prices||[];o.pay=o.pay||[];o.links=o.links||{}});const M=hotMarks(R.opts);const chg2=R.from!==iso(d.from)||R.to!==iso(d.to);
   h+=kiMeta(R.src,R.ts,R.usd,R.model,R.eff)+kiCutNote(R)+xoNote(R);
@@ -2576,7 +2577,7 @@ function hoDo(F){const A=UI.hoAsk;UI.hoAsk=null;if(!A)return;const st=S.stages[A
  const tot=o.pn&&d.nights?Math.round(o.pn*d.nights):null;if(tot){h.cost=String(tot);h.cur='EUR';h.costEst=1}
  const bl=hLinkB((o.links||{}).booking,st);if(bl)h.link=bl;else if(!same)delete h.link;
  h.note=[[o.type,o.area,o.dist].filter(Boolean).join(' · '),o.pn?`ca. ${eur(o.pn)}/Nacht (${o.psrc||'KI'})`:'',rtTxt(o),(o.pay||[]).length?'Zahlung: '+o.pay.join(', '):'',o.amen.join(', ')].filter(Boolean).join(' – ').slice(0,400);
- if(!same)['gRating','gCount','gSrc','gVia','gNone','gTs','ll','code','portal','bkIn','bkOut','cin','cout','doc'].forEach(k=>delete h[k]);fixRate(h);st.stay=h;save();
+ if(!same)['gRating','gCount','gSrc','gVia','gNone','gTs','ll','code','portal','bkIn','bkOut','cin','cout','doc'].forEach(k=>delete h[k]);fixRate(h);if(o.ll&&o.ll.lat!=null)h.ll={lat:o.ll.lat,lon:o.ll.lon};if(o.rsrc==='Google'&&o.rt&&o.sc===5){h.gRating=Math.round(o.rt*10)/10;if(o.rev)h.gCount=o.rev;else delete h.gCount;h.gSrc='Google';h.gVia='Google Hotels';h.gTs=Date.now();delete h.gNone;delete h.gAlt}st.stay=h;save();
  UI.undo=()=>{const v=JSON.parse(snap);if(v)st.stay=v;else delete st.stay;save();render()};closeSheet();render();rateSoon(null,[st.id]);
  toast(`Unterkunft übernommen: ${esc(o.name)}${tot?' · ≈ '+eur(tot):''}${F.booked?' · gebucht':''}${F.paid?' · bezahlt':''}. <button class="tb" data-a="undo">Rückgängig</button>`,8000)}
 Object.assign(window.KIA=window.KIA||{},{
@@ -3503,12 +3504,12 @@ const critRow=(grp,k,label,val,body,open)=>`<div class="crow${open?' on':''}" da
 function critCard(title,sub,rows,btn,pre){return `<div class="card kcard ccard" style="padding:12px 16px 14px"><div style="font-weight:600">${title}</div>${sub?`<div class="small mut" style="margin-top:2px">${sub}</div>`:''}<div class="crows">${rows}</div>${pre||''}<div class="act">${btn}</div></div>`}
 // Modell je Suche (Haiku günstig, Sonnet gründlicher) mit den Kosten der letzten Suchen
 const KMOD_K='auszeit27_v2kmod',KCOST_K='auszeit27_v2kcost';if(typeof GS_PREFS!=='undefined'&&!GS_PREFS.includes(KMOD_K))GS_PREFS.push(KMOD_K);
-const KC_DEF={hotels:{haiku:'5–8 ct',sonnet:'30–50 ct'},ex:{haiku:'4–7 ct',sonnet:'25–40 ct'}};
+const KC_DEF={hotels:{haiku:'5–8 ct',sonnet:'30–50 ct'},hotelsG:{haiku:'1 ct',sonnet:'3–6 ct'},ex:{haiku:'4–7 ct',sonnet:'25–40 ct'}};
 function kmodel(kind){try{const o=JSON.parse(localStorage.getItem(KMOD_K)||'{}');if(o[kind]&&AI_MODELS[o[kind]])return o[kind]}catch(e){}return aiModel()}
 function kmodelSet(kind,m){let o={};try{o=JSON.parse(localStorage.getItem(KMOD_K)||'{}')}catch(e){}o[kind]=m;try{localStorage.setItem(KMOD_K,JSON.stringify(o))}catch(e){}}
 function kcostAdd(kind,m,usd){if(!(usd>0))return;let o={};try{o=JSON.parse(localStorage.getItem(KCOST_K)||'{}')}catch(e){}const k=kind+':'+m;o[k]=[...(o[k]||[]),Math.round(usd*1000)/1000].slice(-5);try{localStorage.setItem(KCOST_K,JSON.stringify(o))}catch(e){}}
 function kcostTxt(kind,m){let L=[];try{L=JSON.parse(localStorage.getItem(KCOST_K)||'{}')[kind+':'+m]||[]}catch(e){}if(!L.length)return 'ca. '+((KC_DEF[kind]||{})[m]||'?');const v=L.slice().sort((a,b)=>a-b)[Math.floor(L.length/2)];return 'zuletzt '+cents(v)}
-function kmodSeg(kind){const m=kmodel(kind);return `<div class="kmod"><div class="lab" style="margin:12px 0 6px">Modell für diese Suche</div><div class="seg">${['haiku','sonnet'].map(k=>`<button class="${m===k?'on':''}" data-a="kmodSet" data-g="${kind}" data-k="${k}"><span style="display:block;font-weight:600">${AI_MODELS[k].name}</span><span class="small" style="display:block;opacity:.75;font-weight:500">${k==='haiku'?'günstig':'gründlicher'} · Stufe ${AI_EFF.search[k]} · ${esc(kcostTxt(kind,k))}</span></button>`).join('')}</div></div>`}
+function kmodSeg(kind){const m=kmodel(kind);const ck=kind==='hotels'&&typeof ghOn==='function'&&ghOn()?'hotelsG':kind;return `<div class="kmod"><div class="lab" style="margin:12px 0 6px">Modell für diese Suche</div><div class="seg">${['haiku','sonnet'].map(k=>`<button class="${m===k?'on':''}" data-a="kmodSet" data-g="${kind}" data-k="${k}"><span style="display:block;font-weight:600">${AI_MODELS[k].name}</span><span class="small" style="display:block;opacity:.75;font-weight:500">${k==='haiku'?'günstig':'gründlicher'} · Stufe ${AI_EFF[ck==='hotelsG'?'std':'search'][k]} · ${esc(kcostTxt(ck,k))}</span></button>`).join('')}</div></div>`}
 function critSet(grp,vals){Object.entries(vals).forEach(([k,v])=>{const e=document.querySelector(`[data-crv="${grp}:${k}"]`);if(e)e.textContent=v})}
 
 // ---------- Popups im Verlauf: Zurück führt aus einer Seite wieder in das Popup, aus dem sie geöffnet wurde ----------
@@ -3726,7 +3727,7 @@ function xoNote(R){const X=R&&R.xo;if(!X)return '';
  return `<div class="small mut" style="margin:-4px 2px 10px;line-height:1.45">Preise für eure Daten über Tripadvisor: ${X.found} von ${X.n} ${X.n===1?'Haus':'Häusern'} gefunden · kostenlos <button class="small" style="color:var(--ki);font-weight:600" data-a="xoRun">neu laden</button></div>`}
 var xoCardLine=o=>o&&o.xo?`<div class="small mut" style="margin-top:6px">Tripadvisor: ${o.xo.n?o.xo.n+(o.xo.n===1?' Preis':' Preise')+' für eure Daten':o.xo.miss?'Haus dort nicht gefunden':o.xo.err?'Fehler – '+esc(o.xo.err):'keine Preise für eure Daten'}</div>`:'';
 // Nach der Suche automatisch nachladen; „Preis für eure Daten holen“ versucht erst Tripadvisor (kostenlos), dann Claude
-{const r0=hotRun;hotRun=async function(i){const st=S.stages[i];const before=st&&st.hsug&&st.hsug.ts;await r0.apply(this,arguments);const R=st&&st.hsug;if(R&&R.ts!==before)xoFill(i)}}
+{const r0=hotRun;hotRun=async function(i){const st=S.stages[i];const before=st&&st.hsug&&st.hsug.ts;await r0.apply(this,arguments);const R=st&&st.hsug;if(R&&R.ts!==before&&!R.gs&&!R.gsSkip)xoFill(i)}}
 {const h0=hotCheck;hotCheck=async function(i,k){const st=S.stages[i];const o=st&&st.hsug&&st.hsug.opts[k];
  if(o&&!o.dated){UI.hoChk=st.id+':'+k;UI.hoChkT0=Date.now();hotRefresh();busyTick();try{await xoFill(i,k)}catch(e){}UI.hoChk=null;
   if(o.dated&&o.xo&&o.xo.n){hotRefresh();toast('Preise für eure Daten über Tripadvisor gefunden – kostenlos, ohne Claude.');return}}
@@ -3816,12 +3817,73 @@ Object.assign(window.KIA=window.KIA||{},{
  pxSave:async()=>{const u=(($('#pxUrl')||{}).value||'').trim().replace(/\/+$/,'');const t=(($('#pxTok')||{}).value||'').trim()||(localStorage.getItem(PX_TOK)||'');
   if(!/^https:\/\/[^\s/]+/.test(u))return pxSheet({t:'Bitte die Worker-Adresse mit https:// eintragen.',err:1});if(!t)return pxSheet({t:'Bitte den App-Token eintragen.',err:1});
   try{localStorage.setItem(PX_URL,u);localStorage.setItem(PX_TOK,t)}catch(e){}const m=$('#pxMsg');if(m)m.innerHTML='<span class="spin"></span>prüfe …';
-  try{const j=await pxPing();pxSheet({t:j.serpapi?'Verbunden · Google Hotels aktiv. Ab der nächsten Unterkunftssuche kommen die Preise für eure Daten.':'Verbunden, aber im Worker fehlt SERPAPI_KEY – vorerst nur Tripadvisor-Preise.'})}
+  try{const j=await pxPing();pxSheet({t:j.serpapi?'Verbunden · Google Hotels aktiv. Ab der nächsten Unterkunftssuche kommen Häuser und Preise für eure Daten direkt aus Google Hotels.':'Verbunden, aber im Worker fehlt SERPAPI_KEY – vorerst nur Tripadvisor-Preise.'})}
   catch(e){pxStSet({ok:0,err:e.message});pxSheet({t:'Nicht verbunden: '+e.message,err:1})}},
  pxDel:()=>{try{localStorage.removeItem(PX_URL);localStorage.removeItem(PX_TOK);localStorage.removeItem(PX_ST)}catch(e){}pxSheet({t:'Preis-Dienst entfernt.'})},
  pxCopyCode:async()=>{try{await navigator.clipboard.writeText(PX_CODE);toast('Worker-Code kopiert.')}catch(e){toast('Kopieren nicht möglich – unter „Worker-Code ansehen“ markieren.')}},
  pxTokGen:async()=>{const b=crypto.getRandomValues(new Uint8Array(24));const t=btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');try{localStorage.setItem(PX_TOK,t)}catch(e){}
   try{await navigator.clipboard.writeText(t);toast('Token erzeugt, kopiert und hier gespeichert – jetzt im Worker als APP_TOKEN einfügen.',7000)}catch(e){toast('Token erzeugt und gespeichert: '+esc(t),12000)}}});
+
+// ===== Unterkunftssuche über Google Hotels: echte Häuser mit Preisen für eure Daten, Claude wählt nur noch aus =====
+const ghOn=()=>!!(pxCfg()&&pxSt().serp);
+const ghRtParam=rt=>{const v=+String(rt||'').replace(',','.');return v>=9?9:v>=8?8:v>=7?7:0};
+const AI_GHPICK_SYS=`Du wählst für eine Reise-App aus einer Liste echter Unterkünfte aus Google Hotels die passendsten aus (zwei Erwachsene, ein Doppelzimmer). Die Preise gelten für genau die Reisedaten (pro Nacht für zwei, Euro). Du suchst nicht im Netz – nutze nur die Angaben der Liste.
+Antworte NUR mit JSON ohne Kommentare:
+{"pick":[{"i":Index aus der Liste,"type":"Hotel|Resort|Boutique-Hotel|Bungalow|Apartment|Guesthouse|Homestay","area":"Lage kurz, nur aus den Angaben (z. B. am Strand, Zentrum) oder null","dist":"z. B. 5 Min. zu Fuß zum Strand – nur aus den Angaben zur Umgebung – oder null","amen":["bis zu 8 Ausstattungsmerkmale wörtlich aus der Liste, gewünschte zuerst"],"match":["erfüllte Wünsche, wörtlich aus der Wunschliste"],"miss":["nicht erfüllte oder unklare Wünsche, wörtlich aus der Wunschliste"],"why":"1 Satz, warum dieses Haus"}],"note":"1 Satz zur Preislage für die Reisedaten"}
+Regeln: 4–6 Häuser (weniger nur, wenn die Liste nicht mehr Passendes hat), nach Eignung sortiert – das erste ist die Empfehlung. Preisrahmen einhalten; höchstens ein Haus darf knapp darüber liegen, wenn es deutlich besser passt (in why begründen). Mindestbewertung einhalten (Google-Bewertung von 5; 8 von 10 entspricht etwa 4,0 von 5, 9 von 10 etwa 4,5). Unterkunftsart und Sonstiges beachten. Gute Bewertungen mit vielen Bewertungen vorziehen; Häuser mit sehr wenigen Bewertungen nur, wenn sie sonst klar passen. Ein Ausstattungswunsch gilt nur als erfüllt, wenn er in der Ausstattung steht; Lagewünsche (Strandnah, Zentral, Ruhig, Meerblick) nur, wenn Umgebung oder Beschreibung es zeigen – sonst in miss. Nichts erfinden.`;
+function ghProp(x){const rp=x.rate_per_night||{};const v=num0(rp.extracted_lowest)||num0(rp.extracted_before_taxes_fees);const g=x.gps_coordinates||{};
+ const near=(Array.isArray(x.nearby_places)?x.nearby_places:[]).slice(0,3).map(n=>{const t=(n.transportations||[])[0];return String(n.name||'').slice(0,40)+(t?` (${String(t.type||'').slice(0,14)} ${String(t.duration||'').slice(0,12)})`:'')});
+ return {x,name:String(x.name||'').slice(0,90),tok:typeof x.property_token==='string'?x.property_token.slice(0,160):'',v,cls:num0(x.extracted_hotel_class)||null,kind:String(x.type||'').slice(0,30),rt:num0(x.overall_rating),rev:num0(x.reviews),loc:num0(x.location_rating),
+  am:(Array.isArray(x.amenities)?x.amenities:[]).map(a=>String(a||'').slice(0,40)).filter(Boolean).slice(0,24),near,desc:String(x.description||'').replace(/\s+/g,' ').slice(0,140),ll:g.latitude!=null&&g.longitude!=null?{lat:+g.latitude,lon:+g.longitude}:null,web:typeof x.link==='string'&&/^https?:/.test(x.link)&&!ghIsG(x.link)?x.link.slice(0,300):''}}
+async function ghListGet(st,place,cn,c,loose){const [a,b]=hDates(st);let q=`/hotels?engine=google_hotels&q=${encodeURIComponent('Hotels '+place+', '+cn)}&check_in_date=${a}&check_out_date=${b}&adults=2&currency=EUR&gl=de&hl=de`;
+ if(!loose){const mx=num0(c.max),mn=num0(c.min),r=ghRtParam(c.rt);if(mx)q+='&max_price='+Math.round(mx*1.15);if(mn)q+='&min_price='+Math.round(mn);if(r)q+='&rating='+r}
+ pxCount();let J;try{J=await pxGet(q)}catch(e){if(/returned any results|no results|keine ergebnisse/i.test(e.message||''))return [];throw e}return (Array.isArray(J.properties)?J.properties:[]).map(ghProp).filter(p=>p.name&&p.v)}
+const ghType=p=>/vacation|ferien/i.test(p.kind)?'Apartment':p.cls>=4?'Hotel':'Unterkunft';
+async function ghHotels(i,c){const st=S.stages[i];const d=stagesDated()[i];const p=byId(st.placeId);const place=p?.name||pname(st);const cn=country(st.country).name;const h0=st.stay||{};let q0=pxUse();
+ const step=t=>{UI.hoStep=t;hotRefresh()};
+ step('Google Hotels: Häuser für eure Daten …');UI.hoTau=14;
+ let L=await ghListGet(st,place,cn,c,false);let loose=false;if(L.length<5&&(c.max||c.min||c.rt)){const L2=await ghListGet(st,place,cn,c,true);const seen=new Set(L.map(x=>x.name.toLowerCase()));L=L.concat(L2.filter(x=>!seen.has(x.name.toLowerCase())));loose=true}
+ if(h0.name)L=L.filter(x=>x.name.toLowerCase()!==h0.name.toLowerCase());
+ {const seen=new Set();L=L.filter(x=>{const k=x.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true}).slice(0,24)}
+ if(!L.length)throw Object.assign(new Error('Google Hotels fand keine Häuser für diesen Ort und Zeitraum'),{gsEmpty:1});
+ step(`Claude wählt aus ${L.length} Häusern …`);
+ const list=L.map((x,n)=>[n,x.name,[x.kind,x.cls?x.cls+' Sterne':''].filter(Boolean).join(', ')||'–',x.v+' €',x.rt?String(x.rt).replace('.',',')+(x.rev?` (${x.rev})`:''):'keine',x.loc?'Lage '+String(x.loc).replace('.',',')+'/5':'',x.am.join(', ')||'–',x.near.join('; ')||'–',x.desc||''].join(' | ')).join('\n');
+ const msg=`Ort: ${place} (${cn}). Reisedaten: ${iso(d.from)} bis ${iso(d.to)} (${nN(d.nights)}).
+Preis pro Nacht für zwei: ${c.min||'egal'} bis ${c.max||'egal'} €.
+Wunschliste (Ausstattung und Lage): ${c.am.length?c.am.join(', '):'keine besonderen'}.
+Unterkunftsart: ${c.ty.length?c.ty.join(', '):'egal'}. Mindestbewertung: ${c.rt?String(c.rt).replace('.',',')+' von 10':'egal'}.
+Sonstiges: ${c.free||'–'}.${h0.name?`\nBisher eingetragen: ${h0.name} – nicht erneut vorschlagen.`:''}
+Liste (Index | Name | Art | Preis pro Nacht | Google-Bewertung (Anzahl) | Lage-Note | Ausstattung | Umgebung | Beschreibung):
+${list}`;
+ const mdl=kmodel('hotels');let usd=0,eff=null,J=null;
+ try{const r=await aiCall({system:AI_GHPICK_SYS,max:2500,timeout:60000,model:mdl,messages:[{role:'user',content:msg}]});usd=r.usd||0;eff=r.eff||null;J=aiJson(r.text)}catch(e){console.warn('Auswahl',e);J=null}
+ let P=(J&&Array.isArray(J.pick)?J.pick:[]).filter(k=>k&&L[+k.i]).filter((k,n,A)=>A.findIndex(z=>+z.i===+k.i)===n).slice(0,6);let auto=false;
+ if(!P.length){auto=true;const mx=num0(c.max);const sc=x=>(x.rt||3.5)*Math.log10(10+(x.rev||0))-(mx&&x.v>mx?2:0);P=L.map((x,n)=>({i:n,s:sc(x)})).sort((a,b)=>b.s-a.s).slice(0,5).map(z=>({i:z.i}))}
+ const arr=(v,n)=>(Array.isArray(v)?v:[]).map(z=>String(z||'').slice(0,40)).filter(Boolean).slice(0,n);const W=new Set(c.am);
+ const opts=P.map(k=>{const x=L[+k.i];const am=arr(k.amen,8);
+  return {name:x.name,type:String(k.type||ghType(x)).slice(0,30),area:k.area&&k.area!=='null'?String(k.area).slice(0,60):'',addr:'',pmin:x.v,pmax:x.v,pn:x.v,psrc:'Google Hotels für eure Daten',real:true,prices:hPrices([{src:'Google Hotels',min:x.v,cur:'EUR',dated:true,via:'Google Hotels'}]),
+   rt:x.rt&&x.rt<=5?Math.round(x.rt*10)/10:null,sc:5,rsrc:'Google',rev:x.rev,amen:am.length?am:x.am.slice(0,8),pay:[],paySrc:'',links:{},taKey:'',match:arr(k.match,10).filter(w=>W.has(w)),miss:arr(k.miss,10).filter(w=>W.has(w)),dist:k.dist&&k.dist!=='null'?String(k.dist).slice(0,60):'',why:String(k.why||'').slice(0,240),gtok:x.tok,web:x.web,ll:x.ll}});
+ step('Preise je Anbieter …');
+ const [a,b]=hDates(st);const base=`/hotels?engine=google_hotels&check_in_date=${a}&check_out_date=${b}&adults=2&currency=EUR&gl=de&hl=de`;let net=null;
+ await Promise.all(opts.map(async(o,n)=>{const x=L[+P[n].i];try{let D=[...ghMap(x.x.prices),...ghMap(x.x.featured_prices)];
+   if(o.gtok){pxCount();const J2=await pxGet(base+'&q='+encodeURIComponent(o.name+', '+place)+'&property_token='+encodeURIComponent(o.gtok));ghMeta(o,J2);D=[...ghMap(J2.prices),...ghMap(J2.featured_prices),...D]}
+   const m=new Map();D.forEach(z=>{if(!m.has(z.src)||m.get(z.src).min>z.min)m.set(z.src,z)});const H=hPrices([...m.values()]);if(H.length)o.prices=H;o.xo={ts:Date.now(),n:H.length,src:'Google Hotels'}}
+  catch(e){if(e.net||e.http===401)net=e;o.xo={ts:Date.now(),err:String(e.message||e).slice(0,80)}}hotPrice(o)}));
+ if(usd)kcostAdd('hotelsG',mdl,usd);const qn=pxUse()-q0;
+ return {opts,note:String((J&&J.note)||'').slice(0,200),src:`Google Hotels · ${L.length} Häuser für eure Daten${loose?' (Filter gelockert)':''} · Auswahl ${auto?'nach Bewertung (Claude nicht erreichbar)':'Claude'}`,ts:Date.now(),usd,model:mdl,eff,cut:false,extra:0,gs:{n:L.length,q:qn,auto},
+  xo:{run:0,ts:Date.now(),n:opts.length,found:opts.filter(o=>o.xo&&o.xo.n).length,net:net?1:0,err:net?String(net.message||''):'',g:true,gs:1},
+  crit:{min:c.min,max:c.max,am:c.am,ty:c.ty,pay:c.pay,rt:c.rt,free:c.free},from:iso(d.from),to:iso(d.to)}}
+// Mit Preis-Dienst: zuerst Google Hotels; klappt das nicht, sucht Claude wie bisher im Netz
+{const a0=aiHotels;aiHotels=async function(i,c){if(!ghOn())return a0.apply(this,arguments);
+ try{return await ghHotels(i,c)}catch(e){console.warn('Google Hotels',e);UI.hoStep='Claude sucht Unterkünfte …';UI.hoTau=40;hotRefresh();const R=await a0.apply(this,arguments);R.ghErr=e.gsEmpty?e.message:'Google Hotels nicht erreichbar ('+String(e.message||e).slice(0,60)+')';if(!e.gsEmpty)R.gsSkip=1;return R}
+ finally{}}}
+{const r1=hotRun;hotRun=async function(){try{return await r1.apply(this,arguments)}finally{UI.hoStep=null;UI.hoTau=null}}}
+// Hinweiszeile unter dem Suchergebnis
+{const n0=xoNote;xoNote=function(R){const X=R&&R.xo;const pre=R&&R.ghErr?`<div class="small" style="margin:-4px 2px 10px;line-height:1.45;color:var(--warn)">${esc(R.ghErr)} – Claude hat stattdessen im Netz gesucht.</div>`:'';
+ if(!X||!X.gs||X.run)return pre+n0.apply(this,arguments);
+ return `<div class="small mut" style="margin:-4px 2px 10px;line-height:1.45">Preise je Anbieter für eure Daten: ${X.found} von ${X.n} ${X.n===1?'Haus':'Häusern'}${R.gs&&R.gs.q?` · ${R.gs.q} Google-Abfragen für diese Suche`:''} · ${pxUse()} diesen Monat <button class="small" style="color:var(--ki);font-weight:600" data-a="xoRun">neu laden</button></div>`}}
+// Link-Chips der Hotelkarte: Haus in Google Hotels und eigene Website, wenn bekannt
+{const l0=hotLinks;hotLinks=function(o,st,place){let h=l0.apply(this,arguments);if(o&&(o.gtok||(o.xo&&o.xo.src==='Google Hotels')))h+=lnk(esc(ghPage(o,place)),'Google Hotels');if(o&&o.web)h+=lnk(esc(o.web),'Website');return h}}
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
