@@ -323,6 +323,12 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .trlr .tlb{font-size:11.5px;font-weight:600;color:var(--ink3);min-width:28px}
 .trlr .t{display:block;color:var(--ink);font-weight:500}
 .trc .trwn{font-size:12px;line-height:1.4;margin:-4px 14px 11px 58px}
+
+/* Transfernummern auf der Karte, Heute-Karte im Vollbild */
+.trlab{position:absolute;transform:translate(-50%,-50%);padding:1px 6px;border-radius:9px;font:600 10px Inter,sans-serif;background:var(--card);border:1.5px solid var(--warn);color:var(--ink);white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25);cursor:pointer}
+.trlab.b{border-color:var(--ink2)}
+.zlow .trlab{font-size:9px;padding:0 4px}
+#hmap.full{position:absolute;inset:0;height:auto;border-radius:0;margin:0}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1195,8 +1201,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_22';
+const APP_VERSION='0.91_23';
 const CHANGELOG=[
+ {v:'0.91_23',d:'27.11.2026',items:['Karte: Transfers tragen jetzt ihre Nummer (T5, T6.1 …) direkt auf der Linie – antippen öffnet den Transfer','Heute: Karte im Vollbild wie die Routenkarte (mit Zurück, Ausschnitt und Standort)']},
  {v:'0.91_22',d:'27.11.2026',items:['Flüge mit echten Preisen aus Google Flights (über den Preis-Dienst): unter Verbindungen „Flüge suchen“ – Flughäfen in der Nähe, euer Datum, 2 Personen; Flüge mit Zeiten, Umstiegen, Dauer und Preis für zwei, Preisniveau laut Google. „Alle Anbieter“ zeigt Airline, Trip.com, Kiwi & Co. mit Preisen (1 Abfrage), „Übernehmen“ füllt den Flug-Transfer komplett','Dafür den Worker-Code einmal aktualisieren (Version 2) – die App zeigt die Schritte an']},
  {v:'0.91_21',d:'27.11.2026',items:['Route: Statuspunkt, KI-Symbol und ⋯ der Transfer-Karten stehen genau auf einer Linie mit denen der Etappen-Karten']},
  {v:'0.91_20',d:'27.11.2026',items:['Route: Transfers als Karten mit Kontur, Etappen gefüllt – einheitlich, die Verbindungslinie läuft mittig zwischen den Karten. Mehrere Teilstrecken stehen in einer Karte (z. B. 6.1, 6.2) mit eigenem Status; ⋯ öffnet das Transfer-Menü','Hinweise färben die Kontur: orange „neu planen“, rot „Buchung passt nicht mehr“']},
@@ -1439,7 +1446,7 @@ function mapTools(){const big=UI.view==='karte';return `<div class="mtools">${bi
 function vMapFull(){const cs=[...new Set(stagesDated().filter(d=>!d.gap).map(d=>d.country))];
  return `<div class="mapfull"><div id="map" class="full"></div><div class="mapbar"><button class="mtb" data-a="back" aria-label="Zurück">${ic('back',19)}</button><div class="chips" style="margin:0;padding:0 4px;flex:1"><button class="chip ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all">Alle</button>${cs.map(c=>`<button class="chip ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}">${cname(c)}</button>`).join('')}</div><button class="mtb" data-a="mapFilter" aria-label="Filter">${ic('layers',18)}</button></div><div class="mtools bot"><button class="mtb" data-a="mapFit" aria-label="Ausschnitt zurücksetzen">${ic('route',17)}</button><button class="mtb" data-a="mapLocate" aria-label="Mein Standort">${ic('locate',18)}</button></div></div>`}
 function mapFilterSheet(){const P=mapPref();const t=(k,l,ico)=>`<button class="chip ${P[k]?'on':''}" data-a="mapT" data-k="${k}">${ic(ico,14)}${l}</button>`;
- sheet(`<div class="sht">Karte</div><div class="mut" style="margin:4px 0 6px">Was angezeigt wird</div>${lbl('Ebenen')}<div class="chips wrapc">${t('stay','Unterkünfte','bed')}${t('tr','Transfers','route')}${t('ex','Ausflüge','pin')}${t('idea','Ideen','globe')}${t('rate','Bewertungen','star')}</div>${lbl('Mindestbewertung für Ausflüge und Ideen')}<div class="seg">${[[0,'alle'],[4,'ab ★ 4,0'],[4.5,'ab ★ 4,5']].map(([v,l])=>`<button class="${(P.min||0)===v?'on':''}" data-a="mapMin" data-k="${v}">${l}</button>`).join('')}</div>${lbl('Kartenstil')}<div class="seg">${Object.entries(TILES2).map(([k,v])=>`<button class="${P.tiles===k?'on':''}" data-a="mapStyle" data-k="${k}">${v.name}</button>`).join('')}</div><div class="small mut" style="margin:12px 2px 0;line-height:1.45">Etappen sind immer sichtbar. Ausflüge tragen ihre Nummer (z. B. 6.1), Ideen ihre Ortsnummer (#012); die Namen erscheinen beim Hineinzoomen. Gebuchte Transfers durchgezogen, offene gestrichelt; Unterkünfte ohne Position gestrichelt mit „?“. Antippen öffnet Etappe, Unterkunft, Transfer oder Ort.</div>`)}
+ sheet(`<div class="sht">Karte</div><div class="mut" style="margin:4px 0 6px">Was angezeigt wird</div>${lbl('Ebenen')}<div class="chips wrapc">${t('stay','Unterkünfte','bed')}${t('tr','Transfers','route')}${t('ex','Ausflüge','pin')}${t('idea','Ideen','globe')}${t('rate','Bewertungen','star')}</div>${lbl('Mindestbewertung für Ausflüge und Ideen')}<div class="seg">${[[0,'alle'],[4,'ab ★ 4,0'],[4.5,'ab ★ 4,5']].map(([v,l])=>`<button class="${(P.min||0)===v?'on':''}" data-a="mapMin" data-k="${v}">${l}</button>`).join('')}</div>${lbl('Kartenstil')}<div class="seg">${Object.entries(TILES2).map(([k,v])=>`<button class="${P.tiles===k?'on':''}" data-a="mapStyle" data-k="${k}">${v.name}</button>`).join('')}</div><div class="small mut" style="margin:12px 2px 0;line-height:1.45">Etappen sind immer sichtbar. Ausflüge tragen ihre Nummer (z. B. 6.1), Ideen ihre Ortsnummer (#012); die Namen erscheinen beim Hineinzoomen. Transfers tragen ihre Nummer (z. B. T5), gebuchte durchgezogen, offene gestrichelt; Unterkünfte ohne Position gestrichelt mit „?“. Antippen öffnet Etappe, Unterkunft, Transfer oder Ort.</div>`)}
 // ---------- Etappe ----------
 function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st.placeId);const no=stageNo()[st.id];const S5=steps(i);const n=S5.filter(x=>x.ok).length;const nxI=S5.findIndex(x=>!x.ok);
  let h=backBtn();
@@ -2096,7 +2103,8 @@ function mapDetail(M,ds,P){P=P||mapPref();const css=getComputedStyle(document.bo
   const A=pv?stageLL(d.i-1):null;const B=stageLL(d.i);if(!okLL(A)||!okLL(B))return;
   let cur=A;LG.forEach((l,j)=>{const f=l.fromLL?[l.fromLL.lat,l.fromLL.lon]:cur;let t=l.toLL?[l.toLL.lat,l.toLL.lon]:j===LG.length-1?B:(LG[j+1].fromLL?[LG[j+1].fromLL.lat,LG[j+1].fromLL.lon]:legGuess(LG,j,pp,p,pv?.country,st.country,f,B));if(!okLL(t))t=B;
    const bk=l.status==='gebucht';const fl=l.mode==='flight';const pl=L.polyline([f,t],{color:bk?ink:warn,weight:fl?1.4:2.6,opacity:fl?.5:.9,dashArray:bk?null:'6 6'}).addTo(M);
-   if(pl.bindTooltip)pl.bindTooltip(`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]} · ${bk?'gebucht':'offen'}`,{sticky:true});if(pl.on)pl.on('click',()=>mapInfo('leg',[d.i,j]));cur=t})});
+   if(pl.bindTooltip)pl.bindTooltip(`${trLabel(st,j)} ${(MODES[l.mode]||MODES.car)[1]} · ${bk?'gebucht':'offen'}`,{sticky:true});if(pl.on)pl.on('click',()=>mapInfo('leg',[d.i,j]));
+   {const q=x=>Array.isArray(x)?x:[x.lat,x.lng!=null?x.lng:x.lon];const a=q(f),b=q(t);const lb=trLabel(st,j);if(lb&&okLL(a)&&okLL(b)){const lm=L.marker([(a[0]+b[0])/2,(a[1]+b[1])/2],{icon:L.divIcon({className:'',html:`<div class="trlab ${bk?'b':''}">${lb}</div>`,iconSize:[0,0],iconAnchor:[0,0]}),zIndexOffset:300}).addTo(M);if(lm.on)lm.on('click',()=>mapInfo('leg',[d.i,j]))}}cur=t})});
  // Unterkünfte: gleiche Position zusammengefasst, ohne Position geschätzt (gestrichelt, „?“)
  if(P.stay){const G={};ds.forEach(d=>{const st=S.stages[d.i];const h=st.stay;if(!inSel(st.country)||!d.nights||!h||!h.name)return;const p=byId(st.placeId);if(!p)return;
    const has=h.ll&&p&&hav(p,h.ll)<120;const ll=has?[h.ll.lat,h.ll.lon]:[p.lat-0.012,p.lon+0.016];const key=has?ll[0].toFixed(4)+','+ll[1].toFixed(4):'x'+d.i;(G[key]=G[key]||{ll,est:!has,items:[]}).items.push({i:d.i,h,n:no[st.id]})});
@@ -3623,7 +3631,7 @@ function hmTargets(){const T=today();const ds=stagesDated();const out=[];const s
  let n=0;out.filter(x=>x.day===0&&(x.k==='ex'||x.k==='idea')).forEach(x=>x.no=++n);return out}
 function hmHtml(){const L=hmTargets();if(!L.length)return '';const t0=L.filter(x=>x.day===0).length,t1=L.length-t0;const T=today();
  const rng=t1?(()=>{const ds=[...new Set(L.filter(x=>x.day>0).map(x=>x.day))].sort();const a=WD[addDays(T,ds[0]).getDay()],b=WD[addDays(T,ds[ds.length-1]).getDay()];return a===b?a:a+'–'+b})():'';
- return `<div class="sec">Karte<span class="r"><button data-a="hmBig">${UI.hmBig?'Kleiner':'Größer'}</button></span></div><div class="card hmapc"><div id="hmap" class="${UI.hmBig?'big':''}"></div>
+ return `<div class="sec">Karte<span class="r"><button data-a="hmFull" style="display:inline-flex;align-items:center;gap:5px">${ic('full',14)}Vollbild</button></span></div><div class="card hmapc"><div id="hmap" class="${UI.hmBig?'big':''}"></div>
  <div class="hleg"><span><i class="dt"></i>Heute · ${t0} ${t0===1?'Ziel':'Ziele'}</span>${t1?`<span><i class="dn"></i>${rng} · ${t1} ${t1===1?'Ziel':'Ziele'}</span>`:''}<span class="sp" style="text-align:right;color:var(--ink3)">antippen für Infos</span></div></div>`}
 function hmDraw(){const el=$('#hmap');if(!el)return;if(HMAP){try{HMAP.remove()}catch(e){}HMAP=null}if(!window.L){el.innerHTML='<div class="empty small">Karte braucht Internet.</div>';return}
  const L0=hmTargets();const dark=isDark();const P=mapPref();const T=TILES2[P.tiles]||TILES2.plain;
@@ -3639,7 +3647,7 @@ function hmDraw(){const el=$('#hmap');if(!el)return;if(HMAP){try{HMAP.remove()}c
 {const v0=vHeute;vHeute=function(){const h=v0.apply(this,arguments);const m=hmHtml();return m?h.replace('<div class="sec">Tagesablauf</div>',m+'<div class="sec">Tagesablauf</div>'):h}}
 
 // ---------- Nach jedem Zeichnen: Heute-Karte, laufende KI-Knöpfe ----------
-{const r0=render;render=function(){const r=r0.apply(this,arguments);try{if($('#hmap'))hmDraw();else if(HMAP){try{HMAP.remove()}catch(e){}HMAP=null}kbKick()}catch(e){console.warn(e)}return r}}
+{const r0=render;render=function(){const r=r0.apply(this,arguments);try{const tp=UI.stack[UI.stack.length-1];if(tp&&tp.k==='hmap')document.body.classList.add('mapon');if($('#hmap'))hmDraw();else if(HMAP){try{HMAP.remove()}catch(e){}HMAP=null}kbKick()}catch(e){console.warn(e)}return r}}
 
 Object.assign(window.KIA=window.KIA||{},{
  kmodSet:(el)=>{kmodelSet(el.dataset.g,el.dataset.k);el.parentElement.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el))},
@@ -4181,6 +4189,13 @@ function flSection(i){const st=S.stages[i];const E=flEnds(i);const F=st.fl;const
 // Verbindungen öffnen: bei Flugstrecken nicht automatisch die Claude-Suche starten
 {const k0=KIA.cnOpen;KIA.cnOpen=function(el){const i=+el.dataset.k;if(flRelevant(i)){const st=S.stages[i];if(!st)return;go(UI.tab,[...UI.stack,{k:'conn',sid:st.id,j:0}]);return}return k0.apply(this,arguments)}}
 Object.assign(window.KIA,{flRun:(el)=>flSearch(+el.dataset.k),flBook:(el)=>flBook(+el.dataset.k,+el.dataset.o),flApply:(el)=>flApply(+el.dataset.k,+el.dataset.o),flPing:async()=>{try{const j=await pxPing();toast(+j.v>=2?'Worker aktuell – Google Flights bereit.':'Der Worker ist noch auf dem alten Stand. Code ersetzen und „Deploy“ drücken.',6000)}catch(e){toast('Worker: '+esc(e.message||e),6000)}UI.keepY=true;render()}});
+
+// ===== Heute-Karte im Vollbild (wie die Routenkarte) =====
+function vHmFull(){const L=hmTargets();const t0=L.filter(x=>x.day===0).length,t1=L.length-t0;
+ return `<div class="mapfull"><div id="hmap" class="full"></div><div class="mapbar"><button class="mtb" data-a="back" aria-label="Zurück">${ic('back',19)}</button><div class="sp" style="display:flex;flex-direction:column;gap:2px;padding:0 4px"><b style="font-size:15px">Heute und die nächsten Tage</b><span class="hleg" style="padding:0;margin:0;border:0"><span><i class="dt"></i>Heute · ${t0}</span>${t1?`<span><i class="dn"></i>Folgetage · ${t1}</span>`:''}</span></div></div><div class="mtools bot"><button class="mtb" data-a="hmFit" aria-label="Ausschnitt zurücksetzen">${ic('route',17)}</button><button class="mtb" data-a="hmLocate" aria-label="Mein Standort">${ic('locate',18)}</button></div></div>`}
+{const h0=vHome;vHome=function(){const t=UI.stack[UI.stack.length-1];if(t&&t.k==='hmap')return vHmFull();return h0.apply(this,arguments)}}
+Object.assign(window.KIA,{hmFull:()=>go('home',[...UI.stack,{k:'hmap'}]),hmFit:()=>hmDraw(),hmLocate:()=>{if(!navigator.geolocation)return toast('Standort ist auf diesem Gerät nicht verfügbar.');toast('Suche Standort …',4000);
+ navigator.geolocation.getCurrentPosition(pos=>{UI.me=[pos.coords.latitude,pos.coords.longitude];hideToast();hmDraw();try{if(HMAP)HMAP.setView(UI.me,Math.max(13,HMAP.getZoom()))}catch(e){}},e=>toast('Standort nicht verfügbar ('+(e.code===1?'nicht freigegeben':'kein Signal')+').',5000),{enableHighAccuracy:true,timeout:12000,maximumAge:60000})}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
