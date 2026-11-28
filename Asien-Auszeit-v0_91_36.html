@@ -439,6 +439,18 @@ html.dark{--kib:#DDD6FC;--kif:#B7ACF5;--kibt:#17142B}
 .ttl{display:inline-flex;align-items:center;gap:4px;min-width:0;overflow:hidden;text-overflow:ellipsis}.ttl.none{color:var(--ink3)}.ttl .ttk{font-weight:600;color:var(--ink)}
 .ttki{font-size:10px;font-weight:600;color:var(--ki);background:var(--kis);padding:0 5px;border-radius:5px}
 .ttl .lvc.lvs:not([hidden])::after{content:"\00a0·\00a0";color:var(--ink3)}
+/* Ausflug + Transfer (0.91_36) */
+[data-drag="ex"]+[data-drag="ex"]{border-top:1px solid var(--line)}
+.ext{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 10px 12px 14px;position:relative;background:transparent;color:var(--ink)}.ext .sp{min-width:0;display:flex;flex-direction:column}
+.ext::before{content:'';position:absolute;left:58px;right:14px;top:0;border-top:1px solid var(--line2)}
+.ext .tri{width:32px;height:32px}.ext .trt{font-size:13.5px;display:flex;align-items:center;gap:6px}.ext .trs{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ext .trs .lvc{display:inline}
+.ext.none .trt{color:var(--ink2);font-weight:500}.ext.none .tri{border-style:dashed;color:var(--ink3)}
+.extp{font-weight:600;font-size:13.5px;white-space:nowrap}
+.ttc{display:block;width:100%;text-align:left;padding:0;margin-top:10px;overflow:hidden}
+.ttch{display:flex;align-items:center;gap:12px;padding:12px 10px 12px 14px}
+.ttcr{display:flex;flex-direction:column;align-items:flex-end;gap:2px;white-space:nowrap}.ttcr b{font-weight:600;font-size:13.5px}
+.ttcd{display:flex;align-items:center;gap:8px;padding:10px 14px 12px;border-top:1px solid var(--line2);font-size:13px}.ttcd b{font-weight:600}
+.ttcn{padding:0 14px 12px;line-height:1.45}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1315,9 +1327,10 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_35';
+const APP_VERSION='0.91_36';
 const CHANGELOG=[
- {v:'0.91_35',d:'28.11.2026',items:['Ausflüge der Etappe: zweite Zeile nur für den Transfer – Fahrzeit und Entfernung, Verkehrsmittel, Preis (KI-Schätzung markiert) und ✓ wenn gebucht; ohne Transfer steht „Transfer planen“. Die erste Zeile bleibt beim Ausflug (Nummer, Bewertung)']},
+ {v:'0.91_36',d:'28.11.2026',items:['Ausflüge der Etappe: unter jedem Ausflug eine eigene Transfer-Zeile mit Trennlinie, aufgebaut wie die Transfers in der Route – Verkehrsmittel, ab Unterkunft mit Fahrzeit und Entfernung, Preis rechts und Status-Punkt. Antippen öffnet direkt den Transfer','Ausflug-Details: Fahrzeit ab Unterkunft steht jetzt in der Transfer-Karte statt in der Liste darüber']},
+{v:'0.91_35',d:'28.11.2026',items:['Ausflüge der Etappe: zweite Zeile nur für den Transfer – Fahrzeit und Entfernung, Verkehrsmittel, Preis (KI-Schätzung markiert) und ✓ wenn gebucht; ohne Transfer steht „Transfer planen“. Die erste Zeile bleibt beim Ausflug (Nummer, Bewertung)']},
 {v:'0.91_34',d:'28.11.2026',items:['Geld neu geordnet: Tabs Überblick, Länder, Arten und Ausgaben. Überall klar getrennt: Ist (gebucht, bezahlt, ausgegeben) und Offen (geplant und geschätzt, schraffiert) – für die ganze Reise oder je Land','Länder: je Land Ist und Offen, Ø pro Tag; aufklappen zeigt jede Etappe. Arten: Ring-Diagramm und Ø pro Nacht, je Transfer, je Ausflug und pro Tag – bisher gegen geplant. Ausgaben: letzte 7 Tage als Diagramm und Filter nach Kategorie','Umrechnen als eigenes Fenster (auch von Heute aus), mit „Als Ausgabe erfassen“','Tausender-Trennung bei allen Beträgen, auch live beim Tippen in Betragsfeldern und im Umrechner','Google-Abfragen und KI-Kosten werden über den Geräte-Abgleich zusammengezählt; das Claude-Guthaben gilt für alle Geräte mit demselben Schlüssel','Transfer: Info-Knopf zeigt die letzte KI-Berechnung mit Empfehlung, Schnellste, Günstigste und Ausgewogen – auch wenn ohne Betrag übernommen','Laufende KI-Suchen lassen sich jetzt abbrechen (✕ neben dem Fortschritt)','Ausflüge: Transfer zum Ausflug planen – Taxi, Roller, Fahrer oder Tour; die KI berechnet Preise, Übernehmen speichert sie am Ausflug']},
 {v:'0.91_33',d:'28.11.2026',items:['Android: Navigationsleiste unten und Startbildschirm der installierten App jetzt dunkel statt grün (Farbe aus dem App-Manifest). Chrome übernimmt das beim nächsten automatischen Update der installierten App']},
  {v:'0.91_32',d:'28.11.2026',items:['Route mit einem Land: am Ende stehen jetzt die Checkliste für das nächste Land und der Transfer dorthin (bei „Alle Länder“ wie bisher nur einmal an der Grenze)']},
@@ -1647,8 +1660,8 @@ function stepSheet(i,k){UI.sheetCtx={i,k};const d=stagesDated()[i];const st=S.st
   b+=btns(`<button class="btn" data-a="legAdd" data-k="${i}">${ic('plus',16,2.2)}${L.length?'Teilstrecke':'Transport'} hinzufügen</button>`,L.length===1&&i>0?`<button class="btn gh" data-a="legSplit" data-k="${i}">${ic('plane',16)}Flughafenwege</button>`:'')}
  if(k==='unterkunft')b='<div class="card"><div class="empty small">Durchreise, keine Unterkunft nötig.</div></div>';
  if(k==='ausfluege'){const ex=exOf(i);const days=[];for(let q=0;q<Math.max(1,d.nights);q++)days.push(iso(addDays(d.from,q)));const exBtn=st.esug?`<div class="small" style="margin:0 2px 8px;color:var(--ki)">${ic('spark',12,2.3)} ${st.esug.opts.length} KI-Vorschläge vom ${fmtD(new Date(st.esug.ts))} – <button class="small" style="color:var(--acc);font-weight:600" data-a="exOpen" data-k="${i}">ansehen</button></div>`:'';
-  b=exBtn+'<div class="small mut" style="margin:-6px 2px 4px">Ausflug lange drücken und auf einen anderen Tag ziehen, antippen für Details.</div>'+days.map(t=>{const l=ex.filter(e=>e.planned===t);return `<div data-day="${t}" style="padding:2px 0 4px"><div class="sec" style="margin:14px 2px 6px">${dl(pd(t))}${!l.length?`<span class="r small mut" style="font-weight:500">frei</span>`:''}</div><div class="card" style="min-height:${l.length?0:44}px;${l.length?'':'border-style:dashed;background:transparent'}">${l.map(e=>`<div data-drag="ex" data-id="${e.id}">${row({icn:'pin',t:esc(e.name)+kiF(e),s:`${excNo(e)}${e.gRating?' · ★ '+r1(e.gRating):''}`,s2:ttLine(e,1,i),dot:e.tt?.status==='gebucht'?'g':'n',a:`data-a="place" data-k="${e.id}"`})}</div>`).join('')}</div></div>`}).join('');
-  b+=`<div data-lv="${i}" hidden></div>`;const un=ex.filter(e=>!e.planned||!days.includes(e.planned));if(un.length)b+=`<div data-day="" style="padding:2px 0 4px"><div class="sec" style="margin:14px 2px 6px">Ohne Tag</div><div class="card">${un.map(e=>`<div data-drag="ex" data-id="${e.id}">${row({icn:'pin',t:esc(e.name)+kiF(e),s:excNo(e)+(e.planned?' · '+dl(pd(e.planned)):'')+``,s2:ttLine(e,0,i),a:`data-a="place" data-k="${e.id}"`})}</div>`).join('')}</div></div>`;
+  b=exBtn+'<div class="small mut" style="margin:-6px 2px 4px">Ausflug lange drücken und auf einen anderen Tag ziehen, antippen für Details.</div>'+days.map(t=>{const l=ex.filter(e=>e.planned===t);return `<div data-day="${t}" style="padding:2px 0 4px"><div class="sec" style="margin:14px 2px 6px">${dl(pd(t))}${!l.length?`<span class="r small mut" style="font-weight:500">frei</span>`:''}</div><div class="card" style="min-height:${l.length?0:44}px;${l.length?'':'border-style:dashed;background:transparent'}">${l.map(e=>`<div data-drag="ex" data-id="${e.id}">${row({icn:'pin',t:esc(e.name)+kiF(e),s:`${excNo(e)}${e.gRating?' · ★ '+r1(e.gRating):''}`,a:`data-a="place" data-k="${e.id}"`})}${ttSub(e,i)}</div>`).join('')}</div></div>`}).join('');
+  b+=`<div data-lv="${i}" hidden></div>`;const un=ex.filter(e=>!e.planned||!days.includes(e.planned));if(un.length)b+=`<div data-day="" style="padding:2px 0 4px"><div class="sec" style="margin:14px 2px 6px">Ohne Tag</div><div class="card">${un.map(e=>`<div data-drag="ex" data-id="${e.id}">${row({icn:'pin',t:esc(e.name)+kiF(e),s:excNo(e)+(e.planned?' · '+dl(pd(e.planned)):'')+``,a:`data-a="place" data-k="${e.id}"`})}${ttSub(e,i)}</div>`).join('')}</div></div>`;
   b+=btns(`<button class="btn" data-a="exAdd" data-k="${i}">${ic('plus',16,2.2)}Ausflug hinzufügen</button>`,`<button class="btn kio" data-a="exOpen" data-k="${i}">${ic('spark',16,2.2)}Ausflüge finden (KI)</button>`)}
  if(k==='kosten'){const items=[];if(d.nights)items.push(['Unterkunft',st.stay,`data-a="stay" data-k="${i}"`]);legsOf(st).forEach((l,j)=>items.push([trLabel(st,j)||'Transport',l,`data-a="leg" data-k="${i}" data-j="${j}"`]));exOf(i).forEach(e=>{if(e.tt)items.push([e.name,e.tt,`data-a="place" data-k="${e.id}"`])});
   const sum=items.reduce((a,[,o])=>a+(eurOf(o)||0),0);
@@ -1741,7 +1754,7 @@ function chkSheet(id){const x=chkFind(id);if(!x)return;const it=openList().find(
 // ---------- Orte: Details, einplanen, lösen ----------
 function placeSheet(id){const p=byId(id);if(!p)return;const st=pState(p);const k=exStageIdx(p);
  const rate=p.gRating!=null?rateTxt(p,true):(RQ.p.has(p.id)||RQ.busy?'wird gesucht …':'–');
- let b=kiNote(p,'Von KI vorgeschlagen – Angaben bitte prüfen')+kv([['Zustand',st],['Etappe',st==='Etappe'?'ist selbst Etappe':k>=0?`${stageNo()[S.stages[k].id]} ${pname(S.stages[k])}`:'–'],['Tag',p.planned?dl(pd(p.planned)):'–'],['Bewertung',rate]].concat(st==='Eingeplant'&&k>=0&&lvTxt(p,k)?[['Fahrzeit ab '+(lvBase(k)&&lvBase(k).stay?'Unterkunft':pname(S.stages[k])),lvTxt(p,k)]]:[]));
+ let b=kiNote(p,'Von KI vorgeschlagen – Angaben bitte prüfen')+kv([['Zustand',st],['Etappe',st==='Etappe'?'ist selbst Etappe':k>=0?`${stageNo()[S.stages[k].id]} ${pname(S.stages[k])}`:'–'],['Tag',p.planned?dl(pd(p.planned)):'–'],['Bewertung',rate]].concat(st!=='Eingeplant'&&!p.tt&&k>=0&&lvTxt(p,k)?[['Fahrzeit ab '+(lvBase(k)&&lvBase(k).stay?'Unterkunft':pname(S.stages[k])),lvTxt(p,k)]]:[]));
  if(st==='Eingeplant'&&k>=0){const d=stagesDated()[k];const days=[];for(let q=0;q<Math.max(1,d.nights);q++)days.push(iso(addDays(d.from,q)));
   b+=lbl('Tag in '+esc(pname(S.stages[k])))+`<div class="chips wrapc">${days.map(t=>`<button class="chip ${p.planned===t?'on':''}" data-a="planDay" data-k="${p.id}" data-d="${t}">${dl(pd(t))}</button>`).join('')}<button class="chip ${!p.planned?'on':''}" data-a="planDay" data-k="${p.id}" data-d="">ohne Tag</button></div>`}
  if(st==='Eingeplant'||p.tt)b+=ttCardH(p);
@@ -4666,21 +4679,24 @@ function ttSave(id){const p=byId(id);if(!p)return;const old=p.tt?JSON.parse(JSON
 function ttUse(id,k){const p=byId(id);const R=p&&p.ttKi;const o=R&&R.opts[k];if(!o)return;const t=p.tt=Object.assign(p.tt||{},{mode:o.mode,dir:R.dir||'both',cost:String(Math.round(ttMid(o))),cur:o.cur,costEst:1,ki:1,kts:R.ts,kiK:k});
  if(!t.status)t.status='offen';if(!t.op&&/grab/i.test(o.title))t.op='Grab';if(o.note&&!t.note)t.note=o.note;save();ttSheet(id);toast(`Übernommen: ${esc(o.title||ttModeL(o.mode))} · ≈ ${eur(toEUR(ttMid(o),o.cur))}`)}
 function ttDel(id){const p=byId(id);if(!p||!p.tt)return;const snap=JSON.stringify(p.tt);delete p.tt;save();placeSheet(id);UI.undo=()=>{const q=byId(id);if(q){q.tt=JSON.parse(snap);save();render()}};toast(`Transfer zu ${esc(p.name)} entfernt. <button class="tb" data-a="undo">Rückgängig</button>`,6000)}
-// Karte im Ausflug (Details-Fenster)
-function ttCardH(p){const t=p.tt;const R=p.ttKi;
- if(!t){const best=R&&R.opts[R.best];return `<div class="card" style="margin-top:10px">${row({icn:'car',t:'Transfer zum Ausflug planen',s:best?`KI ${fmtD(new Date(R.ts))}: ${esc(best.title||ttModeL(best.mode))} ≈ ${eur(toEUR(ttMid(best),best.cur))}`:'Taxi, Roller, Fahrer oder Tour – KI berechnet die Preise',a:`data-a="ttEdit" data-k="${p.id}"`})}</div>`}
- return `<button class="card" style="display:block;width:100%;text-align:left;padding:12px 14px;margin-top:10px" data-a="ttEdit" data-k="${p.id}"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--ink2);display:inline-flex">${ic((TOUR_MODES[t.mode]||TOUR_MODES.car)[0],15)}</span><b style="font-weight:600" class="sp">${t.mode==='tour'?'Tour / Ticket':'Transfer'} · ${esc(ttModeL(t.mode))}${t.ki?' '+kiF(t):''}</b><span class="dot ${t.status==='gebucht'?'g':''}"></span><span class="small mut">${t.status==='gebucht'?'gebucht':'offen'}</span>${ic('chev',14)}</div>
- <div class="small mut" style="margin-top:4px;line-height:1.5">${[(TT_DIR.find(x=>x[0]===(t.dir||'both'))||TT_DIR[0])[1],t.dep&&'ab '+esc(t.dep),t.from&&esc(t.from),t.op&&esc(t.op),cost$(t)].filter(Boolean).join(' · ')}</div>${t.costEst?'<div class="small" style="margin-top:3px;color:var(--ki)">KI-Schätzung</div>':''}${t.note?`<div class="small mut" style="margin-top:4px">${esc(t.note)}</div>`:''}</button>`}
+// Karte im Ausflug (Details-Fenster): Transfer mit Fahrzeit ab Unterkunft in einer Karte
+function ttCardH(p){const t=p.tt;const R=p.ttKi;const k=exStageIdx(p);const lt=k>=0?lvTxt(p,k):'';const f=ttFrom(k);const v=t?eurOf(t):null;const bk=t&&t.status==='gebucht';
+ const drive=lt||k>=0?`<div class="ttcd"><span class="mut sp">Fahrzeit ab ${esc(f||'Etappe')}</span><b class="num" data-lvp="${p.id}">${esc(lt||'–')}</b></div>`:'';
+ const best=!t&&R?R.opts[R.best]:null;const dir=t&&t.mode!=='tour'?(TT_DIR.find(x=>x[0]===(t.dir||'both'))||TT_DIR[0])[1]:'';
+ const head=t?`<div class="trt">${t.mode==='tour'?'Tour / Ticket':'Transfer'} · ${esc(ttModeL(t.mode))}${t.costEst?' <span class="ttki">KI</span>':''}</div><div class="trs">${[dir,t.dep&&'ab '+esc(t.dep),t.op&&esc(t.op)].filter(Boolean).join(' · ')||'–'}</div>`
+  :`<div class="trt">Transfer zum Ausflug planen</div><div class="trs" style="white-space:normal">${best?`KI ${fmtD(new Date(R.ts))}: ${esc(best.title||ttModeL(best.mode))} ≈ ${eur(toEUR(ttMid(best),best.cur))}`:'Taxi, Roller, Fahrer oder Tour – die KI berechnet die Preise'}</div>`;
+ return `<button class="card ttc" data-a="ttEdit" data-k="${p.id}"><div class="ttch"><span class="tri">${ic(t?(TOUR_MODES[t.mode]||TOUR_MODES.car)[0]:'car',15,2)}</span><div class="sp">${head}</div>${t?`<div class="ttcr"><b class="num">${v?(t.costEst?'≈ ':'')+cost$(t):'–'}</b><span class="small" style="color:var(${bk?'--ok':'--warn'})">${bk?'gebucht':'offen'}</span></div>`:''}<span class="chev">${ic('chev',16)}</span></div>${drive}${t&&t.note?`<div class="ttcn small mut">${esc(t.note)}</div>`:''}</button>`}
 Object.assign(window.KIA=window.KIA||{},{
  ttEdit:(el)=>ttSheet(el.dataset.k||el.dataset.id),ttKi:(el)=>ttKiRun(el.dataset.k),ttSave:(el)=>ttSave(el.dataset.k),ttDel:(el)=>ttDel(el.dataset.k),
  ttUse:(el)=>ttUse(el.dataset.k,+el.dataset.o)});
 // Neue Aktion durch Antippen hebt die Sperre nach „Abbrechen“ sofort auf (gesperrt bleiben nur Folgeanfragen der abgebrochenen Suche)
 document.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('[data-a]');if(a&&a.dataset.a!=='kiStop')AI_STOP=0},true);
-// Zweite Zeile in der Ausflugsliste der Etappe: Transfer (Verkehrsmittel, Preis, Status) – getrennt von den Angaben zum Ausflug
-function ttLine(e,planned,si){const t=e&&e.tt;const lt=si!=null&&typeof lvTxt==='function'?lvTxt(e,si):'';const bk=t&&t.status==='gebucht';
- const lv=s=>`<span class="lvc${s?' lvs':''}" data-lvx="${e.id}" data-lvt="1" ${lt?'':'hidden'}>${lt?esc(lt):''}</span>`;
- if(!t)return `<span class="ttl none">${ic('car',13)}${lv(planned)}${planned?'Transfer planen':''}</span>`;
- const v=eurOf(t);return `<span class="ttl">${ic((TOUR_MODES[t.mode]||TOUR_MODES.car)[0],13)}${lv(1)}<span class="ttk">${esc(ttModeL(t.mode))}</span>${v?' · '+(t.costEst?'≈ ':'')+eur(v):' · ohne Betrag'}${t.costEst?' <span class="ttki">KI</span>':''}${bk?` <span style="color:var(--ok);display:inline-flex">${ic('check',13,2.6)}</span>`:''}</span>`}
+// Ausflug in der Etappe: unter dem Ausflug eine eigene Transfer-Zeile (wie Transfers in der Route) – Fahrzeit, Verkehrsmittel, Preis, Status
+function ttFrom(k){const b=k>=0?lvBase(k):null;return b&&b.stay?'Unterkunft':(k>=0?pname(S.stages[k]):'')}
+function ttSub(e,si){const t=e.tt;const lt=lvTxt(e,si);const v=t?eurOf(t):null;const bk=t&&t.status==='gebucht';const f=ttFrom(si);
+ const drive=`<span class="lvc" data-lvx="${e.id}" data-lvt="1" ${lt?'':'hidden'}>${lt?esc(lt):''}</span>`;
+ const dir=t&&t.mode!=='tour'&&t.dir?(t.dir==='to'?'nur hin':t.dir==='back'?'nur zurück':'hin und zurück'):'';
+ return `<button class="ext${t?'':' none'}" data-a="ttEdit" data-k="${e.id}"><span class="tri">${ic(t?(TOUR_MODES[t.mode]||TOUR_MODES.car)[0]:'car',15,2)}</span><span class="sp"><span class="trt">${t?`${t.mode==='tour'?'Tour':'Transfer'} · ${esc(ttModeL(t.mode))}`:'Transfer planen'}${t&&t.costEst?' <span class="ttki">KI</span>':''}</span><span class="trs">${f?'ab '+esc(f):''}${lt&&f?' · ':''}${drive}</span></span>${t?`<span class="extp num">${v?(t.costEst?'≈ ':'')+eur(v):'–'}</span><span class="dot ${bk?'g':''}"></span>`:''}<span class="chev">${ic('chev',16)}</span></button>`}
 // ===================== Geld: Überblick · Länder · Arten · Ausgaben =====================
 // Ist = gebucht (mit Betrag), bezahlt oder vor Ort ausgegeben · Offen = geplant oder geschätzt (KI-Kostenanalyse, sonst App) + Puffer.
 // Alles je Etappe gerechnet und dann zu Ländern und zur ganzen Reise zusammengezählt – so passen alle Ebenen zusammen.
