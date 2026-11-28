@@ -499,6 +499,24 @@ html.shlock,html.shlock body{overflow:hidden;overscroll-behavior:none}
 .kxmeta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);margin:6px 2px 4px}.kxmeta span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .klx .kxr{background:transparent;padding:11px 2px}.klx .kxr:first-child{border-top:0}
 .klx .kxr.sel{background:color-mix(in srgb,var(--ok) 8%,transparent);box-shadow:inset 3px 0 0 var(--ok);padding-left:10px;padding-right:8px;border-radius:10px}
+/* Fotos und Reise-Film (0.91_40) */
+.mdgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.mdth{aspect-ratio:1;border-radius:10px;position:relative;overflow:hidden;background:var(--chip) center/cover no-repeat;display:block;width:100%}
+.mdth.off{opacity:.45}.mdth.mdmiss::after{content:'lädt …';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink3)}
+.mdn{position:absolute;left:5px;top:5px;min-width:18px;height:18px;border-radius:9px;background:var(--acc);color:var(--bg);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.mdo{position:absolute;left:5px;top:5px;width:22px;height:22px;border-radius:11px;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center}
+.mdv{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:700;border-radius:6px;padding:1px 5px;display:flex;align-items:center;gap:3px}
+.mdsec{margin-top:14px}.mdsh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink)}
+.mdstrip{display:flex;gap:3px;flex:none}.mdmini{width:26px;height:26px;border-radius:6px;background:var(--chip) center/cover no-repeat;display:block}
+.mdrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 10px 12px 14px;margin-top:10px;color:var(--ink)}
+.prog1{height:6px;border-radius:3px;background:var(--line2);overflow:hidden}.prog1 i{display:block;height:100%;background:var(--acc);border-radius:3px}
+.fmcard{padding:14px}.fmwrap{position:relative;margin:0 auto;border-radius:14px;overflow:hidden;background:#0e2a3a}.fmwrap.p{width:min(100%,240px);aspect-ratio:9/16}.fmwrap.l{width:100%;aspect-ratio:16/9}
+.fmwrap canvas{width:100%;height:100%;display:block}.fmplay{position:absolute;left:50%;top:76%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:28px;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center}
+.fmbtns{display:flex;gap:10px;margin-top:12px}
+.fmch{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line2);width:100%}.fmch:first-child{border-top:0}.fmch.off .fmchm{opacity:.5}
+.fmchm{display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-align:left;padding:11px 4px 11px 14px;color:var(--ink)}
+.fmtg{width:34px;height:34px;border-radius:17px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink3);margin-right:10px;flex:none}.fmtg.on{border-color:var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.fmx{padding:11px 0 11px 14px;text-align:left;color:var(--ink);gap:12px}.fmx .ico0{display:inline-flex;color:var(--ink2)}.fmx .chev{margin-right:12px}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1375,9 +1393,10 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_39';
+const APP_VERSION='0.91_40';
 const CHANGELOG=[
- {v:'0.91_39',d:'28.11.2026',items:['Zwei Kacheln statt aufklappbarer Karte: links eure Angaben (Transfer, Unterkunft bzw. eingeplante Ausflüge), rechts die KI-Vorschläge mit Empfehlung. Darunter steht nur der Inhalt der angetippten Kachel','KI-Kachel: der Knopf „Neu berechnen“ bzw. „Neu suchen“ steht immer oberhalb der Ergebnisse; Übernommen und Empfehlung stehen oben in der Liste','Gilt für Transfer zum Ausflug, Unterkunft, Transfer der Etappe und Ausflüge der Etappe. Nach einer neuen KI-Suche ist die KI-Kachel offen, nach Übernehmen wieder eure Angaben']},
+ {v:'0.91_40',d:'28.11.2026',items:['Reise-Film: In der Route (Film-Symbol oben) entsteht aus eurer Route ein Video – Kapitel je Land, Kartenflug zu jeder Etappe, eure Fotos mit langsamem Zoom und kurze Clips. Hochformat 9:16 oder Querformat 16:9, Dauer je Foto einstellbar, eigene Musik möglich','Fotos und Clips an Etappen und Ausflügen: in der Route („Fotos hinzufügen“ in der Etappe, im Etappen-Menü und im Ausflug) über die Fotoauswahl des Handys – auch aus Google-Fotos-Alben. Clips kürzt ihr auf bis zu 10 Sekunden','Alles Verknüpfte landet automatisch im Film; einzelne Fotos abwählen, verschieben, einer Etappe oder einem Ausflug zuordnen oder entfernen. Fotos und Clips werden verkleinert und verschlüsselt auf beide Handys abgeglichen','Link zum Google-Fotos-Album je Etappe speicherbar']},
+{v:'0.91_39',d:'28.11.2026',items:['Zwei Kacheln statt aufklappbarer Karte: links eure Angaben (Transfer, Unterkunft bzw. eingeplante Ausflüge), rechts die KI-Vorschläge mit Empfehlung. Darunter steht nur der Inhalt der angetippten Kachel','KI-Kachel: der Knopf „Neu berechnen“ bzw. „Neu suchen“ steht immer oberhalb der Ergebnisse; Übernommen und Empfehlung stehen oben in der Liste','Gilt für Transfer zum Ausflug, Unterkunft, Transfer der Etappe und Ausflüge der Etappe. Nach einer neuen KI-Suche ist die KI-Kachel offen, nach Übernehmen wieder eure Angaben']},
 {v:'0.91_38',d:'28.11.2026',items:['KI-Vorschläge als aufklappbare Karte: zugeklappt nur „Übernommen“ und die Empfehlung, darunter direkt eure Angaben. Antippen klappt alle Optionen kompakt auf – nach einer neuen KI-Suche ist sie gleich offen','Gleiche Karte bei Transfer zum Ausflug, Unterkunft, Transfer der Etappe (ersetzt die bisherige Verbindungen-Box) und Ausflügen der Etappe (mit „Einplanen“)','Übernehmen oder Einplanen aus der Karte führt zurück in dasselbe Fenster']},
 {v:'0.91_37',d:'28.11.2026',items:['Transfer zum Ausflug: nach „Übernehmen“, Speichern oder Zurück geht es einen Schritt zurück – in die Ausflugsliste der Etappe bzw. in den Ausflug, je nachdem, woher ihr kamt','Übernommene KI-Vorschläge sind grün umrandet und als „übernommen“ markiert – bei Transfers zu Ausflügen, Verbindungen, Unterkünften und Ausflügen. Die Empfehlung ist nur umrandet, solange nichts übernommen ist','Tuk-Tuk als eigenes Verkehrsmittel; KI-Titel und Hinweise kürzer und sauber abgeschnitten','Transfer-Zeile in der Ausflugsliste: Verkehrsmittel als Titel, darunter „Transfer · Fahrzeit“ – passt auch auf schmale Handys','Fenster offen: die Seite dahinter scrollt nicht mehr mit','Umrechnen öffnet nur das Fenster, ohne dass gleich die Tastatur aufgeht']},
 {v:'0.91_36',d:'28.11.2026',items:['Ausflüge der Etappe: unter jedem Ausflug eine eigene Transfer-Zeile mit Trennlinie, aufgebaut wie die Transfers in der Route – Verkehrsmittel, ab Unterkunft mit Fahrzeit und Entfernung, Preis rechts und Status-Punkt. Antippen öffnet direkt den Transfer','Ausflug-Details: Fahrzeit ab Unterkunft steht jetzt in der Transfer-Karte statt in der Liste darüber']},
@@ -1580,7 +1599,7 @@ function vSettings(){const st=S.settings;const ds=stagesDated();const end=ds[ds.
 let MAP=null;
 function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage();const full=ds.filter(d=>!d.gap&&doneN(d.i)===5).length;
  const cs=[...new Set(ds.filter(d=>!d.gap).map(d=>d.country))];if(!UI.rc||(!cs.includes(UI.rc)&&UI.rc!=='all'))UI.rc=fi>=0?S.stages[fi].country:cs[0];
- let h=head('Route',[`${totalN()+1} Tage`,`${ds.filter(d=>!d.gap).length} Etappen`,`${full} vollständig`],`<button class="ib" data-a="tab" data-k="orte" aria-label="Orte">${ic('search',20)}</button>`);
+ let h=head('Route',[`${totalN()+1} Tage`,`${ds.filter(d=>!d.gap).length} Etappen`,`${full} vollständig`],`<div style="display:flex;gap:4px"><button class="ib" data-a="filmOpen" aria-label="Reise-Film">${ic('film',20)}</button><button class="ib" data-a="tab" data-k="orte" aria-label="Orte">${ic('search',20)}</button></div>`);
  const card=c=>{const l=ds.filter(d=>!d.gap&&d.country===c);const n=l.reduce((a,d)=>a+d.nights,0);const ok=l.filter(d=>doneN(d.i)===5).length;
   return `<button class="card cc ${UI.rc===c?'on':''}" data-a="rc" data-k="${c}" id="cc-${c}"><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${cname(c)}</div><div class="st3">${fmtD(l[0].from)}–${fmtD(l[l.length-1].to)} · ${n} N</div><div style="display:flex;align-items:center;gap:8px;margin-top:9px"><div class="prog sp">${l.map(d=>`<i class="${doneN(d.i)===5?'f':''}" style="height:4px"></i>`).join('')}</div><span class="small mut num" style="font-size:11px">${ok}/${l.length}</span></div></button>`};
  h+=`<div class="car" id="ccar" style="margin-bottom:14px"><button class="card cc ${UI.rc==='all'?'on':''}" data-a="rc" data-k="all" id="cc-all" style="width:110px"><div style="font-weight:600;font-size:13.5px">Alle Länder</div><div class="st3">${totalN()} Nächte</div></button>${cs.map(card).join('')}</div>`;
@@ -1599,7 +1618,7 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
   let c=`<div data-a="stage" data-k="${d.i}" role="button" style="display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:13px 14px;cursor:pointer"><div class="stn ${foc?'a':''}">${no[st.id]}</div><div class="sp"><div style="font-size:${foc?15:14}px;font-weight:600">${esc(pname(st))}${pin}${disStageBadge(st.id)}</div><div class="st3">${dates}</div></div><span class="small num" style="display:flex;align-items:center;gap:4px;padding-top:2px;${foc?'color:var(--acc);font-weight:600':'color:var(--ink2)'}">${n===5?`<span style="color:var(--ok)">${ic('check',13,2.4)}</span>`:''}${n}/5</span><button class="mn" data-a="stmenu" data-k="${d.i}" aria-label="Menü">${ic('more',17)}</button></div>`;
   if(foc&&stageLL(d.i))c+=wxSlot(stageLL(d.i)[0],stageLL(d.i)[1],iso(d.from),Math.max(1,d.nights),'sub',d.i);
   if(d.nights)c+=`<button class="sub" data-a="stay" data-k="${d.i}"><span class="ico">${ic('bed',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${stay.name?esc(stay.name):'Unterkunft offen'}</span>${stay.name?kiF(stay):''}${stay.name?` · ${stay.status==='gebucht'?'gebucht':'offen'}`:''}</span><span class="dot ${stay.status==='gebucht'?'g':''}"></span><span class="chev">${ic('chev',14)}</span></button>`;
-  c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="ausfluege"><span class="ico">${ic('pin',15)}</span><span class="sp"><span class="lb">${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}</span>${fr?` · ${fr} ${fr===1?'Tag':'Tage'} frei`:''}</span>${fr&&d.nights>1?`<span class="ki" style="padding:3px 5px">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${fr&&d.nights>1?'n':'g'}"></span><span class="chev">${ic('chev',14)}</span></button>`;
+  c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="ausfluege"><span class="ico">${ic('pin',15)}</span><span class="sp"><span class="lb">${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}</span>${fr?` · ${fr} ${fr===1?'Tag':'Tage'} frei`:''}</span>${fr&&d.nights>1?`<span class="ki" style="padding:3px 5px">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${fr&&d.nights>1?'n':'g'}"></span><span class="chev">${ic('chev',14)}</span></button>`;c+=typeof mdRow==='function'?mdRow(d):'';
   if(foc){const nx=S5.find(x=>!x.ok);c+=`<div style="border-top:1px solid var(--line2);padding:12px 14px;display:flex;align-items:center;gap:10px"><div class="prog" style="width:70px;flex:none">${S5.map(x=>`<i class="${x.ok?'f':''}" style="height:4px"></i>`).join('')}</div><div class="sp small mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.k==='anreise'?'Transport offen':nx.k==='kosten'&&nx.miss&&nx.miss.length?'Kosten für '+nx.miss.slice(0,3).join(', ')+(nx.miss.length>3?' …':''):nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div>`}
   h+=`<div class="${foc?'pri':'card'}" data-drag="stage" data-k="${d.i}" style="margin:6px 0;overflow:hidden">${c}</div>`;
   // Nur ein Land gewählt: am Ende des Landes Checkliste und Transfer ins nächste Land (bei „Alle Länder“ stehen sie ohnehin einmal dort)
@@ -1907,7 +1926,7 @@ function rerenderPage(){render()}
 function emptyState(){$('#main').innerHTML=head('Asien-Auszeit 2027','Keine Reisedaten auf diesem Gerät')+`<div class="card" style="padding:16px;line-height:1.55">Die neue App arbeitet mit denselben Daten wie die heutige App. Öffne sie auf dem Gerät, auf dem eure Reise gespeichert ist, oder hole eine Sicherungsdatei zurück.</div><div class="fbtn" style="margin-top:14px"><a class="btn p" style="flex:1" href="../">Heutige App öffnen</a><button class="btn" data-a="importAsk">Sicherung laden</button></div>`;$('#nav').innerHTML='';$('#fab').hidden=true}
 function render(){if(!ready())return emptyState();const m=$('#main');
  const top=UI.stack[UI.stack.length-1];let h;
- if(top&&top.k==='stage'){const i=top.id!=null?S.stages.findIndex(s=>s.id===top.id):top.i;if(i==null||i<0||!S.stages[i]){UI.stack.pop();navFix();return render()}h=vStage(i)}else if(top&&top.k==='offen')h=vOffen();else if(top&&top.k==='kosten')h=vKosten();else if(top&&top.k==='settings')h=vSettings();else if(top&&top.k==='chk')h=vChk();else if(top&&top.k==='map')h=vMapFull();else if(top&&top.k==='conn')h=vConn(top);else if(top&&top.k==='hotels')h=vHotels(top);else if(top&&top.k==='exfind')h=vExFind(top);else if(top&&top.k==='cost')h=vCost();
+ if(top&&top.k==='stage'){const i=top.id!=null?S.stages.findIndex(s=>s.id===top.id):top.i;if(i==null||i<0||!S.stages[i]){UI.stack.pop();navFix();return render()}h=vStage(i)}else if(top&&top.k==='offen')h=vOffen();else if(top&&top.k==='kosten')h=vKosten();else if(top&&top.k==='settings')h=vSettings();else if(top&&top.k==='chk')h=vChk();else if(top&&top.k==='map')h=vMapFull();else if(top&&top.k==='conn')h=vConn(top);else if(top&&top.k==='hotels')h=vHotels(top);else if(top&&top.k==='exfind')h=vExFind(top);else if(top&&top.k==='cost')h=vCost();else if(top&&top.k==='film')h=vFilm();
  else h=UI.tab==='home'?vHome():UI.tab==='route'?vRoute():UI.tab==='orte'?vOrte():UI.tab==='geld'?vGeld():vKI();
  const y=window.scrollY;m.innerHTML=h;if(UI.keepY){window.scrollTo(0,y);UI.keepY=false}
  const fab=$('#fab');fab.innerHTML=ic('plus',26,2.2);fab.hidden=!!top||!['route','orte'].includes(UI.tab);
@@ -5018,6 +5037,290 @@ function kxBack(){const r=UI.kxRet;UI.kxRet=null;if(!r)return false;if(r.k==='st
 {const h0=KIA.hoDo;if(h0)KIA.hoDo=function(){const r=UI.kxRet;UI.tileSel=null;const out=h0.apply(this,arguments);if(r&&r.k==='stay'){UI.kxRet=r;setTimeout(kxBack,60)}return out}}
 {const b0=KIA.hoBack;KIA.hoBack=function(){const r=UI.kxRet;const out=b0?b0.apply(this,arguments):closeSheet();if(r){UI.kxRet=r;const st=S.stages[r.i];if(st)UI.tileSel={k:(r.k==='stay'?'ho:':'ex:')+st.id,t:'ki'};kxBack()}return out}}
 {const e0=exDo;exDo=async function(){const r=UI.kxRet;UI.kxRet=null;UI.tileSel=null;const out=await e0.apply(this,arguments);if(r&&r.k==='ex'){UI.kxRet=r;kxBack()}return out}}
+// ===================== Fotos und Clips an Etappen und Ausflügen =====================
+// Metadaten in S.media (werden mit dem Reisestand abgeglichen), Bilder/Clips verkleinert in IndexedDB unter „M:<id>“ (+ „:t“ Vorschaubild)
+// und – wie Buchungsbelege – verschlüsselt über den Geräte-Abgleich. Eigene Musik liegt nur lokal unter „X:…“.
+Object.assign(IC,{film:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 12h4M3 16h4M17 8h4M17 12h4M17 16h4"/>',
+ play:'<path d="M8 5.5v13l10.5-6.5z"/>',eyeoff:'<path d="M3 3l18 18"/><path d="M10.6 6.1A9.8 9.8 0 0 1 12 6c5 0 9 6 9 6a17 17 0 0 1-2.7 3.3M6.6 6.6C4.3 8.1 3 12 3 12s4 6 9 6a8.7 8.7 0 0 0 4.3-1.1"/>',
+ eye:'<path d="M2.5 12S6.5 6 12 6s9.5 6 9.5 6-4 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.8"/>'});
+const MD_MAX=1600,MD_TH=360,MD_CLIP=10;
+const mdAll=()=>{if(!S)return [];if(!Array.isArray(S.media))S.media=[];return S.media};
+const mdOrd=(a,b)=>((a.ord??a.ts??0)-(b.ord??b.ts??0))||((a.ts||0)-(b.ts||0));
+function mdOf(sid,xid){return mdAll().filter(m=>m.sid===sid&&(xid===undefined||(m.xid||null)===(xid||null))).sort(mdOrd)}
+const mdNew=()=>'m'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+async function bkDel(k){const db=await bkDb();return new Promise((res,rej)=>{const tx=db.transaction('docs','readwrite');tx.objectStore('docs').delete(k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+// Vorschaubilder: Elemente mit data-mdt="<id>" bekommen ihr Bild nach dem Zeichnen
+const MD_URL={};
+async function mdUrl(id,thumb){const k='M:'+id+(thumb?':t':'');if(MD_URL[k])return MD_URL[k];try{const v=await bkGet(k);if(!v||!v.blob)return null;return MD_URL[k]=URL.createObjectURL(v.blob)}catch(e){return null}}
+function mdHydrate(){document.querySelectorAll('[data-mdt]:not([data-mdok])').forEach(async el=>{el.dataset.mdok='1';const u=await mdUrl(el.dataset.mdt,true);if(u)el.style.backgroundImage=`url("${u}")`;else el.classList.add('mdmiss')})}
+{const r0=render;render=function(){const r=r0.apply(this,arguments);try{mdHydrate()}catch(e){}return r}}
+{const s0=sheet;sheet=function(){const r=s0.apply(this,arguments);try{mdHydrate()}catch(e){}return r}}
+// ---------- Aufnahmedatum aus EXIF (JPEG) ----------
+async function mdExifDate(file){try{const b=new DataView(await file.slice(0,192*1024).arrayBuffer());if(b.getUint16(0)!==0xFFD8)return null;let o=2;
+ while(o<b.byteLength-10){const mk=b.getUint16(o);const len=b.getUint16(o+2);if(mk===0xFFE1&&b.getUint32(o+4)===0x45786966){const t=o+10;const le=b.getUint16(t)===0x4949;const g16=x=>b.getUint16(x,le),g32=x=>b.getUint32(x,le);
+  const ifd=off=>{const n=g16(t+off);const r={};for(let k=0;k<n;k++){const e=t+off+2+k*12;r[g16(e)]=e+8}return r};const I0=ifd(g32(t+4));const EX=I0[0x8769]?ifd(g32(I0[0x8769])):{};const p=EX[0x9003]||I0[0x0132];if(!p)return null;
+  const off=g32(p);let s='';for(let k=0;k<19;k++)s+=String.fromCharCode(b.getUint8(t+off+k));const m=s.match(/(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)/);return m?new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime():null}
+  if((mk&0xFF00)!==0xFF00)break;o+=2+len}}catch(e){}return null}
+// ---------- Bilder verkleinern ----------
+const cvBlob=(cv,type,q)=>new Promise(r=>cv.toBlob(r,type,q));
+async function mdImg(file){let bm;try{bm=await createImageBitmap(file,{imageOrientation:'from-image'})}catch(e){throw new Error('Bildformat wird nicht unterstützt')}
+ const sc=Math.min(1,MD_MAX/Math.max(bm.width,bm.height));const W=Math.round(bm.width*sc),H=Math.round(bm.height*sc);const cv=document.createElement('canvas');cv.width=W;cv.height=H;cv.getContext('2d').drawImage(bm,0,0,W,H);
+ const full=await cvBlob(cv,'image/jpeg',0.82);const ts=Math.min(1,MD_TH/Math.max(W,H));const c2=document.createElement('canvas');c2.width=Math.round(W*ts);c2.height=Math.round(H*ts);c2.getContext('2d').drawImage(cv,0,0,c2.width,c2.height);
+ const th=await cvBlob(c2,'image/jpeg',0.75);try{bm.close()}catch(e){}return {full,th,w:W,h:H}}
+// ---------- Clips: Ausschnitt verkleinert neu aufnehmen (Bild über Canvas, Ton über Web Audio) ----------
+function mdMime(){const L=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1,opus','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+ try{return L.find(t=>window.MediaRecorder&&MediaRecorder.isTypeSupported(t))||''}catch(e){return ''}}
+function mdVideoEl(src){const v=document.createElement('video');v.src=src;v.playsInline=true;v.preload='auto';v.crossOrigin='anonymous';return v}
+const mdWait=(el,ev,ms)=>new Promise((res,rej)=>{let t=setTimeout(()=>rej(new Error('Zeitüberschreitung')),ms||15000);el.addEventListener(ev,()=>{clearTimeout(t);res()},{once:true});el.addEventListener('error',()=>{clearTimeout(t);rej(new Error('Video lässt sich nicht lesen'))},{once:true})});
+async function mdClip(file,start,len,onp){if(!window.MediaRecorder)throw new Error('Video-Aufnahme wird hier nicht unterstützt');const url=URL.createObjectURL(file);const v=mdVideoEl(url);
+ try{await mdWait(v,'loadedmetadata');const sc=Math.min(1,1280/Math.max(v.videoWidth,v.videoHeight));const W=Math.max(2,Math.round(v.videoWidth*sc/2)*2),H=Math.max(2,Math.round(v.videoHeight*sc/2)*2);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');const ac=new AudioContext();await ac.resume();const src=ac.createMediaElementSource(v);const dst=ac.createMediaStreamDestination();src.connect(dst);
+  v.currentTime=start;await mdWait(v,'seeked');g.drawImage(v,0,0,W,H);const tsc=Math.min(1,MD_TH/Math.max(W,H));const c2=document.createElement('canvas');c2.width=Math.round(W*tsc);c2.height=Math.round(H*tsc);c2.getContext('2d').drawImage(cv,0,0,c2.width,c2.height);const th=await cvBlob(c2,'image/jpeg',0.75);
+  const mime=mdMime();const stream=new MediaStream([...cv.captureStream(30).getVideoTracks(),...dst.stream.getAudioTracks()]);const rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:2500000,audioBitsPerSecond:96000}:{});const parts=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};
+  rec.start(500);await v.play();const end=Math.min(v.duration||start+len,start+len);
+  await new Promise(res=>{const tick=()=>{g.drawImage(v,0,0,W,H);if(onp)onp(Math.min(1,(v.currentTime-start)/Math.max(.1,end-start)));if(v.currentTime>=end-0.02||v.ended){res();return}requestAnimationFrame(tick)};tick()});
+  v.pause();const stopped=new Promise(r=>rec.onstop=r);rec.stop();await stopped;try{ac.close()}catch(e){}
+  return {blob:new Blob(parts,{type:(rec.mimeType||mime||'video/webm').split(';')[0]}),th,w:W,h:H,d:Math.round((end-start)*10)/10}}finally{URL.revokeObjectURL(url)}}
+// ---------- Hinzufügen ----------
+UI.mdQ=null;
+async function mdStore(id,full,th,type){await bkPut('M:'+id,{ts:Date.now(),type,name:id,blob:full});await bkPut('M:'+id+':t',{ts:Date.now(),type:'image/jpeg',name:id+'-t',blob:th})}
+function mdNextOrd(sid,xid){const L=mdOf(sid,xid);return L.length?Math.max(...L.map(m=>m.ord??0))+1:1}
+async function mdAddFiles(files,sid,xid){const L=[...files];if(!L.length)return;const imgs=L.filter(f=>/^image\//.test(f.type)),vids=L.filter(f=>/^video\//.test(f.type));let ok=0,bad=0;
+ for(let n=0;n<imgs.length;n++){toast(`Fotos werden vorbereitet … ${n+1}/${imgs.length}`,60000);try{const f=imgs[n];const r=await mdImg(f);const id=mdNew();await mdStore(id,r.full,r.th,'image/jpeg');
+   const ts=(await mdExifDate(f))||f.lastModified||Date.now();mdAll().push({id,sid,xid:xid||null,k:'i',w:r.w,h:r.h,ts,add:Date.now(),film:true,ord:mdNextOrd(sid,xid)});ok++}catch(e){bad++}}
+ if(imgs.length){save();toast(`${ok} ${ok===1?'Foto':'Fotos'} hinzugefügt${bad?` · ${bad} nicht lesbar (z. B. HEIC)`:''}.`,4000)}
+ if(vids.length){UI.mdQ={sid,xid,L:vids,n:0};mdClipSheet()}else mdBack(sid,xid)}
+function mdBack(sid,xid){const i=S.stages.findIndex(s=>s.id===sid);if(i>=0&&UI.mdRet!=='none')mdSheet(i,xid);else{UI.keepY=true;render()}}
+function mdPick(sid,xid){UI.mdTarget={sid,xid:xid||null};let el=document.getElementById('mdIn');if(!el){el=document.createElement('input');el.type='file';el.id='mdIn';el.multiple=true;el.accept='image/*,video/*';el.style.display='none';document.body.appendChild(el);
+  el.addEventListener('change',()=>{const T=UI.mdTarget;const f=[...el.files];el.value='';if(T&&f.length)mdAddFiles(f,T.sid,T.xid)})}el.click()}
+// Clip-Ausschnitt wählen (eine Datei nach der anderen)
+function mdClipSheet(){const Q=UI.mdQ;if(!Q)return;const f=Q.L[Q.n];if(!f){UI.mdQ=null;mdBack(Q.sid,Q.xid);return}if(Q.url)URL.revokeObjectURL(Q.url);Q.url=URL.createObjectURL(f);Q.start=0;Q.len=6;Q.vol=Q.vol||'low';
+ sheet(`<div class="sht">Clip kürzen</div><div class="mut" style="margin:4px 0 10px">${esc(f.name||'Video')}${Q.L.length>1?` · ${Q.n+1} von ${Q.L.length}`:''}</div>
+ <video id="mdV" src="${Q.url}" playsinline muted preload="metadata" style="width:100%;max-height:300px;border-radius:14px;background:#000;display:block"></video>
+ <div class="lab" style="margin:12px 2px 4px">Start bei <span id="mdSt" class="num">0:00</span> · Länge</div><input id="mdStart" type="range" min="0" max="0" step="0.1" value="0" style="width:100%">
+ ${seg('mdLen',[['3','3 s'],['5','5 s'],['6','6 s'],['8','8 s'],['10','10 s']],'6')}
+ ${lbl('Ton im Film')}${seg('mdVol',[['orig','Originalton'],['low','leise unter Musik'],['mute','stumm']],Q.vol)}
+ <div class="small mut" style="margin:10px 2px 0;line-height:1.45">Gespeichert wird nur der Ausschnitt, verkleinert auf 720p – so passt er in den Geräte-Abgleich. Das Kürzen dauert so lange wie der Ausschnitt.</div>
+ <div id="mdProg"></div>
+ ${btns(`<button class="btn p" style="flex:1" data-a="mdClipDo">Übernehmen</button>`,`<button class="btn" data-a="mdClipPrev">${ic('play',14,2.2)}Vorschau</button>`)}
+ <button class="btn gh" style="width:100%;margin-top:8px" data-a="mdClipSkip">${Q.L.length>Q.n+1?'Dieses Video überspringen':'Abbrechen'}</button>`);
+ const v=$('#mdV'),r=$('#mdStart');v.addEventListener('loadedmetadata',()=>{r.max=Math.max(0,(v.duration||0)-1).toFixed(1);v.currentTime=0.1});r.oninput=()=>{Q.start=+r.value;$('#mdSt').textContent=fmtSec(Q.start);v.currentTime=Q.start}}
+const fmtSec=s=>{s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+Object.assign(window.KIA=window.KIA||{},{
+ mdOpen:(el)=>{UI.mdRet=null;mdSheet(+el.dataset.k,el.dataset.x||null)},
+ mdAdd:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(st)mdPick(st.id,el.dataset.x||null)},
+ mdItem:(el)=>mdItemSheet(el.dataset.k),
+ mdClipPrev:()=>{const Q=UI.mdQ;const v=$('#mdV');if(!Q||!v)return;Q.len=+(gv('mdLen')||6);v.currentTime=Q.start;v.play();clearTimeout(Q.pt);Q.pt=setTimeout(()=>v.pause(),Q.len*1000)},
+ mdClipSkip:()=>{const Q=UI.mdQ;if(!Q)return;Q.n++;mdClipSheet()},
+ mdClipDo:async(el)=>{const Q=UI.mdQ;if(!Q||Q.busy)return;Q.len=+(gv('mdLen')||6);Q.vol=gv('mdVol')||'low';Q.busy=1;el.disabled=true;const pr=$('#mdProg');const show=p=>{if(pr)pr.innerHTML=`<div class="small" style="margin:12px 2px 6px;display:flex;justify-content:space-between"><b>Clip wird gekürzt …</b><span class="num mut">${Math.round(p*100)} %</span></div><div class="prog1"><i style="width:${Math.round(p*100)}%"></i></div>`};show(0);
+  try{const f=Q.L[Q.n];const r=await mdClip(f,Q.start||0,Q.len,show);const id=mdNew();await mdStore(id,r.blob,r.th,r.blob.type);
+   mdAll().push({id,sid:Q.sid,xid:Q.xid||null,k:'v',w:r.w,h:r.h,d:r.d,vol:Q.vol,ts:f.lastModified||Date.now(),add:Date.now(),film:true,ord:mdNextOrd(Q.sid,Q.xid)});save();toast(`Clip hinzugefügt (${fmtSec(r.d)}).`,3000)}
+  catch(e){toast('Clip konnte nicht gekürzt werden: '+esc(e.message||e),6000)}Q.busy=0;Q.n++;mdClipSheet()}});
+// ---------- Fotos einer Etappe (mit Ausflügen) ----------
+function mdThumb(m,n){return `<button class="mdth${m.film===false?' off':''}" data-a="mdItem" data-k="${m.id}" data-mdt="${m.id}" aria-label="${m.k==='v'?'Clip':'Foto'}">${m.film!==false&&n?`<span class="mdn">${n}</span>`:''}${m.film===false?`<span class="mdo">${ic('eyeoff',13,2.2)}</span>`:''}${m.k==='v'?`<span class="mdv">${ic('play',10,2.4)} ${fmtSec(m.d||0)}</span>`:''}</button>`}
+function mdGrid(L){let n=0;return L.length?`<div class="mdgrid">${L.map(m=>mdThumb(m,m.film!==false?++n:0)).join('')}</div>`:''}
+const mdCnt=L=>{const i=L.filter(m=>m.k!=='v').length,v=L.filter(m=>m.k==='v').length;return [i?`${i} ${i===1?'Foto':'Fotos'}`:'',v?`${v} ${v===1?'Clip':'Clips'}`:''].filter(Boolean).join(' · ')||'noch nichts'};
+function mdSheet(i,focusX){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const all=mdOf(st.id);const ex=exOf(i);UI.mdCtx={i};
+ const sec=(t,xid,L)=>`<div class="mdsec" ${xid?`data-mdx="${xid}"`:''}><div class="mdsh"><span class="sp">${t}<span class="mut" style="font-weight:500"> · ${mdCnt(L)}</span></span><button class="btn sm" data-a="mdAdd" data-k="${i}" ${xid?`data-x="${xid}"`:''}>${ic('plus',14,2.2)}Hinzufügen</button></div>${mdGrid(L)}</div>`;
+ const alb=st.album?`<div class="card" style="margin:0 0 12px;padding:0"><a class="row" href="${esc(st.album)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ic0">${ic('link',17)}</div><div class="sp"><div class="tt">Google-Fotos-Album öffnen</div><div class="ss">${esc(st.albumName||'verknüpft')}</div></div><span class="chev">${ic('link',14)}</span></a><button class="row" data-a="mdAlb" data-k="${i}" style="border-top:1px solid var(--line2)"><div class="ic0">${ic('pen',16)}</div><div class="sp"><div class="tt">Album-Link ändern</div></div></button></div>`:'';
+ sheet(`<div class="sht">Fotos · ${esc(pname(st))}</div><div class="mut" style="margin:4px 0 12px">Etappe ${stageNo()[st.id]} · ${dl(d.from)}–${dl(d.to)} · ${mdCnt(all)}</div>
+ <div class="fbtn" style="margin:0 0 10px"><button class="btn sm p" data-a="mdAdd" data-k="${i}">${ic('plus',15,2.2)}Fotos und Videos</button>${st.album?'':`<button class="btn sm" data-a="mdAlb" data-k="${i}">${ic('link',15)}Google-Fotos-Album</button>`}</div>
+ <div class="small mut" style="margin:0 2px 12px;line-height:1.45">„Fotos und Videos“ öffnet die Auswahl des Handys – dort sind auch eure Google-Fotos-Alben. Alles hier kommt automatisch in den Reise-Film; Nummern = Reihenfolge. Antippen zum Abwählen, Verschieben oder Entfernen.</div>
+ ${alb}${sec('Etappe',null,mdOf(st.id,null))}${ex.map(x=>sec('Ausflug · '+esc(x.name),x.id,mdOf(st.id,x.id))).join('')}
+ <button class="btn gh" style="width:100%;margin-top:12px" data-a="filmOpen">${ic('film',16)}Zum Reise-Film</button>`);
+ if(focusX)setTimeout(()=>{const e=document.querySelector(`#sheet [data-mdx="${focusX}"]`);if(e)e.scrollIntoView({block:'start',behavior:'smooth'})},200)}
+function mdItemSheet(id){const m=mdAll().find(x=>x.id===id);if(!m)return;const i=S.stages.findIndex(s=>s.id===m.sid);const st=S.stages[i];const L=mdOf(m.sid,m.xid);const k=L.indexOf(m);const ex=i>=0?exOf(i):[];
+ sheet(`<div class="sht">${m.k==='v'?'Clip':'Foto'}</div><div class="mut" style="margin:4px 0 10px">${st?esc(pname(st)):''}${m.xid&&byId(m.xid)?' · '+esc(byId(m.xid).name):''}${m.ts?' · '+fmtDT(m.ts):''}</div>
+ <div id="mdBig" class="mdbig">${m.k==='v'?`<video id="mdBigV" controls playsinline style="width:100%;max-height:340px;border-radius:14px;background:#000;display:block"></video>`:`<img id="mdBigI" alt="" style="width:100%;max-height:340px;object-fit:contain;border-radius:14px;background:#000;display:block">`}</div>
+ ${lbl('Im Reise-Film')}${seg('mdFilm',[['1','ja'],['0','nein']],m.film===false?'0':'1')}
+ ${ex.length?lbl('Gehört zu')+`<select class="fld" id="mdTo"><option value="">Etappe ${esc(pname(st))}</option>${ex.map(x=>`<option value="${x.id}" ${m.xid===x.id?'selected':''}>Ausflug · ${esc(x.name)}</option>`).join('')}</select>`:''}
+ ${m.k==='v'?lbl('Ton im Film')+seg('mdVol2',[['orig','Originalton'],['low','leise unter Musik'],['mute','stumm']],m.vol||'low'):''}
+ ${fld('mdCap','Bildunterschrift (optional)',m.cap||'',{ph:'z. B. Sonnenuntergang an Bord'})}
+ <div class="fbtn" style="margin-top:10px"><button class="btn sm" data-a="mdMv" data-k="${id}" data-d="-1" ${k<=0?'disabled':''}>${ic('up',15)}Früher</button><button class="btn sm" data-a="mdMv" data-k="${id}" data-d="1" ${k>=L.length-1?'disabled':''}>${ic('down',15)}Später</button><button class="btn gh sm" style="color:var(--err);margin-left:auto" data-a="mdDel" data-k="${id}">${ic('trash',15)}Entfernen</button></div>
+ ${btns(`<button class="btn p" style="flex:1" data-a="mdSave" data-k="${id}">Speichern</button>`,`<button class="btn" data-a="mdBackTo" data-k="${id}">Zurück</button>`)}`);
+ mdUrl(id,false).then(u=>{if(!u)return;const v=$('#mdBigV'),im=$('#mdBigI');if(v)v.src=u;if(im)im.src=u})}
+function mdReturn(m){if(UI.mdRet==='film'){UI.mdRet=null;closeSheet();UI.keepY=true;render();return}const i=S.stages.findIndex(s=>s.id===m.sid);if(i>=0)mdSheet(i,m.xid);else{closeSheet();render()}}
+Object.assign(window.KIA=window.KIA||{},{
+ mdSave:(el)=>{const m=mdAll().find(x=>x.id===el.dataset.k);if(!m)return;m.film=gv('mdFilm')!=='0';const to=$('#mdTo');if(to){const nx=to.value||null;if(nx!==(m.xid||null)){m.xid=nx;m.ord=mdNextOrd(m.sid,nx)}}const v=gv('mdVol2');if(v)m.vol=v;const c=fv('mdCap');if(c)m.cap=c.slice(0,80);else delete m.cap;save();mdReturn(m)},
+ mdBackTo:(el)=>{const m=mdAll().find(x=>x.id===el.dataset.k);if(m)mdReturn(m)},
+ mdMv:(el)=>{const m=mdAll().find(x=>x.id===el.dataset.k);if(!m)return;const L=mdOf(m.sid,m.xid);L.forEach((x,n)=>x.ord=n+1);const k=L.indexOf(m),j=k+(+el.dataset.d);if(j<0||j>=L.length)return;const o=L[j].ord;L[j].ord=m.ord;m.ord=o;save();mdItemSheet(m.id)},
+ mdDel:async(el)=>{const id=el.dataset.k;const A=mdAll();const k=A.findIndex(x=>x.id===id);if(k<0)return;const [m]=A.splice(k,1);save();mdReturn(m);
+  UI.undo=()=>{mdAll().push(m);save();render()};toast(`${m.k==='v'?'Clip':'Foto'} entfernt. <button class="tb" data-a="undo">Rückgängig</button>`,6000);
+  setTimeout(()=>{if(!mdAll().some(x=>x.id===id)){bkDel('M:'+id).catch(()=>{});bkDel('M:'+id+':t').catch(()=>{})}},15000)},
+ mdAlb:(el)=>{const i=+el.dataset.k;const st=S.stages[i];if(!st)return;sheet(`<div class="sht">Google-Fotos-Album</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Link zum Album aus Google Fotos (Teilen → Link kopieren). Die App öffnet damit das Album; die Fotos für den Film wählt ihr über „Fotos und Videos“.</div>
+  ${fld('mdAlbU','Link',st.album||'',{ph:'https://photos.app.goo.gl/…',attr:'inputmode="url" autocomplete="off"'})}${fld('mdAlbN','Name (optional)',st.albumName||'',{ph:'z. B. Vietnam 2027'})}
+  ${btns(`<button class="btn p" style="flex:1" data-a="mdAlbSave" data-k="${i}">Speichern</button>`,st.album?`<button class="btn gh" style="color:var(--err)" data-a="mdAlbDel" data-k="${i}">Entfernen</button>`:`<button class="btn" data-a="mdOpen" data-k="${i}">Zurück</button>`)}`)},
+ mdAlbSave:(el)=>{const i=+el.dataset.k;const st=S.stages[i];const u=(fv('mdAlbU')||'').trim();if(u&&!/^https:\/\/(photos\.app\.goo\.gl|photos\.google\.com|goo\.gl)\//.test(u))return toast('Bitte einen Link aus Google Fotos einfügen (https://photos.app.goo.gl/…).');
+  if(u)st.album=u;else delete st.album;const n=fv('mdAlbN');if(n)st.albumName=n.slice(0,60);else delete st.albumName;save();mdSheet(i)},
+ mdAlbDel:(el)=>{const i=+el.dataset.k;const st=S.stages[i];delete st.album;delete st.albumName;save();mdSheet(i)}});
+// ---------- Zeile in der Route, Eintrag im Etappen-Menü und im Ausflug ----------
+function mdRow(d){const st=S.stages[d.i];const L=mdOf(st.id);const started=iso(today())>=iso(d.from);if(!L.length&&!started)return '';
+ const th=L.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('');
+ return `<button class="sub" data-a="mdOpen" data-k="${d.i}"><span class="ico">${ic('img',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${L.length?mdCnt(L):'Fotos hinzufügen'}</span>${st.album?' · Album':''}</span>${th?`<span class="mdstrip">${th}</span>`:''}<span class="chev">${ic('chev',14)}</span></button>`}
+{const m0=stMenu;stMenu=function(i){const r=m0.apply(this,arguments);try{const st=S.stages[i];const c=$('#sheet .card');if(c&&st){const L=mdOf(st.id);c.insertAdjacentHTML('beforeend',row({icn:'img',t:'Fotos und Clips',s:L.length?mdCnt(L):'für den Reise-Film verknüpfen',a:`data-a="mdOpen" data-k="${i}"`}))}}catch(e){}return r}}
+{const p0=placeSheet;placeSheet=function(id){const r=p0.apply(this,arguments);try{const p=byId(id);const k=p?exStageIdx(p):-1;if(k>=0){const st=S.stages[k];const L=mdOf(st.id,id);const anchor=$('#sheet .ttc');
+  const h=`<button class="card mdrow" data-a="mdOpen" data-k="${k}" data-x="${id}"><span class="ic0">${ic('img',17)}</span><span class="sp"><span class="tt" style="display:block">${L.length?'Fotos · '+mdCnt(L):'Fotos und Clips hinzufügen'}</span><span class="ss" style="display:block">für den Reise-Film</span></span>${L.length?`<span class="mdstrip">${L.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span>`:''}<span class="chev">${ic('chev',16)}</span></button>`;
+  if(anchor)anchor.insertAdjacentHTML('afterend',h);else{const fbs=document.querySelectorAll('#sheet .fbtn');const fb=fbs[fbs.length-1];if(fb)fb.insertAdjacentHTML('beforebegin',h)}mdHydrate()}}catch(e){console.warn(e)}return r}}
+// ---------- Abgleich: nur verknüpfte Medien hoch- und herunterladen, eigene Musik („X:“) bleibt auf dem Gerät ----------
+function mdKnown(){const s=new Set();mdAll().forEach(m=>{s.add('M:'+m.id);s.add('M:'+m.id+':t')});return s}
+gsDocs=async function(c,key){const ls=await gsGet('docs',c);const remote=new Map();((ls&&ls.dir)||[]).forEach(x=>{if(x.type==='file'&&/\.bin$/.test(x.name)){try{remote.set(gsDocKey(x.name),x)}catch(e){}}});
+ const K=mdKnown();const keep=k=>!/^X:/.test(k)&&(!/^M:/.test(k)||K.has(k));const local=(await gsDocKeys()).filter(keep);const L=new Set(local);let up=0,down=0;
+ for(const k of local){if(remote.has(k))continue;const v=await bkGet(k);if(!v)continue;try{await gsPut('docs/'+gsDocName(k),await gsEnc(key,await gsDocPack(v)),null,/^M:/.test(k)?'Foto':'Dokument',c);up++}catch(e){if(!e.conflict)throw e}}
+ for(const [k,x] of remote){if(L.has(k)||!keep(k))continue;const g=await gsGet('docs/'+x.name,c);if(!g)continue;try{await bkPut(k,gsDocUnpack(await gsDec(key,g.bytes)));down++;if(/^M:/.test(k)){delete MD_URL[k]}}catch(e){}}
+ if(down)setTimeout(()=>{document.querySelectorAll('[data-mdt].mdmiss').forEach(e=>{e.classList.remove('mdmiss');delete e.dataset.mdok});mdHydrate()},50);
+ return {up,down}};
+// ===================== Reise-Film: Route als Video mit euren Fotos und Clips =====================
+// Ablauf je Land (Kapitel): Titel → je Etappe Kartenflug → Fotos/Clips der Etappe → Fotos/Clips der Ausflüge. Ende: ganze Route.
+// Gezeichnet wird auf einer Canvas, aufgenommen mit MediaRecorder (Bild + Ton aus Clips und eigener Musik) – in Echtzeit, direkt auf dem Handy.
+const FILM_SZ={'9:16':[720,1280],'16:9':[1280,720]};
+function filmCfg(){S.film=Object.assign({fmt:'9:16',dur:3,off:{},map:true,cap:true},S.film||{});if(!S.film.off||typeof S.film.off!=='object')S.film.off={};return S.film}
+const filmMode=st=>{const L=legsOf(st);const ms=[...new Set(L.map(l=>(MODES[l.mode]||MODES.car)[1]))];return ms.join(' + ')};
+function filmPlan(){const F=filmCfg();const ds=stagesDated().filter(d=>!d.gap&&stageLL(d.i));const all=[...new Set(ds.map(d=>S.stages[d.i].country))];const cs=all.filter(c=>!F.off[c]);const T=[];let prevI=null;
+ all.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c);const on=!F.off[c];if(!on){prevI=L[L.length-1].i;return}const ci=cs.indexOf(c);
+  T.push({t:'title',c,ci,cn:cs.length,from:L[0].from,to:L[L.length-1].to,n:L.reduce((a,d)=>a+d.nights,0),dur:2.6});
+  L.forEach(d=>{const st=S.stages[d.i];const dates=d.nights?`${dl(d.from)} – ${dl(d.to)}`:dl(d.from);
+   if(F.map)T.push({t:'map',i:d.i,prev:prevI,c,cap:pname(st),sub:dates,mode:prevI!=null?filmMode(st):'',dur:2.4});prevI=d.i;
+   const items=mdOf(st.id,null).filter(m=>m.film!==false).map(m=>({m,cap:m.cap||pname(st),sub:m.cap?pname(st):dates,chip:'📍 '+pname(st)}));
+   exOf(d.i).slice().sort((a,b)=>String(a.planned||'9').localeCompare(String(b.planned||'9'))).forEach(x=>mdOf(st.id,x.id).filter(m=>m.film!==false).forEach(m=>items.push({m,cap:m.cap||x.name,sub:'Ausflug'+(x.planned?' · '+dl(pd(x.planned)):''),chip:'📍 '+pname(st)})));
+   items.forEach(o=>T.push(Object.assign(o,{t:o.m.k==='v'?'vid':'img',c,dur:o.m.k==='v'?Math.max(1,o.m.d||5):F.dur})))})});
+ if(T.length)T.push({t:'end',dur:3.4});let acc=0;T.forEach(x=>{x.t0=acc;acc+=x.dur});return {T,total:acc,all,cs,ds}}
+// ---------- Karte (OpenStreetMap-Kacheln, je Kapitel eine Ansicht) ----------
+const fmx=lon=>(lon+180)/360,fmy=lat=>{const s=Math.sin(Math.max(-85,Math.min(85,lat))*Math.PI/180);return 0.5-Math.log((1+s)/(1-s))/(4*Math.PI)};
+const FILM_TILE={};
+function filmTile(z,x,y){const k=z+'/'+x+'/'+y;if(FILM_TILE[k])return FILM_TILE[k];return FILM_TILE[k]=new Promise(res=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=()=>res(null);im.src=`https://tile.openstreetmap.org/${z}/${x}/${y}.png`})}
+async function filmView(pts,W,H,pt,pb){const xs=pts.map(p=>fmx(p[1])),ys=pts.map(p=>fmy(p[0]));let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ const aw=W*0.78,ah=H*(1-pt-pb)*0.8;let z=3;for(let k=11;k>=3;k--){const s=256*2**k;if((x1-x0)*s<=aw&&(y1-y0)*s<=ah){z=k;break}}const s=256*2**z;
+ const left=(x0+x1)/2*s-W/2,top=(y0+y1)/2*s-H*(pt+(1-pt-pb)/2);const bg=document.createElement('canvas');bg.width=W;bg.height=H;const g=bg.getContext('2d');g.fillStyle='#10232e';g.fillRect(0,0,W,H);
+ const n=2**z;const jobs=[];for(let ty=Math.floor(top/256);ty<=Math.floor((top+H)/256);ty++){if(ty<0||ty>=n)continue;for(let tx=Math.floor(left/256);tx<=Math.floor((left+W)/256);tx++){const wx=((tx%n)+n)%n;jobs.push(filmTile(z,wx,ty).then(im=>{if(im)g.drawImage(im,tx*256-left,ty*256-top,256,256)}))}}
+ await Promise.all(jobs);g.fillStyle='rgba(6,14,18,.42)';g.fillRect(0,0,W,H);return {z,s,left,top,bg,P:(lat,lon)=>[fmx(lon)*s-left,fmy(lat)*s-top]}}
+// ---------- Zeichnen ----------
+const fEase=x=>x<0?0:x>1?1:x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+function fRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function fChip(g,W,txt,x,y,right){const fs=Math.round(W>g.canvas.height?g.canvas.height*0.034:W*0.036);g.font=`600 ${fs}px Inter,system-ui,sans-serif`;const w=g.measureText(txt).width+fs*1.3,h=fs*1.9;const X=right?W-x-w:x;
+ g.fillStyle='rgba(0,0,0,.5)';fRR(g,X,y,w,h,h/2);g.fill();g.fillStyle='#fff';g.textBaseline='middle';g.fillText(txt,X+fs*.65,y+h/2+1)}
+function fCaption(g,W,H,cap,sub){const port=H>W;const fs=Math.round((port?W*0.062:H*0.07));const gr=g.createLinearGradient(0,H*0.58,0,H);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.62)');g.fillStyle=gr;g.fillRect(0,H*0.58,W,H*0.42);
+ const x=W*0.06;let y=H-(port?H*0.075:H*0.1);g.textBaseline='alphabetic';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=10;
+ if(sub){g.font=`500 ${Math.round(fs*0.52)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.88)';g.fillText(sub,x,y);y-=fs*0.85}
+ g.font=`700 ${fs}px Inter,system-ui,sans-serif`;g.fillStyle='#fff';const words=String(cap||'').split(' ');let lines=[''];words.forEach(w=>{const t=(lines[lines.length-1]+' '+w).trim();if(g.measureText(t).width>W*0.86&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=t});lines=lines.slice(0,2);
+ for(let k=lines.length-1;k>=0;k--){g.fillText(lines[k],x,y);y-=fs*1.12}g.shadowBlur=0}
+function fCover(g,src,sw,sh,W,H,p,dir){const sc=Math.max(W/sw,H/sh)*(1+0.08*p);const w=sw*sc,h=sh*sc;const dx=(W-w)/2+(dir?1:-1)*W*0.025*(p-.5),dy=(H-h)/2+(dir?-1:1)*H*0.015*(p-.5);g.drawImage(src,dx,dy,w,h)}
+function fRoute(g,V,R,upto,frac,cur){// R = [{lat,lon}], bis upto fertig, Abschnitt upto→upto+1 zu frac
+ const W=g.canvas.width;const lw=Math.max(3,W*0.006);g.lineCap='round';g.lineJoin='round';const P=R.map(r=>V.P(r[0],r[1]));
+ g.setLineDash([lw*1.6,lw*1.8]);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=lw*0.7;g.beginPath();P.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.setLineDash([]);
+ g.strokeStyle='#8FCFC6';g.lineWidth=lw;g.beginPath();for(let k=0;k<=Math.min(upto,P.length-1);k++){k?g.lineTo(P[k][0],P[k][1]):g.moveTo(P[k][0],P[k][1])}
+ if(upto+1<P.length&&frac>0){const a=P[upto],b=P[upto+1];g.lineTo(a[0]+(b[0]-a[0])*frac,a[1]+(b[1]-a[1])*frac)}g.stroke();
+ P.forEach((p,k)=>{const done=k<=upto||(k===upto+1&&frac>=1);g.beginPath();g.arc(p[0],p[1],k===cur?lw*2.4:lw*1.2,0,Math.PI*2);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.55)';g.fill();g.lineWidth=lw*0.6;g.strokeStyle='#10232e';g.stroke()})
+ if(cur!=null&&P[cur]&&frac>=1){const p=P[cur];const t=(performance.now()%1400)/1400;g.beginPath();g.arc(p[0],p[1],lw*2.4+lw*4*t,0,Math.PI*2);g.strokeStyle=`rgba(143,207,198,${1-t})`;g.lineWidth=lw*0.8;g.stroke()}}
+// ---------- Wiedergabe (Vorschau oder Aufnahme) ----------
+UI.film=null;
+async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();const P=filmPlan();if(!P.T.length)return toast('Noch keine Etappen mit Ort.');
+ const [W,H]=FILM_SZ[F.fmt]||FILM_SZ['9:16'];const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+ const R=UI.film={run:1,rec:!!rec,t:0,total:P.total,phase:'Karte wird geladen …',W,H};filmUi();
+ try{// Ansichten je Kapitel vorbereiten
+  const ds=P.ds;const LL=i=>stageLL(i);const port=H>W;const pt=port?0.14:0.12,pb=port?0.26:0.24;const views={};
+  for(const c of P.cs){const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));views[c]=await filmView(pts,W,H,pt,pb);if(!UI.film||!UI.film.run)return}
+  const allPts=ds.map(d=>LL(d.i));views._end=await filmView(allPts,W,H,0.12,0.3);const route=ds.map(d=>d.i);
+  // Ton
+  const ac=new AudioContext();await ac.resume();const dest=ac.createMediaStreamDestination();const out=rec?dest:ac.destination;let mus=null,musG=null;
+  try{const mu=await bkGet('X:music');if(mu&&mu.blob){mus=new Audio(URL.createObjectURL(mu.blob));mus.loop=true;const sN=ac.createMediaElementSource(mus);musG=ac.createGain();musG.gain.value=0.8;sN.connect(musG);musG.connect(out);if(rec)musG.connect(ac.destination)}}catch(e){}
+  // Bilder und Clips vorladen
+  const BM={},VID={};const keepV=p=>{p.then(v=>p.__v=v);return p};const loadImg=m=>BM[m.id]||(BM[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);return v&&v.blob?await createImageBitmap(v.blob):null}catch(e){return null}})()));
+  const loadVid=m=>VID[m.id]||(VID[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);if(!v||!v.blob)return null;const el=mdVideoEl(URL.createObjectURL(v.blob));el.muted=false;await mdWait(el,'loadeddata');const sN=ac.createMediaElementSource(el);const gN=ac.createGain();gN.gain.value=m.vol==='mute'?0:m.vol==='orig'?1:0.45;sN.connect(gN);gN.connect(out);if(rec)gN.connect(ac.destination);return {el,gN}}catch(e){return null}})()));
+  const pre=k=>{for(let j=k;j<Math.min(P.T.length,k+4);j++){const x=P.T[j];if(x.t==='img')loadImg(x.m);if(x.t==='vid')loadVid(x.m)}};pre(0);await Promise.all(P.T.slice(0,3).map(x=>x.t==='img'?loadImg(x.m):x.t==='vid'?loadVid(x.m):null));
+  // Aufnahme
+  let mr=null,parts=[],mime='';if(rec){mime=mdMime();const st=new MediaStream([...cv.captureStream(30).getVideoTracks(),...dest.stream.getAudioTracks()]);mr=new MediaRecorder(st,mime?{mimeType:mime,videoBitsPerSecond:W*H>900000?6000000:4500000,audioBitsPerSecond:128000}:{});mr.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};mr.start(1000)}
+  let wl=null;try{wl=await navigator.wakeLock.request('screen')}catch(e){}
+  R.phase='';let t0=performance.now(),paused=0,pAt=null,cur=-1,lastUi=0;if(mus){mus.currentTime=0;mus.play().catch(()=>{})}
+  const vis=()=>{if(document.hidden){if(pAt==null){pAt=performance.now();if(mr&&mr.state==='recording')mr.pause();if(mus)mus.pause();Object.values(VID).forEach(p=>p.then(o=>o&&o.el.pause()))}}else if(pAt!=null){paused+=performance.now()-pAt;pAt=null;if(mr&&mr.state==='paused')mr.resume();if(mus)mus.play().catch(()=>{});const x=P.T[cur];if(x&&x.t==='vid')loadVid(x.m).then(o=>o&&o.el.play().catch(()=>{}))}};
+  document.addEventListener('visibilitychange',vis);
+  await new Promise(done=>{const frame=async()=>{if(!UI.film||!UI.film.run){done();return}if(pAt!=null){requestAnimationFrame(frame);return}
+    const t=(performance.now()-t0-paused)/1000;R.t=t;if(t>=P.total){done();return}
+    let k=cur<0?0:cur;while(k<P.T.length-1&&t>=P.T[k].t0+P.T[k].dur)k++;const x=P.T[k];
+    if(k!==cur){const old=P.T[cur];if(old&&old.t==='vid')loadVid(old.m).then(o=>o&&o.el.pause());cur=k;pre(k+1);if(x.t==='vid'){const o=await loadVid(x.m);if(o){o.el.currentTime=0;o.el.play().catch(()=>{})}}
+     if(musG){const duck=x.t==='vid'&&x.m.vol!=='mute';musG.gain.setTargetAtTime(duck?0.18:0.8,ac.currentTime,0.25)}}
+    const p=(t-x.t0)/x.dur;g.globalAlpha=1;g.fillStyle='#000';g.fillRect(0,0,W,H);
+    try{filmDraw(g,W,H,x,p,{views,route,P,BM,VID})}catch(e){}
+    const fa=Math.min(1,(t-x.t0)/0.3,(x.t0+x.dur-t)/0.3);if(fa<1){g.globalAlpha=1-fa;g.fillStyle='#000';g.fillRect(0,0,W,H);g.globalAlpha=1}
+    if(musG&&P.total-t<2.2)musG.gain.setTargetAtTime(0,ac.currentTime,0.6);
+    const vc=document.getElementById('filmCv');if(vc){const vg=vc.getContext('2d');vg.drawImage(cv,0,0,vc.width,vc.height)}
+    if(performance.now()-lastUi>250){lastUi=performance.now();filmProg()}
+    requestAnimationFrame(frame)};requestAnimationFrame(frame)});
+  document.removeEventListener('visibilitychange',vis);try{wl&&wl.release()}catch(e){}
+  if(mus){mus.pause()}Object.values(VID).forEach(p=>p.then(o=>{if(o){o.el.pause();URL.revokeObjectURL(o.el.src)}}));Object.values(BM).forEach(p=>p.then(b=>{try{b&&b.close()}catch(e){}}));
+  const finished=UI.film&&UI.film.run;
+  if(mr){const stop=new Promise(r=>mr.onstop=r);mr.stop();await stop;if(finished){const type=(mr.mimeType||mime||'video/webm').split(';')[0];const blob=new Blob(parts,{type});if(UI.filmOut)URL.revokeObjectURL(UI.filmOut.url);UI.filmOut={blob,url:URL.createObjectURL(blob),ext:/mp4/.test(type)?'mp4':'webm',size:blob.size,fmt:F.fmt,dur:P.total}}}
+  try{ac.close()}catch(e){}
+  UI.film=null;filmUi(true);if(finished&&rec)toast('Der Reise-Film ist fertig.',4000)}
+ catch(e){UI.film=null;filmUi(true);toast('Film konnte nicht erstellt werden: '+esc(e.message||e),6000)}}
+function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();
+ if(x.t==='title'){const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);const s=port?W:H*0.9;
+  g.textAlign='center';g.textBaseline='middle';g.font=`${Math.round(s*0.2)}px "Noto Color Emoji","Apple Color Emoji",sans-serif`;g.fillText(flag(x.c)||'',W/2,H*0.4-(1-fEase(Math.min(1,p*2)))*20);
+  g.fillStyle='#fff';g.font=`800 ${Math.round(s*0.1)}px Inter,system-ui,sans-serif`;g.fillText(country(x.c).name,W/2,H*0.4+s*0.17);
+  g.font=`500 ${Math.round(s*0.04)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.85)';g.fillText(`${dl(x.from)} – ${dl(x.to)} · ${x.n} ${x.n===1?'Nacht':'Nächte'}`,W/2,H*0.4+s*0.27);
+  g.fillStyle='rgba(255,255,255,.65)';g.fillText(`Kapitel ${x.ci+1} von ${x.cn}`,W/2,H*0.4+s*0.34);g.textAlign='left';return}
+ if(x.t==='map'||x.t==='end'){const V=x.t==='end'?C.views._end:C.views[x.c];if(!V)return;const sc=1+0.04*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);
+  const R=C.route.map(i=>stageLL(i));const ci=x.t==='end'?R.length-1:C.route.indexOf(x.i);const pi=x.prev!=null?C.route.indexOf(x.prev):-1;
+  if(x.t==='end')fRoute(g,V,R,R.length-1,1,null);else{const fr=pi<0?1:fEase(Math.min(1,p/0.7));fRoute(g,V,R,pi<0?ci:pi,pi<0?1:fr,ci)}g.restore();
+  g.font=`500 ${Math.round(Math.min(W,H)*0.018)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.55)';g.textAlign='right';g.fillText('© OpenStreetMap-Mitwirkende',W-W*0.03,H-H*0.012);g.textAlign='left';
+  if(x.t==='end'){const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
+  if(F.cap){fChip(g,W,(flag(x.c)?flag(x.c)+' ':'')+country(x.c).name,W*0.05,H*0.05);if(x.mode&&x.prev!=null)fChip(g,W,`${x.mode} · ${pname(S.stages[x.prev])} → ${x.cap}`.slice(0,48),W*0.05,H*0.05+W*0.075,false);fCaption(g,W,H,x.cap,x.sub)}return}
+ if(x.t==='img'){const pr=C.BM[x.m.id];const bm=pr&&pr.__v||null;
+  if(bm){fCover(g,bm,bm.width,bm.height,W,H,p,(x.t0|0)%2)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
+  if(F.cap){fChip(g,W,x.chip,W*0.05,H*0.05);fCaption(g,W,H,x.cap,x.sub)}return}
+ if(x.t==='vid'){const pr=C.VID[x.m.id];const o=pr&&pr.__v||null;
+  if(o&&o.el.readyState>=2){const v=o.el;const sc=Math.max(W/v.videoWidth,H/v.videoHeight);const w=v.videoWidth*sc,h=v.videoHeight*sc;g.drawImage(v,(W-w)/2,(H-h)/2,w,h)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
+  if(F.cap){fChip(g,W,'▶ '+x.chip.replace(/^📍 /,''),W*0.05,H*0.05);fCaption(g,W,H,x.cap,x.sub)}}}
+// ---------- Seite ----------
+function filmCounts(c){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);let i=0,v=0,o=0;ds.forEach(d=>{mdOf(S.stages[d.i].id).forEach(m=>{if(m.film===false){o++;return}m.k==='v'?v++:i++})});return {ds,i,v,o}}
+function filmDurOf(c,F){const P=filmPlan();return P.T.filter(x=>x.c===c).reduce((a,x)=>a+x.dur,0)}
+function vFilm(){const F=filmCfg();const P=filmPlan();const ds=P.ds;const R=UI.film;const O=UI.filmOut;const [W,H]=FILM_SZ[F.fmt];const port=H>W;
+ const N=ds.length?Math.round((ds[ds.length-1].to-ds[0].from)/864e5):0;const tot=P.T.filter(x=>x.t==='img').length,clips=P.T.filter(x=>x.t==='vid').length;
+ let h=backBtn()+head('Reise-Film',[ds.length?`${dl(ds[0].from)} – ${dl(ds[ds.length-1].to)}`:'',`${P.all.length} Länder`,`${ds.length} Etappen`]);
+ h+=`<div class="card fmcard"><div class="fmwrap ${port?'p':'l'}"><canvas id="filmCv" width="${port?360:640}" height="${port?640:360}"></canvas>${R?'':`<button class="fmplay" data-a="filmPrev" aria-label="Vorschau abspielen">${ic('play',28,2.2)}</button>`}</div>
+  <div id="filmProg">${filmProgH()}</div>
+  <div class="fmbtns">${R?`<button class="btn" style="flex:1" data-a="filmStop">${ic('x',15,2.2)}${R.rec?'Aufnahme abbrechen':'Vorschau stoppen'}</button>`:`<button class="btn" data-a="filmPrev">${ic('play',14,2.2)}Vorschau</button><button class="btn p" style="flex:1" data-a="filmRec">${ic('film',16)}Video erstellen</button>`}</div>
+  <div class="small mut" style="margin-top:8px;line-height:1.45">≈ ${fmtSec(P.total)} Min. · ${tot} ${tot===1?'Foto':'Fotos'} · ${clips} ${clips===1?'Clip':'Clips'}. Das Video entsteht in Echtzeit – App geöffnet und Bildschirm an lassen.</div></div>`;
+ if(O)h+=`<div class="sec">Fertiges Video</div><div class="card" style="padding:12px 14px"><video src="${O.url}" controls playsinline style="width:100%;max-height:420px;border-radius:12px;background:#000;display:block"></video>
+  <div class="small mut" style="margin:8px 2px">${O.fmt} · ${fmtSec(O.dur)} Min. · ${(O.size/1048576).toLocaleString('de-DE',{maximumFractionDigits:1})} MB · ${O.ext.toUpperCase()}</div>
+  <div class="fmbtns"><button class="btn p" style="flex:1" data-a="filmShare">${ic('link',15)}Teilen</button><button class="btn" data-a="filmSave">${ic('down',15)}Speichern</button></div></div>`;
+ h+=`<div class="sec">Format und Tempo</div><div class="card" style="padding:12px 14px">${seg('fmFmt',[['9:16','Hochformat 9:16'],['16:9','Querformat 16:9']],F.fmt)}
+  <div class="lab" style="margin:14px 2px 2px;display:flex"><span class="sp">Dauer je Foto</span><b id="fmDurL" class="num" style="color:var(--ink)">${String(F.dur).replace('.',',')} s</b></div><input id="fmDur" type="range" min="1.5" max="6" step="0.5" value="${F.dur}" style="width:100%">
+  <div class="small mut" style="display:flex;justify-content:space-between"><span>1,5 s</span><span>6 s</span></div></div>`;
+ h+=`<div class="sec">Kapitel<span class="r">antippen für Fotos je Etappe</span></div><div class="card" style="padding:0">${P.all.map(c=>{const K=filmCounts(c);const on=!F.off[c];return `<div class="fmch${on?'':' off'}"><button class="fmchm" data-a="filmCh" data-k="${c}"><span style="font-size:20px">${flag(c)}</span><span class="sp"><span class="tt" style="display:block">${esc(country(c).name)}</span><span class="ss" style="display:block">${K.ds.length} ${K.ds.length===1?'Etappe':'Etappen'} · ${K.i} ${K.i===1?'Foto':'Fotos'}${K.v?` · ${K.v} ${K.v===1?'Clip':'Clips'}`:''}${K.o?` · ${K.o} abgewählt`:''}</span></span><span class="small num mut">${on?fmtSec(filmDurOf(c,F)):'aus'}</span></button><button class="fmtg${on?' on':''}" data-a="filmTg" data-k="${c}" aria-label="Kapitel ${on?'abwählen':'auswählen'}">${ic(on?'check':'plus',16,2.4)}</button></div>`}).join('')}</div>`;
+ h+=`<div class="sec">Extras</div><div class="card" style="padding:0">${[['map','route','Kartenflug zwischen den Etappen'],['cap','cal','Ort und Datum einblenden']].map(([k,i,t])=>`<button class="fmch fmx" data-a="filmOpt" data-k="${k}"><span class="ico0">${ic(i,16,2)}</span><span class="sp">${t}</span><span class="fmtg${F[k]?' on':''}">${ic(F[k]?'check':'plus',16,2.4)}</span></button>`).join('')}
+  <button class="fmch fmx" data-a="filmMusic"><span class="ico0">${ic('spark',16,2)}</span><span class="sp">Eigene Musik<span class="ss" style="display:block" id="fmMus">Datei vom Handy · bleibt auf diesem Gerät</span></span><span class="chev">${ic('chev',14)}</span></button></div>
+  <div class="small mut" style="margin:10px 4px 0;line-height:1.45">Fotos und Clips verknüpft ihr in der Route an Etappe oder Ausflug – sie landen automatisch hier. Abwählen oder hinzufügen geht über das Kapitel.</div>`;
+ return h};
+function filmProgH(){const R=UI.film;if(!R)return '';const p=R.total?Math.min(1,R.t/R.total):0;return `<div class="small" style="margin:10px 2px 6px;display:flex;justify-content:space-between"><b>${R.phase||(R.rec?'Video wird erstellt …':'Vorschau läuft …')}</b><span class="num mut">${R.phase?'':`${fmtSec(R.t)} / ${fmtSec(R.total)}`}</span></div><div class="prog1"><i style="width:${Math.round(p*100)}%;background:${R.rec?'var(--ki)':'var(--acc)'}"></i></div>`}
+function filmProg(){const e=document.getElementById('filmProg');if(e)e.innerHTML=filmProgH()}
+function filmUi(full){const t=UI.stack[UI.stack.length-1];if(t&&t.k==='film'&&!sheetOpen()){UI.keepY=true;render()}else filmProg()}
+async function filmPoster(){const vc=document.getElementById('filmCv');if(!vc||UI.film)return;const g=vc.getContext('2d');const F=filmCfg();const P=filmPlan();g.fillStyle='#0e2a3a';g.fillRect(0,0,vc.width,vc.height);
+ const x=P.T[0];if(!x)return;try{const tmp=document.createElement('canvas');tmp.width=FILM_SZ[F.fmt][0];tmp.height=FILM_SZ[F.fmt][1];filmDraw(tmp.getContext('2d'),tmp.width,tmp.height,x,0.6,{views:{},route:[],P,BM:{},VID:{}});g.drawImage(tmp,0,0,vc.width,vc.height)}catch(e){}
+ try{const mu=await bkGet('X:music');const el=document.getElementById('fmMus');if(el&&mu)el.textContent=(mu.name||'Musik')+' · bleibt auf diesem Gerät'}catch(e){}}
+{const r0=render;render=function(){const r=r0.apply(this,arguments);try{const t=UI.stack[UI.stack.length-1];if(t&&t.k==='film'){filmPoster();const d=$('#fmDur');if(d){d.oninput=()=>{$('#fmDurL').textContent=String(d.value).replace('.',',')+' s'};d.onchange=()=>{filmCfg().dur=+d.value;save();UI.keepY=true;render()}}}}catch(e){}return r}}
+// Kapitel: Etappen mit Fotos – Abwählen/Hinzufügen über die Fotos der Etappe
+function filmChSheet(c){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);const F=filmCfg();
+ sheet(`<div class="sht">${flag(c)} ${esc(country(c).name)}</div><div class="mut" style="margin:4px 0 12px">Kapitel im Reise-Film · ${F.off[c]?'abgewählt':'dabei'}</div><div class="card" style="padding:0">${ds.map(d=>{const st=S.stages[d.i];const L=mdOf(st.id);const on=L.filter(m=>m.film!==false);
+  return `<button class="row" data-a="mdOpen" data-k="${d.i}"><div class="stn" style="width:26px;height:26px;font-size:11.5px">${stageNo()[st.id]}</div><div class="sp"><div class="tt">${esc(pname(st))}</div><div class="ss">${L.length?`${on.length} von ${L.length} im Film`:'noch keine Fotos'} · ${dl(d.from)}</div></div><span class="mdstrip">${on.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span><span class="chev">${ic('chev',14)}</span></button>`}).join('')}</div>
+  ${btns(`<button class="btn ${F.off[c]?'p':''}" style="flex:1" data-a="filmTg" data-k="${c}">${F.off[c]?'Kapitel wieder aufnehmen':'Kapitel abwählen'}</button>`,`<button class="btn" data-a="close">Fertig</button>`)}`)}
+Object.assign(window.KIA=window.KIA||{},{
+ filmOpen:()=>{closeSheet();go('route',[{k:'film'}])},
+ filmPrev:()=>filmRun(false),filmRec:()=>{if(!window.MediaRecorder)return toast('Dieses Gerät kann hier keine Videos aufnehmen.');filmRun(true)},
+ filmStop:()=>{if(UI.film)UI.film.run=0},
+ filmTg:(el)=>{const F=filmCfg();const c=el.dataset.k;if(F.off[c])delete F.off[c];else F.off[c]=1;save();if(sheetOpen())filmChSheet(c);else{UI.keepY=true;render()}},
+ filmCh:(el)=>filmChSheet(el.dataset.k),
+ filmOpt:(el)=>{const F=filmCfg();F[el.dataset.k]=!F[el.dataset.k];save();UI.keepY=true;render()},
+ filmMusic:async()=>{let has=null;try{has=await bkGet('X:music')}catch(e){}
+  sheet(`<div class="sht">Eigene Musik</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Eine Musikdatei vom Handy (MP3, M4A …). Sie läuft im ganzen Film, leiser während Clips mit Ton, und blendet am Ende aus. Die Datei bleibt nur auf diesem Gerät.</div>
+  ${has?`<div class="card" style="padding:12px 14px;margin-bottom:12px"><b>${esc(has.name||'Musik')}</b><div class="small mut">${((has.blob&&has.blob.size||0)/1048576).toLocaleString('de-DE',{maximumFractionDigits:1})} MB</div></div>`:''}
+  ${btns(`<button class="btn p" style="flex:1" data-a="filmMusPick">${has?'Andere Datei wählen':'Datei wählen'}</button>`,has?`<button class="btn gh" style="color:var(--err)" data-a="filmMusDel">Entfernen</button>`:`<button class="btn" data-a="close">Abbrechen</button>`)}`)},
+ filmMusPick:()=>{let el=document.getElementById('fmIn');if(!el){el=document.createElement('input');el.type='file';el.id='fmIn';el.accept='audio/*';el.style.display='none';document.body.appendChild(el);
+  el.addEventListener('change',async()=>{const f=el.files[0];el.value='';if(!f)return;if(f.size>40*1048576)return toast('Die Datei ist größer als 40 MB.');await bkPut('X:music',{ts:Date.now(),type:f.type||'audio/mpeg',name:f.name,blob:f});closeSheet();toast('Musik gespeichert.');UI.keepY=true;render()})}el.click()},
+ filmMusDel:async()=>{try{await bkDel('X:music')}catch(e){}closeSheet();UI.keepY=true;render()},
+ filmShare:async()=>{const O=UI.filmOut;if(!O)return;const f=new File([O.blob],`Asien-Auszeit-2027.${O.ext}`,{type:O.blob.type});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Asien-Auszeit 2027'});return}}catch(e){if(e&&e.name==='AbortError')return}KIA.filmSave()},
+ filmSave:()=>{const O=UI.filmOut;if(!O)return;const a=document.createElement('a');a.href=O.url;a.download=`Asien-Auszeit-2027.${O.ext}`;document.body.appendChild(a);a.click();a.remove();toast('Video wird gespeichert (Downloads).')}});
+// Format umschalten (Segment)
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-g="fmFmt"] button');if(!b)return;const F=filmCfg();if(F.fmt!==b.dataset.k&&!UI.film){F.fmt=b.dataset.k;save();setTimeout(()=>{UI.keepY=true;render()},0)}});
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
