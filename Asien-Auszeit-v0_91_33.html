@@ -1254,8 +1254,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_32';
+const APP_VERSION='0.91_33';
 const CHANGELOG=[
+ {v:'0.91_33',d:'28.11.2026',items:['Android: Navigationsleiste unten und Startbildschirm der installierten App jetzt dunkel statt grün (Farbe aus dem App-Manifest). Chrome übernimmt das beim nächsten automatischen Update der installierten App']},
  {v:'0.91_32',d:'28.11.2026',items:['Route mit einem Land: am Ende stehen jetzt die Checkliste für das nächste Land und der Transfer dorthin (bei „Alle Länder“ wie bisher nur einmal an der Grenze)']},
  {v:'0.91_31',d:'27.11.2026',items:['Links zu Baolau und Vexere öffnen mit eurem Reisedatum (bei Baolau für Bus und Zug), 12Go zusätzlich mit der Zahl der Reisenden; Teilstrecken nach einer Nachtfahrt mit dem Folgetag','Claude ruft Baolau mit eurem Datum ab – dort stehen Fahrten mit Preisen für genau diesen Tag','Nach „Übernehmen“ schließt die Verbindungs- bzw. Unterkunftssuche und der Transfer bzw. die Unterkunft öffnet sich mit den neuen Daten']},
  {v:'0.91_30',d:'27.11.2026',items:['12Go-Links öffnen immer die Streckensuche mit eurem Reisedatum und der Zahl der Reisenden; auch Claude ruft die 12Go-Seiten mit eurem Datum ab','Hinweis bei Verbindungen: Bus-, Zug-, Boot- und Fahrerpreise sind Streckenpreise der Anbieter, Flugpreise gelten für euren Tag']},
