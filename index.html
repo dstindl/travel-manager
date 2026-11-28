@@ -1393,8 +1393,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_40';
+const APP_VERSION='0.91_41';
 const CHANGELOG=[
+ {v:'0.91_41',d:'28.11.2026',items:['Reise-Film in 3D: Zu Beginn dreht sich ein Globus zu eurer Reiseregion und die ganze Route zeichnet sich ein. Jedes Kapitel fliegt über den Globus ins neue Land – das Flugzeug fliegt den Bogen dazwischen','Etappen als Kamerafahrt über die geneigte Karte: das Verkehrsmittel (Flugzeug, Auto, Bus, Boot, Zug) fährt als Symbol die Strecke ab, Flüge als Bogen mit Schatten, am Ziel eine Stecknadel. Im Chip oben stehen Verkehrsmittel und Dauer. Auch die flache Karte (3D aus) zeigt jetzt das Verkehrsmittel','Foto-Bewegung einstellbar: Aus, Rein, Raus oder Gemischt, dazu die Stärke Sanft, Mittel oder Stark. Gemischt wechselt je Foto zwischen hinein, heraus, Schwenk und 3D-Fotokarte; Fotos im anderen Format kommen als gekippte Fotokarte ganz ins Bild','Fehler behoben: Filme ohne eigene Musik und ohne Clips brachen nach wenigen Sekunden ab']},
  {v:'0.91_40',d:'28.11.2026',items:['Reise-Film: In der Route (Film-Symbol oben) entsteht aus eurer Route ein Video – Kapitel je Land, Kartenflug zu jeder Etappe, eure Fotos mit langsamem Zoom und kurze Clips. Hochformat 9:16 oder Querformat 16:9, Dauer je Foto einstellbar, eigene Musik möglich','Fotos und Clips an Etappen und Ausflügen: in der Route („Fotos hinzufügen“ in der Etappe, im Etappen-Menü und im Ausflug) über die Fotoauswahl des Handys – auch aus Google-Fotos-Alben. Clips kürzt ihr auf bis zu 10 Sekunden','Alles Verknüpfte landet automatisch im Film; einzelne Fotos abwählen, verschieben, einer Etappe oder einem Ausflug zuordnen oder entfernen. Fotos und Clips werden verkleinert und verschlüsselt auf beide Handys abgeglichen','Link zum Google-Fotos-Album je Etappe speicherbar']},
 {v:'0.91_39',d:'28.11.2026',items:['Zwei Kacheln statt aufklappbarer Karte: links eure Angaben (Transfer, Unterkunft bzw. eingeplante Ausflüge), rechts die KI-Vorschläge mit Empfehlung. Darunter steht nur der Inhalt der angetippten Kachel','KI-Kachel: der Knopf „Neu berechnen“ bzw. „Neu suchen“ steht immer oberhalb der Ergebnisse; Übernommen und Empfehlung stehen oben in der Liste','Gilt für Transfer zum Ausflug, Unterkunft, Transfer der Etappe und Ausflüge der Etappe. Nach einer neuen KI-Suche ist die KI-Kachel offen, nach Übernehmen wieder eure Angaben']},
 {v:'0.91_38',d:'28.11.2026',items:['KI-Vorschläge als aufklappbare Karte: zugeklappt nur „Übernommen“ und die Empfehlung, darunter direkt eure Angaben. Antippen klappt alle Optionen kompakt auf – nach einer neuen KI-Suche ist sie gleich offen','Gleiche Karte bei Transfer zum Ausflug, Unterkunft, Transfer der Etappe (ersetzt die bisherige Verbindungen-Box) und Ausflügen der Etappe (mit „Einplanen“)','Übernehmen oder Einplanen aus der Karte führt zurück in dasselbe Fenster']},
@@ -5173,17 +5174,18 @@ gsDocs=async function(c,key){const ls=await gsGet('docs',c);const remote=new Map
 // Ablauf je Land (Kapitel): Titel → je Etappe Kartenflug → Fotos/Clips der Etappe → Fotos/Clips der Ausflüge. Ende: ganze Route.
 // Gezeichnet wird auf einer Canvas, aufgenommen mit MediaRecorder (Bild + Ton aus Clips und eigener Musik) – in Echtzeit, direkt auf dem Handy.
 const FILM_SZ={'9:16':[720,1280],'16:9':[1280,720]};
-function filmCfg(){S.film=Object.assign({fmt:'9:16',dur:3,off:{},map:true,cap:true},S.film||{});if(!S.film.off||typeof S.film.off!=='object')S.film.off={};return S.film}
+function filmCfg(){S.film=Object.assign({fmt:'9:16',dur:3,off:{},map:true,cap:true,d3:true,zm:'mix',zs:2},S.film||{});if(!S.film.off||typeof S.film.off!=='object')S.film.off={};return S.film}
 const filmMode=st=>{const L=legsOf(st);const ms=[...new Set(L.map(l=>(MODES[l.mode]||MODES.car)[1]))];return ms.join(' + ')};
-function filmPlan(){const F=filmCfg();const ds=stagesDated().filter(d=>!d.gap&&stageLL(d.i));const all=[...new Set(ds.map(d=>S.stages[d.i].country))];const cs=all.filter(c=>!F.off[c]);const T=[];let prevI=null;
- all.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c);const on=!F.off[c];if(!on){prevI=L[L.length-1].i;return}const ci=cs.indexOf(c);
-  T.push({t:'title',c,ci,cn:cs.length,from:L[0].from,to:L[L.length-1].to,n:L.reduce((a,d)=>a+d.nights,0),dur:2.6});
-  L.forEach(d=>{const st=S.stages[d.i];const dates=d.nights?`${dl(d.from)} – ${dl(d.to)}`:dl(d.from);
-   if(F.map)T.push({t:'map',i:d.i,prev:prevI,c,cap:pname(st),sub:dates,mode:prevI!=null?filmMode(st):'',dur:2.4});prevI=d.i;
+function filmPlan(){const F=filmCfg();const d3=!!F.d3;const ds=stagesDated().filter(d=>!d.gap&&stageLL(d.i));const all=[...new Set(ds.map(d=>S.stages[d.i].country))];const cs=all.filter(c=>!F.off[c]);const T=[];let prevI=null;
+ if(d3&&cs.length)T.push({t:'intro',dur:4.6});
+ all.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c);const on=!F.off[c];if(!on){prevI=L[L.length-1].i;return}const ci=cs.indexOf(c);const fi=ds.indexOf(L[0]);
+  T.push({t:'title',c,ci,cn:cs.length,pc:ci>0?cs[ci-1]:null,fi,pi:fi-1,leg:fi>0?filmLeg(S.stages[L[0].i]):null,from:L[0].from,to:L[L.length-1].to,n:L.reduce((a,d)=>a+d.nights,0),dur:d3?3.4:2.6});
+  L.forEach((d,j)=>{const st=S.stages[d.i];const dates=d.nights?`${dl(d.from)} – ${dl(d.to)}`:dl(d.from);
+   if(F.map){const leg=prevI!=null?filmLeg(st):null;const drop=d3&&j===0;T.push({t:'map',i:d.i,prev:prevI,c,cap:pname(st),sub:dates,mode:leg?leg.lab:'',leg,drop,dur:d3?(drop?2.6:leg&&leg.main==='flight'?3.6:3):2.4})}prevI=d.i;
    const items=mdOf(st.id,null).filter(m=>m.film!==false).map(m=>({m,cap:m.cap||pname(st),sub:m.cap?pname(st):dates,chip:'📍 '+pname(st)}));
    exOf(d.i).slice().sort((a,b)=>String(a.planned||'9').localeCompare(String(b.planned||'9'))).forEach(x=>mdOf(st.id,x.id).filter(m=>m.film!==false).forEach(m=>items.push({m,cap:m.cap||x.name,sub:'Ausflug'+(x.planned?' · '+dl(pd(x.planned)):''),chip:'📍 '+pname(st)})));
    items.forEach(o=>T.push(Object.assign(o,{t:o.m.k==='v'?'vid':'img',c,dur:o.m.k==='v'?Math.max(1,o.m.d||5):F.dur})))})});
- if(T.length)T.push({t:'end',dur:3.4});let acc=0;T.forEach(x=>{x.t0=acc;acc+=x.dur});return {T,total:acc,all,cs,ds}}
+ if(T.length)T.push({t:'end',dur:d3?4.2:3.4});filmFx(T,F);let acc=0;T.forEach(x=>{x.t0=acc;acc+=x.dur});return {T,total:acc,all,cs,ds}}
 // ---------- Karte (OpenStreetMap-Kacheln, je Kapitel eine Ansicht) ----------
 const fmx=lon=>(lon+180)/360,fmy=lat=>{const s=Math.sin(Math.max(-85,Math.min(85,lat))*Math.PI/180);return 0.5-Math.log((1+s)/(1-s))/(4*Math.PI)};
 const FILM_TILE={};
@@ -5204,12 +5206,15 @@ function fCaption(g,W,H,cap,sub){const port=H>W;const fs=Math.round((port?W*0.06
  g.font=`700 ${fs}px Inter,system-ui,sans-serif`;g.fillStyle='#fff';const words=String(cap||'').split(' ');let lines=[''];words.forEach(w=>{const t=(lines[lines.length-1]+' '+w).trim();if(g.measureText(t).width>W*0.86&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=t});lines=lines.slice(0,2);
  for(let k=lines.length-1;k>=0;k--){g.fillText(lines[k],x,y);y-=fs*1.12}g.shadowBlur=0}
 function fCover(g,src,sw,sh,W,H,p,dir){const sc=Math.max(W/sw,H/sh)*(1+0.08*p);const w=sw*sc,h=sh*sc;const dx=(W-w)/2+(dir?1:-1)*W*0.025*(p-.5),dy=(H-h)/2+(dir?-1:1)*H*0.015*(p-.5);g.drawImage(src,dx,dy,w,h)}
-function fRoute(g,V,R,upto,frac,cur){// R = [{lat,lon}], bis upto fertig, Abschnitt upto→upto+1 zu frac
- const W=g.canvas.width;const lw=Math.max(3,W*0.006);g.lineCap='round';g.lineJoin='round';const P=R.map(r=>V.P(r[0],r[1]));
- g.setLineDash([lw*1.6,lw*1.8]);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=lw*0.7;g.beginPath();P.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.setLineDash([]);
- g.strokeStyle='#8FCFC6';g.lineWidth=lw;g.beginPath();for(let k=0;k<=Math.min(upto,P.length-1);k++){k?g.lineTo(P[k][0],P[k][1]):g.moveTo(P[k][0],P[k][1])}
- if(upto+1<P.length&&frac>0){const a=P[upto],b=P[upto+1];g.lineTo(a[0]+(b[0]-a[0])*frac,a[1]+(b[1]-a[1])*frac)}g.stroke();
+const fQ=(a,c,b,t)=>{const u=1-t;return [u*u*a[0]+2*u*t*c[0]+t*t*b[0],u*u*a[1]+2*u*t*c[1]+t*t*b[1]]};
+function fRoute(g,V,R,upto,frac,cur,rm){// R = [[lat,lon]], bis upto fertig, Abschnitt upto→upto+1 zu frac; rm[k] = Verkehrsmittel in Etappe k
+ const W=Math.min(g.canvas.width,g.canvas.height);const lw=Math.max(3,W*0.006);g.lineCap='round';g.lineJoin='round';const P=R.map(r=>V.P(r[0],r[1]));rm=rm||[];
+ const ctl=k=>{if(rm[k]!=='flight')return null;const a=P[k-1],b=P[k];const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);if(L<8)return null;let nx=-dy/L,ny=dx/L;if(ny>0){nx=-nx;ny=-ny}return [(a[0]+b[0])/2+nx*L*.22,(a[1]+b[1])/2+ny*L*.22]};
+ const path=(k,t)=>{const a=P[k-1],b=P[k],c=ctl(k);if(!c){g.lineTo(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t);return}const e=fQ(a,c,b,t);g.quadraticCurveTo(a[0]+(c[0]-a[0])*t,a[1]+(c[1]-a[1])*t,e[0],e[1])};
+ g.setLineDash([lw*1.6,lw*1.8]);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=lw*0.7;g.beginPath();g.moveTo(P[0][0],P[0][1]);for(let k=1;k<P.length;k++)path(k,1);g.stroke();g.setLineDash([]);
+ g.strokeStyle='#8FCFC6';g.lineWidth=lw;g.beginPath();g.moveTo(P[0][0],P[0][1]);for(let k=1;k<=Math.min(upto,P.length-1);k++)path(k,1);if(upto+1<P.length&&frac>0)path(upto+1,frac);g.stroke();
  P.forEach((p,k)=>{const done=k<=upto||(k===upto+1&&frac>=1);g.beginPath();g.arc(p[0],p[1],k===cur?lw*2.4:lw*1.2,0,Math.PI*2);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.55)';g.fill();g.lineWidth=lw*0.6;g.strokeStyle='#10232e';g.stroke()})
+ if(upto+1<P.length&&frac>0&&frac<1){const k=upto+1,a=P[k-1],b=P[k],c=ctl(k);const h=c?fQ(a,c,b,frac):[a[0]+(b[0]-a[0])*frac,a[1]+(b[1]-a[1])*frac];fBadge(g,h[0],h[1],W*.032,(MODES[rm[k]]||MODES.car)[0],1)}
  if(cur!=null&&P[cur]&&frac>=1){const p=P[cur];const t=(performance.now()%1400)/1400;g.beginPath();g.arc(p[0],p[1],lw*2.4+lw*4*t,0,Math.PI*2);g.strokeStyle=`rgba(143,207,198,${1-t})`;g.lineWidth=lw*0.8;g.stroke()}}
 // ---------- Wiedergabe (Vorschau oder Aufnahme) ----------
 UI.film=null;
@@ -5217,14 +5222,21 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
  const [W,H]=FILM_SZ[F.fmt]||FILM_SZ['9:16'];const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
  const R=UI.film={run:1,rec:!!rec,t:0,total:P.total,phase:'Karte wird geladen …',W,H};filmUi();
  try{// Ansichten je Kapitel vorbereiten
-  const ds=P.ds;const LL=i=>stageLL(i);const port=H>W;const pt=port?0.14:0.12,pb=port?0.26:0.24;const views={};
-  for(const c of P.cs){const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));views[c]=await filmView(pts,W,H,pt,pb);if(!UI.film||!UI.film.run)return}
-  const allPts=ds.map(d=>LL(d.i));views._end=await filmView(allPts,W,H,0.12,0.3);const route=ds.map(d=>d.i);
+  const ds=P.ds;const LL=i=>stageLL(i);const port=H>W;const pt=port?0.14:0.12,pb=port?0.26:0.24;const views={};const route=ds.map(d=>d.i);const allPts=ds.map(d=>LL(d.i));
+  const rm=route.map((i,k)=>{if(!k)return null;const l=filmLeg(S.stages[i]);return l?l.main:'car'});
+  const g3=!!(F.d3&&fglInit(W,H));if(!g3&&P.T.some(x=>x.fx&&x.fx.k==='card'))fglInit(W,H);if(FGL.gl){FGL.gV=null;FGL.gG=null}
+  const C={views,route,P,rm,g3,BM:{},VID:{}};
+  await fIconsLoad(['car','bus','plane','boat','train'].concat(Object.values(MODES).map(m=>m[0])));
+  if(g3){C.v3={};let n=0;const jobs=P.cs.map(async c=>{const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));C.v3[c]=await f3View(pts);R.phase=`Karten werden geladen … ${++n} von ${P.cs.length}`;filmProg()});
+   jobs.push(fGlobeTex(allPts).then(G=>C.G=G));await Promise.all(jobs);if(!UI.film||!UI.film.run)return;
+   C.gc=fCentroid(allPts);C.gdR=fGDist(allPts,C.gc,W,H,1.35);C.gd0=port?6.5:4.6;C.cc={};P.cs.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>LL(d.i));const cc=fCentroid(L);C.cc[c]={ll:cc,d:Math.max(1.55,Math.min(C.gdR,fGDist(L,cc,W,H,2.2)))}})}
+  else{for(const c of P.cs){const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));views[c]=await filmView(pts,W,H,pt,pb);if(!UI.film||!UI.film.run)return}
+   views._end=await filmView(allPts,W,H,0.12,0.3)}
   // Ton
-  const ac=new AudioContext();await ac.resume();const dest=ac.createMediaStreamDestination();const out=rec?dest:ac.destination;let mus=null,musG=null;
+  const ac=new AudioContext();await ac.resume();const dest=ac.createMediaStreamDestination();const out=rec?dest:ac.destination;try{const sil=ac.createConstantSource();sil.offset.value=0;sil.connect(dest);sil.start()}catch(e){}let mus=null,musG=null;
   try{const mu=await bkGet('X:music');if(mu&&mu.blob){mus=new Audio(URL.createObjectURL(mu.blob));mus.loop=true;const sN=ac.createMediaElementSource(mus);musG=ac.createGain();musG.gain.value=0.8;sN.connect(musG);musG.connect(out);if(rec)musG.connect(ac.destination)}}catch(e){}
   // Bilder und Clips vorladen
-  const BM={},VID={};const keepV=p=>{p.then(v=>p.__v=v);return p};const loadImg=m=>BM[m.id]||(BM[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);return v&&v.blob?await createImageBitmap(v.blob):null}catch(e){return null}})()));
+  const BM=C.BM,VID=C.VID;const keepV=p=>{p.then(v=>p.__v=v);return p};const loadImg=m=>BM[m.id]||(BM[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);return v&&v.blob?await createImageBitmap(v.blob):null}catch(e){return null}})()));
   const loadVid=m=>VID[m.id]||(VID[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);if(!v||!v.blob)return null;const el=mdVideoEl(URL.createObjectURL(v.blob));el.muted=false;await mdWait(el,'loadeddata');const sN=ac.createMediaElementSource(el);const gN=ac.createGain();gN.gain.value=m.vol==='mute'?0:m.vol==='orig'?1:0.45;sN.connect(gN);gN.connect(out);if(rec)gN.connect(ac.destination);return {el,gN}}catch(e){return null}})()));
   const pre=k=>{for(let j=k;j<Math.min(P.T.length,k+4);j++){const x=P.T[j];if(x.t==='img')loadImg(x.m);if(x.t==='vid')loadVid(x.m)}};pre(0);await Promise.all(P.T.slice(0,3).map(x=>x.t==='img'?loadImg(x.m):x.t==='vid'?loadVid(x.m):null));
   // Aufnahme
@@ -5239,8 +5251,8 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
     if(k!==cur){const old=P.T[cur];if(old&&old.t==='vid')loadVid(old.m).then(o=>o&&o.el.pause());cur=k;pre(k+1);if(x.t==='vid'){const o=await loadVid(x.m);if(o){o.el.currentTime=0;o.el.play().catch(()=>{})}}
      if(musG){const duck=x.t==='vid'&&x.m.vol!=='mute';musG.gain.setTargetAtTime(duck?0.18:0.8,ac.currentTime,0.25)}}
     const p=(t-x.t0)/x.dur;g.globalAlpha=1;g.fillStyle='#000';g.fillRect(0,0,W,H);
-    try{filmDraw(g,W,H,x,p,{views,route,P,BM,VID})}catch(e){}
-    const fa=Math.min(1,(t-x.t0)/0.3,(x.t0+x.dur-t)/0.3);if(fa<1){g.globalAlpha=1-fa;g.fillStyle='#000';g.fillRect(0,0,W,H);g.globalAlpha=1}
+    try{filmDraw(g,W,H,x,p,C)}catch(e){if(!R.err){R.err=1;console.warn('Film',e)}}
+    const pv=P.T[k-1],nx=P.T[k+1];const fa=Math.min(1,pv&&pv.t==='intro'&&x.t==='title'?1:(t-x.t0)/0.3,x.t==='intro'&&nx&&nx.t==='title'?1:(x.t0+x.dur-t)/0.3);if(fa<1){g.globalAlpha=1-fa;g.fillStyle='#000';g.fillRect(0,0,W,H);g.globalAlpha=1}
     if(musG&&P.total-t<2.2)musG.gain.setTargetAtTime(0,ac.currentTime,0.6);
     const vc=document.getElementById('filmCv');if(vc){const vg=vc.getContext('2d');vg.drawImage(cv,0,0,vc.width,vc.height)}
     if(performance.now()-lastUi>250){lastUi=performance.now();filmProg()}
@@ -5252,20 +5264,24 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
   try{ac.close()}catch(e){}
   UI.film=null;filmUi(true);if(finished&&rec)toast('Der Reise-Film ist fertig.',4000)}
  catch(e){UI.film=null;filmUi(true);toast('Film konnte nicht erstellt werden: '+esc(e.message||e),6000)}}
-function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();
- if(x.t==='title'){const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);const s=port?W:H*0.9;
+function fMapTxt(g,W,H,x,C,has){const F=filmCfg();if(has)fAttr(g,W,H);if(!F.cap)return;fChip(g,W,(flag(x.c)?flag(x.c)+' ':'')+country(x.c).name,W*0.05,H*0.05);
+ if(x.leg&&x.prev!=null&&!(C.g3&&x.drop))fChipI(g,W,x.leg.icons,fLegTxt(x.leg,pname(S.stages[x.prev]),x.cap),W*0.05,H*0.05+(H>W?W*0.075:H*0.075));fCaption(g,W,H,x.cap,x.sub)}
+function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();const g3=C.g3&&fglOk();
+ if(x.t==='intro'){if(g3&&f3Intro(g,W,H,x,p,C))return;const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);fIntroTxt(g,W,H,1,C,H*0.42);return}
+ if(x.t==='title'){if(g3&&f3Title(g,W,H,x,p,C))return;const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);const s=port?W:H*0.9;
   g.textAlign='center';g.textBaseline='middle';g.font=`${Math.round(s*0.2)}px "Noto Color Emoji","Apple Color Emoji",sans-serif`;g.fillText(flag(x.c)||'',W/2,H*0.4-(1-fEase(Math.min(1,p*2)))*20);
   g.fillStyle='#fff';g.font=`800 ${Math.round(s*0.1)}px Inter,system-ui,sans-serif`;g.fillText(country(x.c).name,W/2,H*0.4+s*0.17);
   g.font=`500 ${Math.round(s*0.04)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.85)';g.fillText(`${dl(x.from)} – ${dl(x.to)} · ${x.n} ${x.n===1?'Nacht':'Nächte'}`,W/2,H*0.4+s*0.27);
   g.fillStyle='rgba(255,255,255,.65)';g.fillText(`Kapitel ${x.ci+1} von ${x.cn}`,W/2,H*0.4+s*0.34);g.textAlign='left';return}
+ if(x.t==='map'&&g3&&f3Map(g,W,H,x,p,C)){fMapTxt(g,W,H,x,C,C.v3[x.c].has);return}
+ if(x.t==='end'&&g3&&f3End(g,W,H,x,p,C)){if(fGHas(C))fAttr(g,W,H);const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
  if(x.t==='map'||x.t==='end'){const V=x.t==='end'?C.views._end:C.views[x.c];if(!V)return;const sc=1+0.04*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);
   const R=C.route.map(i=>stageLL(i));const ci=x.t==='end'?R.length-1:C.route.indexOf(x.i);const pi=x.prev!=null?C.route.indexOf(x.prev):-1;
-  if(x.t==='end')fRoute(g,V,R,R.length-1,1,null);else{const fr=pi<0?1:fEase(Math.min(1,p/0.7));fRoute(g,V,R,pi<0?ci:pi,pi<0?1:fr,ci)}g.restore();
-  g.font=`500 ${Math.round(Math.min(W,H)*0.018)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.55)';g.textAlign='right';g.fillText('© OpenStreetMap-Mitwirkende',W-W*0.03,H-H*0.012);g.textAlign='left';
-  if(x.t==='end'){const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
-  if(F.cap){fChip(g,W,(flag(x.c)?flag(x.c)+' ':'')+country(x.c).name,W*0.05,H*0.05);if(x.mode&&x.prev!=null)fChip(g,W,`${x.mode} · ${pname(S.stages[x.prev])} → ${x.cap}`.slice(0,48),W*0.05,H*0.05+W*0.075,false);fCaption(g,W,H,x.cap,x.sub)}return}
+  if(x.t==='end')fRoute(g,V,R,R.length-1,1,null,C.rm);else{const fr=pi<0?1:fEase(Math.min(1,p/0.7));fRoute(g,V,R,pi<0?ci:pi,pi<0?1:fr,ci,C.rm)}g.restore();
+  if(x.t==='end'){fAttr(g,W,H);const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
+  fMapTxt(g,W,H,x,C,true);return}
  if(x.t==='img'){const pr=C.BM[x.m.id];const bm=pr&&pr.__v||null;
-  if(bm){fCover(g,bm,bm.width,bm.height,W,H,p,(x.t0|0)%2)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
+  if(bm){fPhoto(g,bm,W,H,p,x.fx,x.m.id)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
   if(F.cap){fChip(g,W,x.chip,W*0.05,H*0.05);fCaption(g,W,H,x.cap,x.sub)}return}
  if(x.t==='vid'){const pr=C.VID[x.m.id];const o=pr&&pr.__v||null;
   if(o&&o.el.readyState>=2){const v=o.el;const sc=Math.max(W/v.videoWidth,H/v.videoHeight);const w=v.videoWidth*sc,h=v.videoHeight*sc;g.drawImage(v,(W-w)/2,(H-h)/2,w,h)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
@@ -5285,9 +5301,12 @@ function vFilm(){const F=filmCfg();const P=filmPlan();const ds=P.ds;const R=UI.f
   <div class="fmbtns"><button class="btn p" style="flex:1" data-a="filmShare">${ic('link',15)}Teilen</button><button class="btn" data-a="filmSave">${ic('down',15)}Speichern</button></div></div>`;
  h+=`<div class="sec">Format und Tempo</div><div class="card" style="padding:12px 14px">${seg('fmFmt',[['9:16','Hochformat 9:16'],['16:9','Querformat 16:9']],F.fmt)}
   <div class="lab" style="margin:14px 2px 2px;display:flex"><span class="sp">Dauer je Foto</span><b id="fmDurL" class="num" style="color:var(--ink)">${String(F.dur).replace('.',',')} s</b></div><input id="fmDur" type="range" min="1.5" max="6" step="0.5" value="${F.dur}" style="width:100%">
-  <div class="small mut" style="display:flex;justify-content:space-between"><span>1,5 s</span><span>6 s</span></div></div>`;
+  <div class="small mut" style="display:flex;justify-content:space-between"><span>1,5 s</span><span>6 s</span></div>
+  <div class="lab" style="margin:16px 2px 6px">Foto-Bewegung</div>${seg('fmZm',[['off','Aus'],['in','Rein'],['out','Raus'],['mix','Gemischt']],F.zm)}
+  ${F.zm!=='off'?`<div class="lab" style="margin:12px 2px 6px">Stärke</div>${seg('fmZs',[['1','Sanft'],['2','Mittel'],['3','Stark']],F.zs)}`:''}
+  <div class="small mut" style="margin:8px 2px 0;line-height:1.45">${{off:'Fotos stehen still.',in:'Jedes Foto zoomt langsam hinein, mit wechselndem Blickpunkt.',out:'Jedes Foto startet nah und zoomt langsam heraus.',mix:'Wechselt je Foto: hinein, heraus, Schwenk und 3D-Fotokarte. Fotos im anderen Format kommen als gekippte Fotokarte ganz ins Bild.'}[F.zm]||''}</div></div>`;
  h+=`<div class="sec">Kapitel<span class="r">antippen für Fotos je Etappe</span></div><div class="card" style="padding:0">${P.all.map(c=>{const K=filmCounts(c);const on=!F.off[c];return `<div class="fmch${on?'':' off'}"><button class="fmchm" data-a="filmCh" data-k="${c}"><span style="font-size:20px">${flag(c)}</span><span class="sp"><span class="tt" style="display:block">${esc(country(c).name)}</span><span class="ss" style="display:block">${K.ds.length} ${K.ds.length===1?'Etappe':'Etappen'} · ${K.i} ${K.i===1?'Foto':'Fotos'}${K.v?` · ${K.v} ${K.v===1?'Clip':'Clips'}`:''}${K.o?` · ${K.o} abgewählt`:''}</span></span><span class="small num mut">${on?fmtSec(filmDurOf(c,F)):'aus'}</span></button><button class="fmtg${on?' on':''}" data-a="filmTg" data-k="${c}" aria-label="Kapitel ${on?'abwählen':'auswählen'}">${ic(on?'check':'plus',16,2.4)}</button></div>`}).join('')}</div>`;
- h+=`<div class="sec">Extras</div><div class="card" style="padding:0">${[['map','route','Kartenflug zwischen den Etappen'],['cap','cal','Ort und Datum einblenden']].map(([k,i,t])=>`<button class="fmch fmx" data-a="filmOpt" data-k="${k}"><span class="ico0">${ic(i,16,2)}</span><span class="sp">${t}</span><span class="fmtg${F[k]?' on':''}">${ic(F[k]?'check':'plus',16,2.4)}</span></button>`).join('')}
+ h+=`<div class="sec">Extras</div><div class="card" style="padding:0">${[['d3','globe','3D-Kamera: Globus und geneigte Karte'],['map','route','Kartenflug mit Verkehrsmittel'],['cap','cal','Ort und Datum einblenden']].map(([k,i,t])=>`<button class="fmch fmx" data-a="filmOpt" data-k="${k}"><span class="ico0">${ic(i,16,2)}</span><span class="sp">${t}</span><span class="fmtg${F[k]?' on':''}">${ic(F[k]?'check':'plus',16,2.4)}</span></button>`).join('')}
   <button class="fmch fmx" data-a="filmMusic"><span class="ico0">${ic('spark',16,2)}</span><span class="sp">Eigene Musik<span class="ss" style="display:block" id="fmMus">Datei vom Handy · bleibt auf diesem Gerät</span></span><span class="chev">${ic('chev',14)}</span></button></div>
   <div class="small mut" style="margin:10px 4px 0;line-height:1.45">Fotos und Clips verknüpft ihr in der Route an Etappe oder Ausflug – sie landen automatisch hier. Abwählen oder hinzufügen geht über das Kapitel.</div>`;
  return h};
@@ -5320,7 +5339,188 @@ Object.assign(window.KIA=window.KIA||{},{
  filmShare:async()=>{const O=UI.filmOut;if(!O)return;const f=new File([O.blob],`Asien-Auszeit-2027.${O.ext}`,{type:O.blob.type});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Asien-Auszeit 2027'});return}}catch(e){if(e&&e.name==='AbortError')return}KIA.filmSave()},
  filmSave:()=>{const O=UI.filmOut;if(!O)return;const a=document.createElement('a');a.href=O.url;a.download=`Asien-Auszeit-2027.${O.ext}`;document.body.appendChild(a);a.click();a.remove();toast('Video wird gespeichert (Downloads).')}});
 // Format umschalten (Segment)
-document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-g="fmFmt"] button');if(!b)return;const F=filmCfg();if(F.fmt!==b.dataset.k&&!UI.film){F.fmt=b.dataset.k;save();setTimeout(()=>{UI.keepY=true;render()},0)}});
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-g="fmFmt"] button,[data-g="fmZm"] button,[data-g="fmZs"] button');if(!b||UI.film)return;const F=filmCfg();const k=b.closest('[data-g]').dataset.g;const f={fmFmt:'fmt',fmZm:'zm',fmZs:'zs'}[k];const v=k==='fmZs'?+b.dataset.k:b.dataset.k;if(F[f]!==v){F[f]=v;save();setTimeout(()=>{UI.keepY=true;render()},0)}});
+// ===================== Reise-Film 3D: WebGL-Kamera – Globus, geneigte Karte, Fotokarten =====================
+// Eine WebGL-Canvas in Filmgröße rendert Boden, Globus oder Fotokarte. Die Film-Canvas übernimmt das Bild je Frame
+// und zeichnet Route, Verkehrsmittel und Texte darüber – mit derselben Kamera-Projektion in JS.
+const F3PI=Math.PI,f01=v=>v<0?0:v>1?1:v;
+const v3n=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l]},v3x=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],v3d=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const M4={per(fy,a,n,f){const t=1/Math.tan(fy/2),nf=1/(n-f);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(f+n)*nf,-1,0,0,2*f*n*nf,0])},
+ look(e,c,u){const z=v3n([e[0]-c[0],e[1]-c[1],e[2]-c[2]]),x=v3n(v3x(u,z)),y=v3x(z,x);return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-v3d(x,e),-v3d(y,e),-v3d(z,e),1])},
+ mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o},
+ ap(m,x,y,z){return [m[0]*x+m[4]*y+m[8]*z+m[12],m[1]*x+m[5]*y+m[9]*z+m[13],m[2]*x+m[6]*y+m[10]*z+m[14],m[3]*x+m[7]*y+m[11]*z+m[15]]},
+ rx(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1])},
+ ry(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1])},
+ sc(s){return new Float32Array([s,0,0,0,0,s,0,0,0,0,s,0,0,0,0,1])}};
+const fH=s=>{let h=2166136261;s=String(s);for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0};
+// ---------- Kugel-Geometrie ----------
+const fSph=(la,lo)=>{const a=la*F3PI/180,o=lo*F3PI/180;return [Math.cos(a)*Math.sin(o),Math.sin(a),Math.cos(a)*Math.cos(o)]};
+const fLL=v=>{const n=v3n(v);return [Math.asin(Math.max(-1,Math.min(1,n[1])))*180/F3PI,Math.atan2(n[0],n[2])*180/F3PI]};
+const fAng=(a,b)=>Math.acos(Math.max(-1,Math.min(1,v3d(fSph(a[0],a[1]),fSph(b[0],b[1])))));
+function fCentroid(P){let s=[0,0,0];P.forEach(p=>{const v=fSph(p[0],p[1]);s=[s[0]+v[0],s[1]+v[1],s[2]+v[2]]});return fLL(s)}
+function fSlerp(a,b,t){const va=fSph(a[0],a[1]),vb=fSph(b[0],b[1]);const w=Math.acos(Math.max(-1,Math.min(1,v3d(va,vb))));if(w<1e-6)return a;const s=Math.sin(w),k0=Math.sin((1-t)*w)/s,k1=Math.sin(t*w)/s;return fLL([va[0]*k0+vb[0]*k1,va[1]*k0+vb[1]*k1,va[2]*k0+vb[2]*k1])}
+function fGDist(P,c,W,H,m){const ang=Math.max(.02,...P.map(p=>fAng(p,c)));const hn=H>W?Math.atan(Math.tan(22*F3PI/180)*W/H):15*F3PI/180;return Math.max(1.35,Math.min(7,1+ang*m/Math.tan(hn)))}
+// ---------- Shader ----------
+const F3_VS_G='attribute vec2 aP;uniform mat4 uM;uniform float uTS;varying vec2 vU;varying vec3 vW;void main(){vU=aP;vW=vec3(aP.x*uTS,-aP.y*uTS,0.);gl_Position=uM*vec4(vW,1.);}';
+const F3_FS_G='uniform sampler2D uT,uRg;uniform float uHas,uTS,uHR,uSp;uniform vec3 uE,uHz;uniform vec2 uF,uO;uniform vec4 uB;varying vec2 vU;varying vec3 vW;vec3 gr(vec3 t){float l=dot(t,vec3(.299,.587,.114));return mix(mix(vec3(l),t,.8),vec3(.024,.055,.07),.36);}void main(){vec3 bg=vec3(.09,.165,.205);\n#ifdef DER\nvec2 q=vW.xy/(uTS/12.);vec2 d=abs(fract(q-.5)-.5)/max(fwidth(q),vec2(1e-4));bg+=vec3(.045,.1,.1)*(1.-min(min(d.x,d.y),1.));\n#endif\nvec2 r=(uO+vU*uSp-uB.xy)/(uB.zw-uB.xy);float er=min(min(r.x,1.-r.x),min(r.y,1.-r.y));vec3 c=mix(bg,gr(texture2D(uRg,clamp(r,0.,1.)).rgb),uHR*smoothstep(0.,.02,er));float e=min(min(vU.x,1.-vU.x),min(vU.y,1.-vU.y));c=mix(c,gr(texture2D(uT,clamp(vU,0.,1.)).rgb),uHas*smoothstep(0.,.06,e));float f=smoothstep(uF.x,uF.y,distance(vW,uE));gl_FragColor=vec4(mix(c,uHz,f),1.);}';
+const F3_VS_Q='attribute vec2 aP;varying vec2 vU;void main(){vU=aP;gl_Position=vec4(aP,0.,1.);}';
+const F3_FS_O='uniform vec2 uTn,uOf;uniform float uDs,uHW,uHR;uniform mat3 uR;uniform sampler2D uW,uRg;uniform vec4 uB;varying vec2 vU;const float PI=3.14159265;void main(){vec3 ro=vec3(0.,0.,uDs);vec3 rd=normalize(vec3((vU.x-uOf.x)*uTn.x,(vU.y-uOf.y)*uTn.y,-1.));float b=dot(ro,rd);float h=b*b-dot(ro,ro)+1.;if(h<0.){float dm=length(ro-rd*b);float g=exp(-max(dm-1.,0.)*10.)*.8;gl_FragColor=vec4(vec3(.3,.58,.7)*g,g);return;}float t=-b-sqrt(h);vec3 n=ro+rd*t;vec3 w=uR*n;float lat=asin(clamp(w.y,-1.,1.));float lon=atan(w.x,w.z);float mx=lon/(2.*PI)+.5;float s=sin(clamp(lat,-1.4835,1.4835));float my=.5-log((1.+s)/(1.-s))/(4.*PI);vec3 c=vec3(.06,.19,.28);\n#ifdef DER\nvec2 q=vec2(lon,lat)*(12./PI);vec2 d=abs(fract(q-.5)-.5)/max(fwidth(q),vec2(1e-4));c+=vec3(.05,.12,.14)*(1.-min(min(d.x,d.y),1.))*(1.-uHW);\n#endif\nc=mix(c,texture2D(uW,vec2(mx,my)).rgb,uHW);vec2 r=(vec2(mx,my)-uB.xy)/(uB.zw-uB.xy);float e=min(min(r.x,1.-r.x),min(r.y,1.-r.y));c=mix(c,texture2D(uRg,clamp(r,0.,1.)).rgb,uHR*smoothstep(0.,.03,e));float k=max(uHW,uHR);float l=dot(c,vec3(.299,.587,.114));c=mix(c,mix(mix(vec3(l),c,.8),vec3(.024,.055,.07),.3),k);if(abs(lat)>1.4835)c=mix(c,vec3(.8,.85,.88),.5);vec3 L=normalize(vec3(-.45,.55,.7));c*=.42+.66*max(dot(n,L),0.);float rim=pow(1.-max(dot(n,-rd),0.),2.4);c=mix(c,vec3(.45,.72,.82),rim*.6);gl_FragColor=vec4(c,1.);}';
+const F3_VS_C='attribute vec2 aP;uniform mat4 uM;uniform vec2 uS;varying vec2 vU;void main(){vU=vec2(aP.x+.5,.5-aP.y);gl_Position=uM*vec4(aP*uS,0.,1.);}';
+const F3_FS_C='uniform sampler2D uT;uniform vec2 uS;uniform float uRr;varying vec2 vU;void main(){vec2 p=(vU-.5)*uS;vec2 q=abs(p)-(uS*.5-uRr);float d=length(max(q,0.))+min(max(q.x,q.y),0.)-uRr;float a=clamp(.5-d,0.,1.);vec3 c=texture2D(uT,vU).rgb;c=mix(c,vec3(1.),smoothstep(-4.,-1.,d)*.5);gl_FragColor=vec4(c*a,a);}';
+// ---------- WebGL ----------
+const FGL={};
+function fglSh(gl,t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error('Shader: '+gl.getShaderInfoLog(s));return s}
+function fglPr(gl,vs,fs){const p=gl.createProgram();gl.attachShader(p,fglSh(gl,gl.VERTEX_SHADER,vs));gl.attachShader(p,fglSh(gl,gl.FRAGMENT_SHADER,fs));gl.bindAttribLocation(p,0,'aP');gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error('Programm: '+gl.getProgramInfoLog(p));
+ const U={},n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const u=gl.getActiveUniform(p,i);U[u.name]=gl.getUniformLocation(p,u.name)}return {p,U}}
+function fglBuf(gl,a){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.STATIC_DRAW);return b}
+function fglTex(gl){const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([16,35,46,255]));return t}
+function fglUp(t,src,mip){const gl=FGL.gl;gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src);
+ if(mip){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);if(FGL.an)gl.texParameterf(gl.TEXTURE_2D,FGL.an.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(FGL.an.MAX_TEXTURE_MAX_ANISOTROPY_EXT)))}else gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR)}
+function fglInit(W,H){if(FGL.gl&&FGL.W===W&&FGL.H===H&&!FGL.gl.isContextLost())return FGL;
+ Object.keys(FGL).forEach(k=>delete FGL[k]);
+ try{const cv=document.createElement('canvas');cv.width=W;cv.height=H;const gl=cv.getContext('webgl',{preserveDrawingBuffer:true,antialias:true,alpha:true,premultipliedAlpha:true});if(!gl)return null;
+  const der=!!gl.getExtension('OES_standard_derivatives');const hp=(der?'#extension GL_OES_standard_derivatives : enable\n#define DER 1\n':'')+'#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n';
+  Object.assign(FGL,{gl,cv,W,H,an:gl.getExtension('EXT_texture_filter_anisotropic')||gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'),
+   pG:fglPr(gl,F3_VS_G,hp+F3_FS_G),pO:fglPr(gl,F3_VS_Q,hp+F3_FS_O),pC:fglPr(gl,F3_VS_C,hp+F3_FS_C),
+   bG:fglBuf(gl,[-3,-3,4,-3,-3,4,4,4]),bQ:fglBuf(gl,[-1,-1,1,-1,-1,1,1,1]),bC:fglBuf(gl,[-.5,-.5,.5,-.5,-.5,.5,.5,.5]),
+   tG:fglTex(gl),tW:fglTex(gl),tR:fglTex(gl),tC:fglTex(gl),gV:null,gG:null,cId:null});
+  return FGL}catch(e){console.warn('3D nicht verfügbar',e);Object.keys(FGL).forEach(k=>delete FGL[k]);return null}}
+const fglOk=()=>!!(FGL.gl&&!FGL.gl.isContextLost());
+function fglClear(){const gl=FGL.gl;gl.viewport(0,0,FGL.W,FGL.H);gl.disable(gl.DEPTH_TEST);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT)}
+function fglDraw(buf){const gl=FGL.gl;gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)}
+// Boden (Kapitel-Karte) mit Neigung und Dunst in der Ferne
+function f3Cam(W,H,tg,D,pit,bea){const fy=(H>W?50:36)*F3PI/180;const sp=Math.sin(pit),cp=Math.cos(pit),sb=Math.sin(bea),cb=Math.cos(bea);
+ const eye=[tg[0]-D*sp*sb,tg[1]-D*sp*cb,D*cp];const M=M4.mul(M4.per(fy,W/H,D*.04,D*8),M4.look(eye,[tg[0],tg[1],0],[sb,cb,0]));
+ return {M,eye,D,W,H,pr(x,y,z){const c=M4.ap(M,x,y,z||0);if(c[3]<D*.05)return null;return [(c[0]/c[3]+1)/2*W,(1-c[1]/c[3])/2*H,c[3]]}}}
+function fglGlobeUp(G){if(FGL.gG!==G){if(G&&G.w)fglUp(FGL.tW,G.w,true);if(G&&G.r)fglUp(FGL.tR,G.r,true);FGL.gG=G}}
+function fglGround(V,cam,G){const gl=FGL.gl,P=FGL.pG;fglGlobeUp(G);if(FGL.gV!==V){if(FGL.gV&&FGL.gV.cv){FGL.gV.cv.width=1;FGL.gV.cv=null}if(V.has&&V.cv)fglUp(FGL.tG,V.cv,true);FGL.gV=V}
+ fglClear();gl.disable(gl.BLEND);gl.useProgram(P.p);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,FGL.tG);gl.uniform1i(P.U.uT,0);gl.uniformMatrix4fv(P.U.uM,false,cam.M);gl.uniform1f(P.U.uTS,V.TS);gl.uniform1f(P.U.uHas,V.has?1:0);
+ gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,FGL.tR);gl.uniform1i(P.U.uRg,1);gl.uniform1f(P.U.uHR,G&&G.r?1:0);gl.uniform4fv(P.U.uB,G&&G.b||[0,0,1,1]);gl.uniform2fv(P.U.uO,[V.mx0,V.my0]);gl.uniform1f(P.U.uSp,V.TS/V.k);
+ gl.uniform3fv(P.U.uE,cam.eye);gl.uniform3fv(P.U.uHz,[.105,.19,.235]);gl.uniform2fv(P.U.uF,[cam.D*1.45,cam.D*3.2]);fglDraw(FGL.bG);gl.activeTexture(gl.TEXTURE0)}
+// Globus (Kugel per Strahlschnitt im Shader), Kamera blickt auf den Mittelpunkt
+function fGCam(W,H,lat,lon,d,of,ox){const fy=(H>W?44:30)*F3PI/180;const ty=Math.tan(fy/2),tx=ty*W/H;of=of||0;ox=ox||0;const la=lat*F3PI/180,lo=lon*F3PI/180;const cy=Math.cos(lo),sy=Math.sin(lo),cx=Math.cos(la),sx=-Math.sin(la);
+ const R=[[cy,sy*sx,sy*cx],[0,cx,-sx],[-sy,cy*sx,cy*cx]];const R9=new Float32Array([R[0][0],R[1][0],R[2][0],R[0][1],R[1][1],R[2][1],R[0][2],R[1][2],R[2][2]]);
+ return {W,H,d,of,ox,tx,ty,R9,pr(la2,lo2,alt){alt=alt||1;const v=fSph(la2,lo2);const w=[v[0]*alt,v[1]*alt,v[2]*alt];
+  const n=[R[0][0]*w[0]+R[1][0]*w[1]+R[2][0]*w[2],R[0][1]*w[0]+R[1][1]*w[1]+R[2][1]*w[2],R[0][2]*w[0]+R[1][2]*w[1]+R[2][2]*w[2]];
+  const z=d-n[2];if(z<=.01)return null;const q=[n[0],n[1],n[2]-d];const A=v3d(q,q),B=2*d*q[2],Cc=d*d-1,Dd=B*B-4*A*Cc;let vis=1;if(Dd>0){const s=(-B-Math.sqrt(Dd))/(2*A);if(s>0&&s<.995)vis=0}
+  return [W/2*(1+n[0]/(z*tx)+ox),H/2*(1-(n[1]/(z*ty)+of)),z,vis]}}}
+function fglGlobe(cam,G){const gl=FGL.gl,P=FGL.pO;fglGlobeUp(G);
+ fglClear();gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.useProgram(P.p);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,FGL.tW);gl.uniform1i(P.U.uW,0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,FGL.tR);gl.uniform1i(P.U.uRg,1);
+ gl.uniform2fv(P.U.uTn,[cam.tx,cam.ty]);gl.uniform1f(P.U.uDs,cam.d);gl.uniform2fv(P.U.uOf,[cam.ox,cam.of]);gl.uniformMatrix3fv(P.U.uR,false,cam.R9);gl.uniform1f(P.U.uHW,G&&G.w?1:0);gl.uniform1f(P.U.uHR,G&&G.r?1:0);gl.uniform4fv(P.U.uB,G&&G.b||[0,0,1,1]);
+ fglDraw(FGL.bQ);gl.activeTexture(gl.TEXTURE0)}
+// Fotokarte: Foto als Fläche im Raum, leicht gekippt; liefert die Ecken für den Schatten
+function fglCard(bm,id,cw,ch,ry,rx,s){const gl=FGL.gl,P=FGL.pC,W=FGL.W,H=FGL.H;
+ if(FGL.cId!==id){const c=document.createElement('canvas');c.width=c.height=1024;c.getContext('2d').drawImage(bm,0,0,1024,1024);fglUp(FGL.tC,c,true);c.width=1;FGL.cId=id}
+ const fy=30*F3PI/180,Dc=(H/2)/Math.tan(fy/2);const M=M4.mul(M4.mul(M4.per(fy,W/H,Dc*.2,Dc*3),M4.look([0,0,Dc],[0,0,0],[0,1,0])),M4.mul(M4.ry(ry),M4.mul(M4.rx(rx),M4.sc(s))));
+ fglClear();gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.useProgram(P.p);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,FGL.tC);gl.uniform1i(P.U.uT,0);gl.uniformMatrix4fv(P.U.uM,false,M);gl.uniform2fv(P.U.uS,[cw,ch]);gl.uniform1f(P.U.uRr,Math.min(cw,ch)*.035);fglDraw(FGL.bC);
+ return [[-.5,.5],[.5,.5],[.5,-.5],[-.5,-.5]].map(([u,v])=>{const c=M4.ap(M,u*cw,v*ch,0);return [(c[0]/c[3]+1)/2*W,(1-c[1]/c[3])/2*H]})}
+// ---------- Kacheln für 3D ----------
+async function fMosaic(z,tx0,ty0,nt){const S=nt*256,n=2**z;const cv=document.createElement('canvas');cv.width=cv.height=S;const g=cv.getContext('2d');g.fillStyle='#aad3df';g.fillRect(0,0,S,S);let ok=0;const J=[];
+ for(let j=0;j<nt;j++)for(let i=0;i<nt;i++){const ty=ty0+j;if(ty<0||ty>=n)continue;J.push(filmTile(z,(((tx0+i)%n)+n)%n,ty).then(im=>{if(im){g.drawImage(im,i*256,j*256);ok++}}))}
+ await Promise.all(J);if(!ok){cv.width=1;return null}return cv}
+async function f3View(pts){const TS=2048,N=TS/256;const xs=pts.map(p=>fmx(p[1])),ys=pts.map(p=>fmy(p[0]));const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ const sp=Math.max(x1-x0,y1-y0,.004)*2.3;let zt=Math.floor(Math.log2(TS/(256*sp)));zt=Math.max(3,Math.min(13,zt));const n=2**zt,k=256*n;
+ const tx0=Math.round((x0+x1)/2*n-N/2),ty0=Math.round((y0+y1)/2*n-N/2);const cv=await fMosaic(zt,tx0,ty0,N);const mx0=tx0/n,my0=ty0/n;
+ return {TS,zt,k,mx0,my0,cv,has:!!cv,W:(lat,lon)=>[(fmx(lon)-mx0)*k,-(fmy(lat)-my0)*k]}}
+async function fGlobeTex(pts){const w=await fMosaic(2,0,0,4);const xs=pts.map(p=>fmx(p[1])),ys=pts.map(p=>fmy(p[0]));const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
+ const sp=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))*1.8+.02;let z=Math.floor(Math.log2(1024/(256*sp)));z=Math.max(3,Math.min(7,z));const n=2**z;
+ const tx0=Math.round(cx*n-2),ty0=Math.round(cy*n-2);const r=await fMosaic(z,tx0,ty0,4);return {w,r,b:[tx0/n,ty0/n,(tx0+4)/n,(ty0+4)/n]}}
+// ---------- Verkehrsmittel-Icons ----------
+const FICON={};
+function fIcon(name,col){const k=name+col;let o=FICON[k];if(!o){const im=new Image();o=FICON[k]={im,ok:0};o.p=new Promise(r=>{im.onload=()=>{o.ok=1;r()};im.onerror=()=>r()});im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${IC[name]||''}</svg>`)}return o.ok?o.im:null}
+function fIconsLoad(names){return Promise.race([Promise.all([...new Set(names)].flatMap(n=>['#0e2a3a','#ffffff'].map(c=>{fIcon(n,c);return FICON[n+c].p}))),new Promise(r=>setTimeout(r,2000))])}
+function fBadge(g,x,y,r,icon,a){g.save();g.globalAlpha=a==null?1:a;g.shadowColor='rgba(0,0,0,.45)';g.shadowBlur=r*.7;g.shadowOffsetY=r*.18;g.beginPath();g.arc(x,y,r,0,2*F3PI);g.fillStyle='#8FCFC6';g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.lineWidth=Math.max(2,r*.13);g.strokeStyle='#fff';g.stroke();
+ const im=fIcon(icon,'#0e2a3a');if(im)g.drawImage(im,x-r*.6,y-r*.6,r*1.2,r*1.2);g.restore()}
+function fChipI(g,W,icons,txt,x,y){const fs=Math.round(W>g.canvas.height?g.canvas.height*.034:W*.036);g.font=`600 ${fs}px Inter,system-ui,sans-serif`;const isz=fs*1.2,gap=fs*.4;const iw=icons.length*(isz+gap);const max=W*.9-iw-fs*1.3;
+ let t=txt;if(g.measureText(t).width>max){while(t.length>4&&g.measureText(t+'…').width>max)t=t.slice(0,-1);t=t.trim()+'…'}const w=g.measureText(t).width+fs*1.3+iw,h=fs*1.9;
+ g.fillStyle='rgba(0,0,0,.5)';fRR(g,x,y,w,h,h/2);g.fill();let cx=x+fs*.65;icons.forEach(n=>{const im=fIcon(n,'#ffffff');if(im)g.drawImage(im,cx,y+(h-isz)/2,isz,isz);cx+=isz+gap});g.fillStyle='#fff';g.textBaseline='middle';g.fillText(t,cx,y+h/2+1)}
+// Transfer in eine Etappe: Haupt-Verkehrsmittel (Flug vor dem längsten Abschnitt), Icons, Dauer
+function filmLeg(st){const L=(st&&legsOf(st))||[];if(!L.length)return null;const ms=L.map(l=>MODES[l.mode]?l.mode:'car');
+ const mins=L.map(l=>{const m=durMin(l.dur);if(m)return m;const a=typeof hmMin==='function'?hmMin(l.dep):null,b=typeof hmMin==='function'?hmMin(l.arr):null;return a!=null&&b!=null?((b-a)+1440)%1440||null:null});
+ let main=ms.includes('flight')?'flight':null;if(!main){let bi=0;mins.forEach((m,i)=>{if((m||0)>(mins[bi]||0))bi=i});main=ms[bi]}
+ const tot=mins.some(Boolean)?mins.reduce((a,m)=>a+(m||0),0):null;const u=[...new Set(ms)];return {main,icons:u.map(m=>MODES[m][0]),lab:u.map(m=>MODES[m][1]).join(' + '),min:tot}}
+const fLegTxt=(leg,a,b)=>`${leg.lab}${leg.min?' · '+fmtMin(leg.min):''}${a&&b?` · ${a} → ${b}`:''}`;
+// ---------- Weltraum-Hintergrund ----------
+function fSpace(g,W,H){const gr=g.createRadialGradient(W/2,H*.55,0,W/2,H*.55,Math.max(W,H)*.8);gr.addColorStop(0,'#0d2230');gr.addColorStop(1,'#03080b');g.fillStyle=gr;g.fillRect(0,0,W,H);g.fillStyle='#fff';
+ for(let i=0;i<110;i++){const a=fH('s'+i);g.globalAlpha=.18+((a>>4)%55)/100;const r=((a>>20)%3+1)*.6;g.fillRect((a%1000)/1000*W,((a>>10)%1000)/1000*H,r,r)}g.globalAlpha=1}
+// ---------- Route auf dem Globus (Großkreise, Flüge als Bogen) ----------
+function fGRoute(g,cam,RL,rm,upto,frac,hl,badge){const W=Math.min(cam.W,cam.H),lw=Math.max(2.5,W*.0055);g.lineCap='round';g.lineJoin='round';
+ const pts=(k,t1)=>{const a=RL[k-1],b=RL[k];const w=fAng(a,b);const n=Math.max(4,Math.ceil(w*t1/.012));const fl=rm[k]==='flight';const o=[];for(let s=0;s<=n;s++){const t=t1*s/n;const ll=fSlerp(a,b,t);o.push(cam.pr(ll[0],ll[1],1+(fl?Math.min(.07,w*.22):.0015)*Math.sin(F3PI*t)))}return o};
+ const stroke=o=>{let on=false;g.beginPath();o.forEach(S=>{if(!S||!S[3]){on=false;return}if(on)g.lineTo(S[0],S[1]);else{g.moveTo(S[0],S[1]);on=true}});g.stroke()};
+ g.strokeStyle='rgba(255,255,255,.4)';g.lineWidth=lw*.6;for(let k=1;k<RL.length;k++)stroke(pts(k,1));
+ g.strokeStyle='#8FCFC6';g.lineWidth=lw;for(let k=1;k<=Math.min(upto,RL.length-1);k++)stroke(pts(k,1));
+ let head=null;if(upto>=0&&upto+1<RL.length&&frac>0){const o=pts(upto+1,frac);stroke(o);head=o[o.length-1]}
+ RL.forEach((ll,k)=>{const S=cam.pr(ll[0],ll[1],1);if(!S||!S[3])return;const big=hl&&hl.has(k);g.beginPath();g.arc(S[0],S[1],lw*(big?1.5:1),0,2*F3PI);g.fillStyle=k<=upto||big?'#8FCFC6':'rgba(255,255,255,.65)';g.fill();g.lineWidth=lw*.5;g.strokeStyle='#0b1d27';g.stroke()});
+ if(badge&&head&&head[3]&&frac<1)fBadge(g,head[0],head[1],W*.032,(MODES[rm[upto+1]]||MODES.car)[0],f01(frac*12))}
+const fAttr=(g,W,H)=>{g.font=`500 ${Math.round(Math.min(W,H)*.018)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.55)';g.textAlign='right';g.textBaseline='alphabetic';g.fillText('© OpenStreetMap-Mitwirkende',W-W*.03,H-H*.012);g.textAlign='left'};
+const fGHas=C=>!!(C.G&&(C.G.w||C.G.r));
+// Intro: Globus dreht von Europa/Asien zur Reiseregion, Route zeichnet sich
+function fIntroTxt(g,W,H,a,C,y){const port=H>W;const ds=C.P.ds;if(!ds.length)return;const s=port?W:H*.9;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);g.globalAlpha=a;g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=14;
+ g.fillStyle='#fff';g.font=`800 ${Math.round(s*.085)}px Inter,system-ui,sans-serif`;g.fillText('Asien-Auszeit 2027',W/2,y);g.font=`500 ${Math.round(s*.036)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.88)';
+ g.fillText(`${dl(ds[0].from)} – ${dl(ds[ds.length-1].to)} · ${N} Tage`,W/2,y+s*.085);g.fillText(`${C.P.all.length} Länder · ${ds.length} Etappen`,W/2,y+s*.135);g.shadowBlur=0;g.globalAlpha=1;g.textAlign='left'}
+function f3Intro(g,W,H,x,p,C){if(!C.gc)return false;const port=H>W;const e=fEase(f01(p/.85));const ll=fSlerp([30,62],C.gc,e);const d=C.gd0+(C.gdR-C.gd0)*e;
+ fSpace(g,W,H);const cam=fGCam(W,H,ll[0],ll[1],d,port?-.12:-.06);fglGlobe(cam,C.G);g.drawImage(FGL.cv,0,0);
+ const RL=C.route.map(i=>stageLL(i));const rp=f01((p-.32)/.58)*(RL.length-1);const up=Math.floor(rp);fGRoute(g,cam,RL,C.rm,up,rp-up,null,false);
+ const gr=g.createLinearGradient(0,0,0,H*.4);gr.addColorStop(0,'rgba(3,8,11,.7)');gr.addColorStop(1,'rgba(3,8,11,0)');g.fillStyle=gr;g.fillRect(0,0,W,H*.4);
+ fIntroTxt(g,W,H,f01((p-.1)/.25),C,H*(port?.12:.13));if(fGHas(C))fAttr(g,W,H);return true}
+// Kapitel: Globus fliegt vom vorigen Land ins neue, der Flug dazwischen mit Icon
+function f3Title(g,W,H,x,p,C){const to=C.cc&&C.cc[x.c];if(!to)return false;const port=H>W;const F=filmCfg();const fr=x.pc&&C.cc[x.pc]?C.cc[x.pc]:{ll:C.gc,d:C.gdR};const e=fEase(f01(p/.85));const w=fAng(fr.ll,to.ll);
+ const ll=fSlerp(fr.ll,to.ll,e);const d=fr.d+(to.d-fr.d)*e+Math.min(1.4,w*2.2)*Math.sin(F3PI*e);
+ fSpace(g,W,H);const cam=port?fGCam(W,H,ll[0],ll[1],d,-.22):fGCam(W,H,ll[0],ll[1],d*.92,-.02,.3);fglGlobe(cam,C.G);g.drawImage(FGL.cv,0,0);
+ const RL=C.route.map(i=>stageLL(i));const hl=new Set();C.route.forEach((i,k)=>{if(S.stages[i].country===x.c)hl.add(k)});const fq=x.pi>=0?fEase(f01((p-.08)/.72)):0;fGRoute(g,cam,RL,C.rm,x.pi,fq,hl,true);
+ let gr;if(port){gr=g.createLinearGradient(0,0,0,H*.46);gr.addColorStop(0,'rgba(3,8,11,.8)');gr.addColorStop(1,'rgba(3,8,11,0)');g.fillStyle=gr;g.fillRect(0,0,W,H*.46)}else{gr=g.createLinearGradient(0,0,W*.6,0);gr.addColorStop(0,'rgba(3,8,11,.82)');gr.addColorStop(1,'rgba(3,8,11,0)');g.fillStyle=gr;g.fillRect(0,0,W*.6,H)}
+ const s=port?W:H*.9,X=port?W/2:W*.07,y0=port?H*.1:H*.25;g.globalAlpha=f01(p/.25);g.textAlign=port?'center':'left';g.textBaseline='middle';
+ g.font=`${Math.round(s*.12)}px "Noto Color Emoji","Apple Color Emoji",sans-serif`;g.fillText(flag(x.c)||'',X,y0+s*.02);
+ g.fillStyle='#fff';g.font=`800 ${Math.round(s*.085)}px Inter,system-ui,sans-serif`;g.fillText(country(x.c).name,X,y0+s*.15);
+ g.font=`500 ${Math.round(s*.036)}px Inter,system-ui,sans-serif`;g.fillStyle='rgba(255,255,255,.88)';g.fillText(`${dl(x.from)} – ${dl(x.to)} · ${x.n} ${x.n===1?'Nacht':'Nächte'}`,X,y0+s*.235);
+ g.fillStyle='rgba(255,255,255,.62)';g.fillText(`Kapitel ${x.ci+1} von ${x.cn}`,X,y0+s*.29);g.globalAlpha=1;g.textAlign='left';
+ if(F.cap&&x.leg&&x.pi>=0){const a=S.stages[C.route[x.pi]],b=S.stages[C.route[x.fi]];g.globalAlpha=f01((p-.1)/.2);fChipI(g,W,x.leg.icons,fLegTxt(x.leg,pname(a),pname(b)),W*.05,H-H*(port?.11:.15));g.globalAlpha=1}
+ if(fGHas(C))fAttr(g,W,H);return true}
+function f3End(g,W,H,x,p,C){if(!C.gc)return false;const port=H>W;const e=fEase(f01(p));fSpace(g,W,H);const cam=fGCam(W,H,C.gc[0],C.gc[1]+10*(p-.5),C.gdR*(1.02+.18*e),port?.1:.04);fglGlobe(cam,C.G);g.drawImage(FGL.cv,0,0);
+ const RL=C.route.map(i=>stageLL(i));fGRoute(g,cam,RL,C.rm,RL.length-1,1,null,false);return true}
+// ---------- Etappe: Kamerafahrt über die geneigte Karte ----------
+function f3Map(g,W,H,x,p,C){const V=C.v3&&C.v3[x.c];if(!V)return false;const R=C.route;const ci=R.indexOf(x.i);if(ci<0)return false;const pi0=x.prev!=null?R.indexOf(x.prev):-1;const drop=pi0<0||!!x.drop;
+ if(!V.Pw)V.Pw=R.map(i=>{const ll=stageLL(i);return V.W(ll[0],ll[1])});const Pw=V.Pw;const B=Pw[ci],A=drop?B:Pw[pi0];const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy);const fl=C.rm[ci]==='flight';
+ const D0=Math.max(V.TS*.42,Math.min(V.TS*1.2,L*1.4));let q,tg,D,pit,bea;
+ if(drop){q=1;const d=fEase(f01(p/.8));tg=B;D=D0*(3-2*d);pit=(14+40*d)*F3PI/180;bea=-.45*(1-d)+.12*(p-.5)}
+ else{q=fEase(f01((p-.12)/.66));const qc=fEase(f01((p-.05)/.8));tg=[A[0]+dx*qc,A[1]+dy*qc];let dir=L>1?Math.atan2(dx,dy):0;dir=Math.max(-.7,Math.min(.7,dir));bea=dir*.65+.2*(p-.5);pit=(50+6*Math.sin(F3PI*p))*F3PI/180;D=D0*(1+(fl?.38:.16)*Math.sin(F3PI*qc))}
+ if(!V.inC){V.inC=new Set();R.forEach((i,k)=>{if(S.stages[i].country===x.c)V.inC.add(k)})}
+ const cam=f3Cam(W,H,tg,D,pit,bea);fglGround(V,cam,C.G);g.drawImage(FGL.cv,0,0);f3Route(g,cam,Pw,C.rm,ci,drop?ci:pi0,q,p,drop,V.inC);return true}
+function f3Route(g,cam,Pw,rm,ci,pi,q,p,drop,inC){const W=Math.min(cam.W,cam.H),D=cam.D;const lw=Math.max(3,W*.0062);const fog=w=>1-f01((w-D*1.5)/(D*1.9));const wid=w=>Math.max(.35,Math.min(2.2,D/w));
+ const Z=(k,t)=>{const a=Pw[k-1],b=Pw[k];const L=Math.hypot(b[0]-a[0],b[1]-a[1]);const h=rm[k]==='flight'?Math.min(L*.24,D*.9):0;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,h*4*t*(1-t)]};
+ const seg=(k,t1,col,w0,ground)=>{const n=rm[k]==='flight'?28:6;let pv=null;g.strokeStyle=col;for(let s=0;s<=n;s++){const P=Z(k,t1*s/n);const S=cam.pr(P[0],P[1],ground?0:P[2]);if(S&&pv){const w=(S[2]+pv[2])/2;g.globalAlpha=fog(w);g.lineWidth=w0*wid(w);g.beginPath();g.moveTo(pv[0],pv[1]);g.lineTo(S[0],S[1]);g.stroke()}pv=S}g.globalAlpha=1};
+ g.lineCap='round';g.lineJoin='round';for(let k=1;k<Pw.length;k++)if(k>pi&&(!inC||inC.has(k)||inC.has(k-1)))seg(k,1,'rgba(255,255,255,.42)',lw*.55);
+ for(let k=1;k<=pi;k++){if(rm[k]==='flight')seg(k,1,'rgba(0,0,0,.28)',lw*.7,true);seg(k,1,'#8FCFC6',lw)}
+ let head=null;if(!drop&&ci===pi+1&&q>0){if(rm[ci]==='flight')seg(ci,q,'rgba(0,0,0,.3)',lw*.7,true);seg(ci,q,'#8FCFC6',lw);const P=Z(ci,q);head={P,S:cam.pr(P[0],P[1],P[2]),G:cam.pr(P[0],P[1],0)}}
+ Pw.forEach((P,k)=>{if(inC&&!inC.has(k)&&k>pi)return;const S=cam.pr(P[0],P[1],0);if(!S)return;const done=k<=pi||(k===ci&&q>=1);g.globalAlpha=fog(S[2]);g.beginPath();g.arc(S[0],S[1],lw*(k===ci?1.9:1.15)*wid(S[2]),0,2*F3PI);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.7)';g.fill();g.lineWidth=lw*.5*wid(S[2]);g.strokeStyle='#10232e';g.stroke();g.globalAlpha=1});
+ // Ankunft: Ring am Boden und Stecknadel
+ const arr=drop?f01((p-.45)/.3):f01((p-.78)/.12);if(arr>0){const B=Pw[ci];const t=(p*2.2)%1;const rr=D*.035*(1+t*2.2);const ring=[];for(let s=0;s<=24;s++){const a=s/24*2*F3PI;ring.push(cam.pr(B[0]+Math.cos(a)*rr,B[1]+Math.sin(a)*rr,0))}
+  if(ring.every(Boolean)){g.beginPath();ring.forEach((S,i)=>i?g.lineTo(S[0],S[1]):g.moveTo(S[0],S[1]));g.strokeStyle=`rgba(143,207,198,${(1-t)*arr})`;g.lineWidth=lw*.8;g.stroke()}
+  const b0=cam.pr(B[0],B[1],0),b1=cam.pr(B[0],B[1],D*.1*fEase(arr));if(b0&&b1){g.strokeStyle='#fff';g.lineWidth=lw*.55;g.beginPath();g.moveTo(b0[0],b0[1]);g.lineTo(b1[0],b1[1]);g.stroke();g.beginPath();g.arc(b1[0],b1[1],lw*1.5,0,2*F3PI);g.fillStyle='#8FCFC6';g.fill();g.lineWidth=lw*.5;g.strokeStyle='#fff';g.stroke()}}
+ // Verkehrsmittel mit Schatten
+ if(head&&head.S){const a=1-f01((p-.8)/.1);const r=W*.034*Math.max(.75,Math.min(1.35,wid(head.S[2])));if(rm[ci]==='flight'&&head.G){g.globalAlpha=.32*a;g.fillStyle='#000';g.beginPath();g.ellipse(head.G[0],head.G[1],r*.8,r*.35,0,0,2*F3PI);g.fill();g.globalAlpha=1}if(a>0)fBadge(g,head.S[0],head.S[1],r,(MODES[rm[ci]]||MODES.car)[0],a)}}
+// ---------- Fotos: Zoom rein/raus, Schwenk, 3D-Fotokarte ----------
+const FBLUR={};
+function fBlur(bm,id){if(FBLUR[id])return FBLUR[id];const w=Math.max(24,Math.round(bm.width/12)),h=Math.max(24,Math.round(bm.height/12));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.filter='blur(3px)';x.drawImage(bm,-w*.06,-h*.06,w*1.12,h*1.12);return FBLUR[id]=c}
+function fPhoto(g,bm,W,H,p,fx,id){fx=fx||{k:'in',z:.08,ex:.5,ey:.5,dir:0};const pp=f01(p);const e=pp*.35+.65*(.5-.5*Math.cos(F3PI*pp));
+ if(fx.k==='card')return fCard(g,bm,W,H,e,fx,id);const sc0=Math.max(W/bm.width,H/bm.height);const z=fx.z;let s=1,fxp=.5,fyp=.5;
+ if(fx.k==='in'){s=1+z*e;fxp=.5+(fx.ex-.5)*e;fyp=.5+(fx.ey-.5)*e}
+ else if(fx.k==='out'){s=1+z*(1-e);fxp=.5+(fx.ex-.5)*(1-e);fyp=.5+(fx.ey-.5)*(1-e)}
+ else if(fx.k==='pan'){s=1+Math.max(z*.7,.05)+z*.15*e;const a=fx.dir?e:1-e;const w0=bm.width*sc0*s-W,h0=bm.height*sc0*s-H;if(w0>=h0){fxp=a;fyp=fx.ey}else{fyp=a;fxp=fx.ex}}
+ const w=bm.width*sc0*s,h=bm.height*sc0*s;g.drawImage(bm,-(w-W)*fxp,-(h-H)*fyp,w,h)}
+function fCard(g,bm,W,H,e,fx,id){const port=H>W;const bl=fBlur(bm,id);const s0=Math.max(W/bl.width,H/bl.height)*(1.18-.1*e);const bw=bl.width*s0,bh=bl.height*s0;
+ g.drawImage(bl,(W-bw)/2+(fx.dir?-1:1)*W*.03*(e-.5),(H-bh)/2,bw,bh);g.fillStyle='rgba(6,14,18,.42)';g.fillRect(0,0,W,H);
+ const mw=W*(port?.86:.74),mh=H*(port?.62:.78);const a=bm.width/bm.height;let cw=mw,ch=mw/a;if(ch>mh){ch=mh;cw=mh*a}
+ const A=.07+fx.z*.55,sg=fx.dir?1:-1,ry=sg*A*(e*2-1),rx=A*.3*(1-e*2),s=1+fx.z*.35*e;
+ if(fglOk()){const Q=fglCard(bm,id,cw,ch,ry,rx,s);const cx=Q.reduce((a,q)=>a+q[0],0)/4,cy=Q.reduce((a,q)=>a+q[1],0)/4;g.save();g.fillStyle='rgba(0,0,0,.5)';g.shadowColor='rgba(0,0,0,.65)';g.shadowBlur=W*.06;g.shadowOffsetY=H*.02;g.beginPath();Q.forEach((q,i)=>{const X=cx+(q[0]-cx)*.97,Y=cy+(q[1]-cy)*.97;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill();g.restore();g.drawImage(FGL.cv,0,0);return}
+ g.save();g.translate(W/2,H/2);g.rotate(sg*.022*(e*2-1));g.scale(s,s);g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=W*.05;g.shadowOffsetY=H*.015;fRR(g,-cw/2,-ch/2,cw,ch,Math.min(cw,ch)*.035);g.fillStyle='#fff';g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.clip();g.drawImage(bm,-cw/2,-ch/2,cw,ch);g.restore()}
+// Bewegung je Foto festlegen: Gemischt wechselt ab, Fotos im anderen Format kommen als Fotokarte ganz ins Bild
+const FILM_ZS=[0,.07,.14,.24];
+function filmFx(T,F){const [W,H]=FILM_SZ[F.fmt]||FILM_SZ['9:16'];const z=FILM_ZS[+F.zs||2]||.14;let last='',n=0;const mixK=['in','out','pan','in','out','pan'];
+ T.forEach(x=>{if(x.t!=='img')return;const m=x.m;const h=fH(m.id);const ar=m.w&&m.h?(m.w/m.h)/(W/H):1;let k;
+  if(F.zm==='off')k='still';else if(F.zm==='in'||F.zm==='out')k=F.zm;
+  else if(ar>1.45||ar<.7)k='card';else{k=mixK[(n+h)%mixK.length];if(k===last)k=mixK[(n+h+1)%mixK.length];if(n%6===5&&last!=='card')k='card'}
+  n++;last=k;x.fx={k,z:k==='still'?0:z,ex:.3+.4*((h>>3)%100)/100,ey:.3+.4*((h>>11)%100)/100,dir:(h>>2)&1}})}
 // ---------- Start ----------
 applyTheme();
 (function start(){let raw=null;try{raw=localStorage.getItem(STORE)}catch(e){}
