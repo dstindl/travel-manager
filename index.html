@@ -1254,8 +1254,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_31';
+const APP_VERSION='0.91_32';
 const CHANGELOG=[
+ {v:'0.91_32',d:'28.11.2026',items:['Route mit einem Land: am Ende stehen jetzt die Checkliste für das nächste Land und der Transfer dorthin (bei „Alle Länder“ wie bisher nur einmal an der Grenze)']},
  {v:'0.91_31',d:'27.11.2026',items:['Links zu Baolau und Vexere öffnen mit eurem Reisedatum (bei Baolau für Bus und Zug), 12Go zusätzlich mit der Zahl der Reisenden; Teilstrecken nach einer Nachtfahrt mit dem Folgetag','Claude ruft Baolau mit eurem Datum ab – dort stehen Fahrten mit Preisen für genau diesen Tag','Nach „Übernehmen“ schließt die Verbindungs- bzw. Unterkunftssuche und der Transfer bzw. die Unterkunft öffnet sich mit den neuen Daten']},
  {v:'0.91_30',d:'27.11.2026',items:['12Go-Links öffnen immer die Streckensuche mit eurem Reisedatum und der Zahl der Reisenden; auch Claude ruft die 12Go-Seiten mit eurem Datum ab','Hinweis bei Verbindungen: Bus-, Zug-, Boot- und Fahrerpreise sind Streckenpreise der Anbieter, Flugpreise gelten für euren Tag']},
  {v:'0.91_29',d:'27.11.2026',items:['Verbindungen: Claude prüft immer alle Verkehrsmittel – Bus, Zug, Privatfahrer, Flug und Boot, auch mit Umstieg – und liefert 3–6 Optionen; die günstigste Landverbindung und die schnellste Verbindung sind immer dabei','Fehlen Optionen (weniger als 3 oder keine Bus-/Zugverbindung), fragt die App einmal gezielt nach (ca. 1–5 ct)']},
@@ -1472,8 +1473,11 @@ function vRoute(){const ds=stagesDated();const no=stageNo();const fi=focusStage(
   if(d.nights)c+=`<button class="sub" data-a="stay" data-k="${d.i}"><span class="ico">${ic('bed',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${stay.name?esc(stay.name):'Unterkunft offen'}</span>${stay.name?kiF(stay):''}${stay.name?` · ${stay.status==='gebucht'?'gebucht':'offen'}`:''}</span><span class="dot ${stay.status==='gebucht'?'g':''}"></span><span class="chev">${ic('chev',14)}</span></button>`;
   c+=`<button class="sub" data-a="step" data-k="${d.i}" data-s="ausfluege"><span class="ico">${ic('pin',15)}</span><span class="sp"><span class="lb">${ex.length} ${ex.length===1?'Ausflug':'Ausflüge'}</span>${fr?` · ${fr} ${fr===1?'Tag':'Tage'} frei`:''}</span>${fr&&d.nights>1?`<span class="ki" style="padding:3px 5px">${ic('spark',12,2.3)}</span>`:''}<span class="dot ${fr&&d.nights>1?'n':'g'}"></span><span class="chev">${ic('chev',14)}</span></button>`;
   if(foc){const nx=S5.find(x=>!x.ok);c+=`<div style="border-top:1px solid var(--line2);padding:12px 14px;display:flex;align-items:center;gap:10px"><div class="prog" style="width:70px;flex:none">${S5.map(x=>`<i class="${x.ok?'f':''}" style="height:4px"></i>`).join('')}</div><div class="sp small mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Nächster Schritt: <b style="color:var(--ink);font-weight:600">${esc(nx.k==='anreise'?'Transport offen':nx.k==='kosten'&&nx.miss&&nx.miss.length?'Kosten für '+nx.miss.slice(0,3).join(', ')+(nx.miss.length>3?' …':''):nx.t)}</b></div><button class="btn sm p" data-a="step" data-k="${d.i}" data-s="${nx.k}">Weiter</button></div>`}
-  h+=`<div class="${foc?'pri':'card'}" data-drag="stage" data-k="${d.i}" style="margin:6px 0;overflow:hidden">${c}</div>`});
- if(UI.rc!=='all'){const real=ds.filter(d=>!d.gap);const li=real.map(d=>d.country).lastIndexOf(UI.rc);const nx=li>=0?real.slice(li+1).find(d=>d.country!==UI.rc):null;if(nx)h+=`<div class="small mut" style="margin:16px 2px 0">Danach: ${cname(nx.country)}</div>`+entryCard(nx.country)}
+  h+=`<div class="${foc?'pri':'card'}" data-drag="stage" data-k="${d.i}" style="margin:6px 0;overflow:hidden">${c}</div>`;
+  // Nur ein Land gewählt: am Ende des Landes Checkliste und Transfer ins nächste Land (bei „Alle Länder“ stehen sie ohnehin einmal dort)
+  if(UI.rc!=='all'){const R0=ds.filter(x=>!x.gap);const k=R0.findIndex(x=>x.i===d.i);const nx=k>=0?R0[k+1]:null;
+   if(nx&&nx.country!==UI.rc){const sn=S.stages[nx.i];h+=`<div class="sec" style="margin-top:22px">Weiter nach ${cname(nx.country)}</div>`+entryCard(nx.country);
+    if(typeof trCardH==='function')h+=trCardH(nx,sn,legsOf(sn)).replace(/<div class="trl"><\/div><\/div>$/,'</div>')}}});
  h+=`<button class="btn" style="width:100%;margin-top:14px" data-a="stageAdd">${ic('plus',17,2.2)}Etappe hinzufügen</button>`;
  if(!localStorage.getItem('auszeit27_v2hint')){try{localStorage.setItem('auszeit27_v2hint','1')}catch(e){}setTimeout(()=>toast('Tipp: Etappe lange drücken und ziehen zum Verschieben – oder ⋯ für das Menü.'),600)}
  return h}
