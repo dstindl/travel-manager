@@ -518,6 +518,11 @@ html.shlock,html.shlock body{overflow:hidden;overscroll-behavior:none}
 .fmtg{width:34px;height:34px;border-radius:17px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink3);margin-right:10px;flex:none}.fmtg.on{border-color:var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
 .fmx{padding:11px 0 11px 14px;text-align:left;color:var(--ink);gap:12px}.fmx .ico0{display:inline-flex;color:var(--ink2)}.fmx .chev{margin-right:12px}
 .lnk{background:none;border:0;padding:0;margin:0;font:inherit;text-decoration:underline;cursor:pointer;display:inline}
+.fmtr{background:color-mix(in srgb,var(--acc) 5%,transparent)}.fmtr .fmchm{padding-left:22px}
+.fmti{width:26px;height:26px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex:none;background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--acc)}.fmti.off{background:var(--bg2,rgba(127,127,127,.12));color:var(--ink2)}
+.fmch.fl{animation:fmfl 1.6s ease-out}@keyframes fmfl{0%,30%{background:color-mix(in srgb,var(--acc) 30%,transparent)}100%{background:color-mix(in srgb,var(--acc) 5%,transparent)}}
+.trpb{gap:3px;color:var(--ink3)}.trpb.on{color:var(--acc)}.trpb b{font-size:11.5px;font-weight:700}
+.trph{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 12px 9px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}.trph .mdstrip{margin-left:auto}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1394,8 +1399,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_42';
+const APP_VERSION='0.91_43';
 const CHANGELOG=[
+ {v:'0.91_43',d:'28.11.2026',items:['Reise-Film, Kapitel: Transfers lassen sich unter den Etappen hinzufügen und rücken automatisch an ihre Stelle zwischen den Etappen. Transfers mit Fotos sind automatisch dabei, mit − wieder herausnehmen','Fotos vom Transfer: in der Route am Transfer (Foto-Symbol, Zeile mit Vorschau, Transfer-Menü) oder im Kapitel hinzufügen','Im Film läuft ein Transfer als Verfolgungsfahrt: erst Überblick, dann fährt die Kamera dem Verkehrsmittel hinterher. An jedem Foto kurzer Halt – das Foto springt groß ins Bild und bleibt danach klein auf der Karte stehen. Am Ende fährt die Kamera hoch und zeigt die ganze Strecke mit allen Fotos','Neue Einstellungen: Tempo der Transporte und Tempo der Stecknadeln (Langsam, Mittel, Schnell); Etappennamen über den Stecknadeln ein- und ausschaltbar','Die Stecknadel fällt jetzt sichtbar auf die Karte, federt nach und zieht einen Ring am Boden – deutlich ruhiger als bisher']},
  {v:'0.91_42',d:'28.11.2026',items:['Reise-Film: Das fertige Video bleibt auf dem Gerät gespeichert, auch wenn die App neu lädt oder geschlossen wird – bis ihr ein neues erstellt oder es löscht','Während ein Video entsteht, wartet das automatische Update, statt die Aufnahme durch Neuladen abzubrechen','Nach der Aufnahme springt die Seite zu „Fertiges Video“ mit Teilen (z. B. Google Fotos, WhatsApp) und Speichern (Downloads)']},
  {v:'0.91_41',d:'28.11.2026',items:['Reise-Film in 3D: Zu Beginn dreht sich ein Globus zu eurer Reiseregion und die ganze Route zeichnet sich ein. Jedes Kapitel fliegt über den Globus ins neue Land – das Flugzeug fliegt den Bogen dazwischen','Etappen als Kamerafahrt über die geneigte Karte: das Verkehrsmittel (Flugzeug, Auto, Bus, Boot, Zug) fährt als Symbol die Strecke ab, Flüge als Bogen mit Schatten, am Ziel eine Stecknadel. Im Chip oben stehen Verkehrsmittel und Dauer. Auch die flache Karte (3D aus) zeigt jetzt das Verkehrsmittel','Foto-Bewegung einstellbar: Aus, Rein, Raus oder Gemischt, dazu die Stärke Sanft, Mittel oder Stark. Gemischt wechselt je Foto zwischen hinein, heraus, Schwenk und 3D-Fotokarte; Fotos im anderen Format kommen als gekippte Fotokarte ganz ins Bild','Fehler behoben: Filme ohne eigene Musik und ohne Clips brachen nach wenigen Sekunden ab']},
  {v:'0.91_40',d:'28.11.2026',items:['Reise-Film: In der Route (Film-Symbol oben) entsteht aus eurer Route ein Video – Kapitel je Land, Kartenflug zu jeder Etappe, eure Fotos mit langsamem Zoom und kurze Clips. Hochformat 9:16 oder Querformat 16:9, Dauer je Foto einstellbar, eigene Musik möglich','Fotos und Clips an Etappen und Ausflügen: in der Route („Fotos hinzufügen“ in der Etappe, im Etappen-Menü und im Ausflug) über die Fotoauswahl des Handys – auch aus Google-Fotos-Alben. Clips kürzt ihr auf bis zu 10 Sekunden','Alles Verknüpfte landet automatisch im Film; einzelne Fotos abwählen, verschieben, einer Etappe oder einem Ausflug zuordnen oder entfernen. Fotos und Clips werden verkleinert und verschlüsselt auf beide Handys abgeglichen','Link zum Google-Fotos-Album je Etappe speicherbar']},
@@ -4384,8 +4390,9 @@ function trCardH(d,st,L){const i=d.i;
  const date=l=>dl(l.date?pd(l.date):d.from);const lab=trLabel(st,0).replace(/\.\d+$/,'');
  const head=multi?`${esc(lab)} · ${date(l0)} · ${L.length} Teilstrecken`:`${esc(lab)} · ${M0[1]} · ${date(l0)}${l0.dep?' · '+esc(l0.dep):''}`;
  const badges=multi?L.map((l,j)=>disBadge(st.id,j)).join(''):kiF(l0)+disBadge(st.id,0);
- let h=`<div class="trw"><div class="trl"></div><div class="trc ${er?'er':wn?'wn':''}"><div class="trh" role="button" data-a="leg" data-k="${i}" data-j="0"><span class="tri">${ic(multi?(L.some(l=>l.mode==='flight')?'plane':M0[0]):M0[0],15,2)}</span><div class="sp"><div class="trt">${head}${badges}${er?`<span style="color:var(--err);display:inline-flex;vertical-align:-2px;margin-left:6px">${ic('alert',14,2.3)}</span>`:''}</div><div class="trs">${esc(I0.from)} → ${esc(In.to)}</div></div><span class="trr">${spark}${cnHas(st)?cnInfoBtn(i):''}<span class="dot ${allB?'g':''}"></span><span class="mn" role="button" aria-label="Transfer-Menü" data-a="trMenu" data-k="${i}" data-j="0">${ic('more',17)}</span></span></div>`;
+ let h=`<div class="trw"><div class="trl"></div><div class="trc ${er?'er':wn?'wn':''}"><div class="trh" role="button" data-a="leg" data-k="${i}" data-j="0"><span class="tri">${ic(multi?(L.some(l=>l.mode==='flight')?'plane':M0[0]):M0[0],15,2)}</span><div class="sp"><div class="trt">${head}${badges}${er?`<span style="color:var(--err);display:inline-flex;vertical-align:-2px;margin-left:6px">${ic('alert',14,2.3)}</span>`:''}</div><div class="trs">${esc(I0.from)} → ${esc(In.to)}</div></div><span class="trr">${spark}${cnHas(st)?cnInfoBtn(i):''}${typeof trPhBtn==='function'?trPhBtn(i):''}<span class="dot ${allB?'g':''}"></span><span class="mn" role="button" aria-label="Transfer-Menü" data-a="trMenu" data-k="${i}" data-j="0">${ic('more',17)}</span></span></div>`;
  if(multi)h+=`<div class="trls">${L.map((l,j)=>{const I=trInfo(d,null,j);const M=MODES[l.mode]||MODES.car;return `<button class="trlr" data-a="leg" data-k="${i}" data-j="${j}"><span class="tlb">${esc(trLabel(st,j).replace(/^T/,''))}</span><span style="color:var(--ink2);display:inline-flex">${ic(M[0],14,2)}</span><span class="sp" style="line-height:1.35"><span class="t">${M[1]}${l.date&&l.date!==l0.date?' · '+date(l):''}${l.dep?' · '+esc(l.dep):''}${l.op?' · '+esc(l.op):l.airline?' · '+esc(l.airline):''}${kiF(l)}</span>${esc(I.from)} → ${esc(I.to)}</span>${(l.rw||l.rwD)?`<span style="color:var(--err);display:inline-flex">${ic('alert',13,2.3)}</span>`:''}<span class="dot ${l.status==='gebucht'?'g':''}"></span></button>`}).join('')}</div>`;
+ if(typeof trPhRow==='function')h+=trPhRow(i);
  if(fl)h+=`<div class="trwn">${trFlagLine(fl).replace(/^<span class="small" style="display:block;margin-top:3px;/,'<span style="display:block;')}</div>`;
  return h+`</div><div class="trl"></div></div>`}
 
@@ -5123,20 +5130,21 @@ Object.assign(window.KIA=window.KIA||{},{
 function mdThumb(m,n){return `<button class="mdth${m.film===false?' off':''}" data-a="mdItem" data-k="${m.id}" data-mdt="${m.id}" aria-label="${m.k==='v'?'Clip':'Foto'}">${m.film!==false&&n?`<span class="mdn">${n}</span>`:''}${m.film===false?`<span class="mdo">${ic('eyeoff',13,2.2)}</span>`:''}${m.k==='v'?`<span class="mdv">${ic('play',10,2.4)} ${fmtSec(m.d||0)}</span>`:''}</button>`}
 function mdGrid(L){let n=0;return L.length?`<div class="mdgrid">${L.map(m=>mdThumb(m,m.film!==false?++n:0)).join('')}</div>`:''}
 const mdCnt=L=>{const i=L.filter(m=>m.k!=='v').length,v=L.filter(m=>m.k==='v').length;return [i?`${i} ${i===1?'Foto':'Fotos'}`:'',v?`${v} ${v===1?'Clip':'Clips'}`:''].filter(Boolean).join(' · ')||'noch nichts'};
-function mdSheet(i,focusX){const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const all=mdOf(st.id);const ex=exOf(i);UI.mdCtx={i};
+function mdSheet(i,focusX){if(focusX===MD_TR)return mdTrSheet(i);const st=S.stages[i];if(!st)return;const d=stagesDated()[i];const all=mdOf(st.id).filter(m=>m.xid!==MD_TR);const trO=filmTrList().find(o=>o.st.id===st.id);const ex=exOf(i);UI.mdCtx={i};
  const sec=(t,xid,L)=>`<div class="mdsec" ${xid?`data-mdx="${xid}"`:''}><div class="mdsh"><span class="sp">${t}<span class="mut" style="font-weight:500"> · ${mdCnt(L)}</span></span><button class="btn sm" data-a="mdAdd" data-k="${i}" ${xid?`data-x="${xid}"`:''}>${ic('plus',14,2.2)}Hinzufügen</button></div>${mdGrid(L)}</div>`;
  const alb=st.album?`<div class="card" style="margin:0 0 12px;padding:0"><a class="row" href="${esc(st.album)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="ic0">${ic('link',17)}</div><div class="sp"><div class="tt">Google-Fotos-Album öffnen</div><div class="ss">${esc(st.albumName||'verknüpft')}</div></div><span class="chev">${ic('link',14)}</span></a><button class="row" data-a="mdAlb" data-k="${i}" style="border-top:1px solid var(--line2)"><div class="ic0">${ic('pen',16)}</div><div class="sp"><div class="tt">Album-Link ändern</div></div></button></div>`:'';
  sheet(`<div class="sht">Fotos · ${esc(pname(st))}</div><div class="mut" style="margin:4px 0 12px">Etappe ${stageNo()[st.id]} · ${dl(d.from)}–${dl(d.to)} · ${mdCnt(all)}</div>
  <div class="fbtn" style="margin:0 0 10px"><button class="btn sm p" data-a="mdAdd" data-k="${i}">${ic('plus',15,2.2)}Fotos und Videos</button>${st.album?'':`<button class="btn sm" data-a="mdAlb" data-k="${i}">${ic('link',15)}Google-Fotos-Album</button>`}</div>
  <div class="small mut" style="margin:0 2px 12px;line-height:1.45">„Fotos und Videos“ öffnet die Auswahl des Handys – dort sind auch eure Google-Fotos-Alben. Alles hier kommt automatisch in den Reise-Film; Nummern = Reihenfolge. Antippen zum Abwählen, Verschieben oder Entfernen.</div>
  ${alb}${sec('Etappe',null,mdOf(st.id,null))}${ex.map(x=>sec('Ausflug · '+esc(x.name),x.id,mdOf(st.id,x.id))).join('')}
+ ${trO?`<div class="card" style="padding:0;margin-top:12px">${row({icn:trO.leg&&trO.leg.main==='flight'?'plane':(trO.leg?trO.leg.icons[0]:'car'),t:`Fotos vom Transfer ${esc(trO.lab)}`,s:`${esc(pname(trO.pv))} → ${esc(pname(st))} · ${mdCnt(mdOf(st.id,MD_TR))}`,a:`data-a="mdOpen" data-k="${i}" data-x="${MD_TR}"`})}</div>`:''}
  <button class="btn gh" style="width:100%;margin-top:12px" data-a="filmOpen">${ic('film',16)}Zum Reise-Film</button>`);
  if(focusX)setTimeout(()=>{const e=document.querySelector(`#sheet [data-mdx="${focusX}"]`);if(e)e.scrollIntoView({block:'start',behavior:'smooth'})},200)}
-function mdItemSheet(id){const m=mdAll().find(x=>x.id===id);if(!m)return;const i=S.stages.findIndex(s=>s.id===m.sid);const st=S.stages[i];const L=mdOf(m.sid,m.xid);const k=L.indexOf(m);const ex=i>=0?exOf(i):[];
- sheet(`<div class="sht">${m.k==='v'?'Clip':'Foto'}</div><div class="mut" style="margin:4px 0 10px">${st?esc(pname(st)):''}${m.xid&&byId(m.xid)?' · '+esc(byId(m.xid).name):''}${m.ts?' · '+fmtDT(m.ts):''}</div>
+function mdItemSheet(id){const m=mdAll().find(x=>x.id===id);if(!m)return;const i=S.stages.findIndex(s=>s.id===m.sid);const st=S.stages[i];const L=mdOf(m.sid,m.xid);const k=L.indexOf(m);const ex=i>=0?exOf(i):[];const hasTr=!!(st&&filmTrList().some(o=>o.st.id===st.id));
+ sheet(`<div class="sht">${m.k==='v'?'Clip':'Foto'}</div><div class="mut" style="margin:4px 0 10px">${st?esc(pname(st)):''}${m.xid===MD_TR?' · Transfer':m.xid&&byId(m.xid)?' · '+esc(byId(m.xid).name):''}${m.ts?' · '+fmtDT(m.ts):''}</div>
  <div id="mdBig" class="mdbig">${m.k==='v'?`<video id="mdBigV" controls playsinline style="width:100%;max-height:340px;border-radius:14px;background:#000;display:block"></video>`:`<img id="mdBigI" alt="" style="width:100%;max-height:340px;object-fit:contain;border-radius:14px;background:#000;display:block">`}</div>
  ${lbl('Im Reise-Film')}${seg('mdFilm',[['1','ja'],['0','nein']],m.film===false?'0':'1')}
- ${ex.length?lbl('Gehört zu')+`<select class="fld" id="mdTo"><option value="">Etappe ${esc(pname(st))}</option>${ex.map(x=>`<option value="${x.id}" ${m.xid===x.id?'selected':''}>Ausflug · ${esc(x.name)}</option>`).join('')}</select>`:''}
+ ${ex.length||hasTr?lbl('Gehört zu')+`<select class="fld" id="mdTo"><option value="">Etappe ${esc(pname(st))}</option>${hasTr?`<option value="${MD_TR}" ${m.xid===MD_TR?'selected':''}>Transfer nach ${esc(pname(st))}</option>`:''}${ex.map(x=>`<option value="${x.id}" ${m.xid===x.id?'selected':''}>Ausflug · ${esc(x.name)}</option>`).join('')}</select>`:''}
  ${m.k==='v'?lbl('Ton im Film')+seg('mdVol2',[['orig','Originalton'],['low','leise unter Musik'],['mute','stumm']],m.vol||'low'):''}
  ${fld('mdCap','Bildunterschrift (optional)',m.cap||'',{ph:'z. B. Sonnenuntergang an Bord'})}
  <div class="fbtn" style="margin-top:10px"><button class="btn sm" data-a="mdMv" data-k="${id}" data-d="-1" ${k<=0?'disabled':''}>${ic('up',15)}Früher</button><button class="btn sm" data-a="mdMv" data-k="${id}" data-d="1" ${k>=L.length-1?'disabled':''}>${ic('down',15)}Später</button><button class="btn gh sm" style="color:var(--err);margin-left:auto" data-a="mdDel" data-k="${id}">${ic('trash',15)}Entfernen</button></div>
@@ -5156,8 +5164,19 @@ Object.assign(window.KIA=window.KIA||{},{
  mdAlbSave:(el)=>{const i=+el.dataset.k;const st=S.stages[i];const u=(fv('mdAlbU')||'').trim();if(u&&!/^https:\/\/(photos\.app\.goo\.gl|photos\.google\.com|goo\.gl)\//.test(u))return toast('Bitte einen Link aus Google Fotos einfügen (https://photos.app.goo.gl/…).');
   if(u)st.album=u;else delete st.album;const n=fv('mdAlbN');if(n)st.albumName=n.slice(0,60);else delete st.albumName;save();mdSheet(i)},
  mdAlbDel:(el)=>{const i=+el.dataset.k;const st=S.stages[i];delete st.album;delete st.albumName;save();mdSheet(i)}});
+// ---------- Fotos vom Transfer (Zuordnung xid „_tr“ an der Ziel-Etappe) ----------
+function mdTrSheet(i){const st=S.stages[i];if(!st)return;const o=filmTrList().find(x=>x.st.id===st.id);const d=stagesDated()[i];const L=mdOf(st.id,MD_TR);const on=filmTrOn(st);UI.mdCtx={i};
+ sheet(`<div class="sht">Fotos · Transfer ${esc(o?o.lab:'')}</div><div class="mut" style="margin:4px 0 12px">${o?esc(pname(o.pv))+' → ':''}${esc(pname(st))}${o&&o.leg?' · '+esc(o.leg.lab):''} · ${dl(d.from)} · ${mdCnt(L)}</div>
+ <div class="fbtn" style="margin:0 0 10px"><button class="btn sm p" data-a="mdAdd" data-k="${i}" data-x="${MD_TR}">${ic('plus',15,2.2)}Fotos und Videos</button></div>
+ <div class="small mut" style="margin:0 2px 12px;line-height:1.45">Fotos von unterwegs. Im Reise-Film fährt die Kamera dem Verkehrsmittel hinterher, und an jedem Foto hält sie kurz – das Foto springt groß ins Bild und bleibt danach klein auf der Karte stehen. Clips laufen danach. Nummern = Reihenfolge.</div>
+ ${mdGrid(L)}
+ <div class="card" style="padding:0;margin-top:12px"><div class="fmch"><div class="fmchm" style="cursor:default"><span class="sp"><span class="tt" style="display:block">Im Reise-Film als Verfolgungsfahrt</span><span class="ss" style="display:block">${on?'dabei – zwischen den Etappen':'nicht dabei'}</span></span></div><button class="fmtg${on?' on':''}" data-a="filmTr" data-k="${st.id}" data-r="md" aria-label="Transfer im Film ${on?'abwählen':'auswählen'}">${ic(on?'check':'plus',16,2.4)}</button></div></div>
+ ${btns(`<button class="btn" style="flex:1" data-a="filmOpen">${ic('film',16)}Zum Reise-Film</button>`,`<button class="btn" data-a="close">Fertig</button>`)}`)}
+function trPhBtn(i){const st=S.stages[i];if(!st||!filmTrList().some(o=>o.st.id===st.id))return '';const n=mdOf(st.id,MD_TR).length;return `<span class="mn trpb${n?' on':''}" role="button" aria-label="Fotos vom Transfer" data-a="mdOpen" data-k="${i}" data-x="${MD_TR}">${ic('img',15,2)}${n?`<b>${n}</b>`:''}</span>`}
+function trPhRow(i){const st=S.stages[i];if(!st)return '';const L=mdOf(st.id,MD_TR);if(!L.length)return '';return `<button class="trph" data-a="mdOpen" data-k="${i}" data-x="${MD_TR}"><span style="display:inline-flex;color:var(--ink2)">${ic('img',14,2)}</span><span class="sp">${mdCnt(L)} von unterwegs</span><span class="mdstrip">${L.slice(0,4).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span><span class="chev">${ic('chev',13)}</span></button>`}
+{const t0=trMenu;trMenu=function(i){const r=t0.apply(this,arguments);try{const st=S.stages[i];const c=$('#sheet .card');if(c&&st){const L=mdOf(st.id,MD_TR);c.insertAdjacentHTML('afterbegin',row({icn:'img',t:'Fotos vom Transfer',s:L.length?mdCnt(L)+' · für den Reise-Film':'Fotos von unterwegs für den Reise-Film',a:`data-a="mdOpen" data-k="${i}" data-x="${MD_TR}"`}))}}catch(e){}return r}}
 // ---------- Zeile in der Route, Eintrag im Etappen-Menü und im Ausflug ----------
-function mdRow(d){const st=S.stages[d.i];const L=mdOf(st.id);const started=iso(today())>=iso(d.from);if(!L.length&&!started)return '';
+function mdRow(d){const st=S.stages[d.i];const L=mdOf(st.id).filter(m=>m.xid!==MD_TR);const started=iso(today())>=iso(d.from);if(!L.length&&!started)return '';
  const th=L.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('');
  return `<button class="sub" data-a="mdOpen" data-k="${d.i}"><span class="ico">${ic('img',15)}</span><span class="sp" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span class="lb">${L.length?mdCnt(L):'Fotos hinzufügen'}</span>${st.album?' · Album':''}</span>${th?`<span class="mdstrip">${th}</span>`:''}<span class="chev">${ic('chev',14)}</span></button>`}
 {const m0=stMenu;stMenu=function(i){const r=m0.apply(this,arguments);try{const st=S.stages[i];const c=$('#sheet .card');if(c&&st){const L=mdOf(st.id);c.insertAdjacentHTML('beforeend',row({icn:'img',t:'Fotos und Clips',s:L.length?mdCnt(L):'für den Reise-Film verknüpfen',a:`data-a="mdOpen" data-k="${i}"`}))}}catch(e){}return r}}
@@ -5176,14 +5195,22 @@ gsDocs=async function(c,key){const ls=await gsGet('docs',c);const remote=new Map
 // Ablauf je Land (Kapitel): Titel → je Etappe Kartenflug → Fotos/Clips der Etappe → Fotos/Clips der Ausflüge. Ende: ganze Route.
 // Gezeichnet wird auf einer Canvas, aufgenommen mit MediaRecorder (Bild + Ton aus Clips und eigener Musik) – in Echtzeit, direkt auf dem Handy.
 const FILM_SZ={'9:16':[720,1280],'16:9':[1280,720]};
-function filmCfg(){S.film=Object.assign({fmt:'9:16',dur:3,off:{},map:true,cap:true,d3:true,zm:'mix',zs:2},S.film||{});if(!S.film.off||typeof S.film.off!=='object')S.film.off={};return S.film}
+function filmCfg(){S.film=Object.assign({fmt:'9:16',dur:3,off:{},map:true,cap:true,d3:true,zm:'mix',zs:2,tv:2,pv:2,lbl:true,tr:{}},S.film||{});if(!S.film.off||typeof S.film.off!=='object')S.film.off={};if(!S.film.tr||typeof S.film.tr!=='object')S.film.tr={};return S.film}
+// Tempo: Transporte [Überblicksflug, Verfolgungsfahrt, Halt je Foto] und Stecknadel-Ankunft, je Langsam/Mittel/Schnell
+const FILM_TV=[null,[4.2,8,2.4],[3,5.5,1.8],[2,3.6,1.3]],FILM_PV=[0,2.6,1.7,1];
+const MD_TR='_tr';const filmTrMedia=st=>mdOf(st.id,MD_TR).filter(m=>m.film!==false);
+function filmTrOn(st){if(!st)return false;const F=filmCfg();const v=F.tr[st.id];if(v===1)return true;if(v===0)return false;return filmTrMedia(st).length>0}
+function filmTrList(c){const all=stagesDated().filter(d=>!d.gap&&stageLL(d.i));const out=[];all.forEach((d,k)=>{const st=S.stages[d.i];if(k===0||(c&&st.country!==c))return;if(!legsOf(st).length)return;out.push({d,st,pv:S.stages[all[k-1].i],leg:filmLeg(st),lab:trLabel(st,0).replace(/\.\d+$/,'')||'Transfer'})});return out}
 const filmMode=st=>{const L=legsOf(st);const ms=[...new Set(L.map(l=>(MODES[l.mode]||MODES.car)[1]))];return ms.join(' + ')};
 function filmPlan(){const F=filmCfg();const d3=!!F.d3;const ds=stagesDated().filter(d=>!d.gap&&stageLL(d.i));const all=[...new Set(ds.map(d=>S.stages[d.i].country))];const cs=all.filter(c=>!F.off[c]);const T=[];let prevI=null;
  if(d3&&cs.length)T.push({t:'intro',dur:4.6});
  all.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c);const on=!F.off[c];if(!on){prevI=L[L.length-1].i;return}const ci=cs.indexOf(c);const fi=ds.indexOf(L[0]);
   T.push({t:'title',c,ci,cn:cs.length,pc:ci>0?cs[ci-1]:null,fi,pi:fi-1,leg:fi>0?filmLeg(S.stages[L[0].i]):null,from:L[0].from,to:L[L.length-1].to,n:L.reduce((a,d)=>a+d.nights,0),dur:d3?3.4:2.6});
-  L.forEach((d,j)=>{const st=S.stages[d.i];const dates=d.nights?`${dl(d.from)} – ${dl(d.to)}`:dl(d.from);
-   if(F.map){const leg=prevI!=null?filmLeg(st):null;const drop=d3&&j===0;T.push({t:'map',i:d.i,prev:prevI,c,cap:pname(st),sub:dates,mode:leg?leg.lab:'',leg,drop,dur:d3?(drop?2.6:leg&&leg.main==='flight'?3.6:3):2.4})}prevI=d.i;
+  const tv=FILM_TV[+F.tv||2]||FILM_TV[2],pin=FILM_PV[+F.pv||2]||1.7;
+  L.forEach((d,j)=>{const st=S.stages[d.i];const dates=d.nights?`${dl(d.from)} – ${dl(d.to)}`:dl(d.from);const leg=prevI!=null?filmLeg(st):null;const trOn=!!(leg&&filmTrOn(st));
+   if(trOn){const ph=filmTrMedia(st).filter(m=>m.k!=='v');T.push({t:'tr',i:d.i,prev:prevI,c,leg,ph,cap:`${pname(S.stages[prevI])} → ${pname(st)}`,sub:[leg.lab,leg.min?fmtMin(leg.min):'',dl(d.from)].filter(Boolean).join(' · '),mv:tv[1],hold:tv[2],lead:1.3,tail:ph.length?2.6:1.1,dur:1.3+tv[1]+ph.length*tv[2]+(ph.length?2.6:1.1)});
+    filmTrMedia(st).filter(m=>m.k==='v').forEach(m=>T.push({m,t:'vid',c,cap:m.cap||'Unterwegs nach '+pname(st),sub:leg.lab,chip:'📍 Transfer',dur:Math.max(1,m.d||5)}))}
+   if(F.map){const drop=d3&&j===0&&!trOn;const arr=trOn;const mv=prevI!=null&&!trOn&&!drop?tv[0]:0;const lead=drop?1.5:mv?0:.9;T.push({t:'map',i:d.i,prev:prevI,c,cap:pname(st),sub:dates,mode:leg?leg.lab:'',leg,drop,arr,mv,pin,lead,dur:lead+mv+pin})}prevI=d.i;
    const items=mdOf(st.id,null).filter(m=>m.film!==false).map(m=>({m,cap:m.cap||pname(st),sub:m.cap?pname(st):dates,chip:'📍 '+pname(st)}));
    exOf(d.i).slice().sort((a,b)=>String(a.planned||'9').localeCompare(String(b.planned||'9'))).forEach(x=>mdOf(st.id,x.id).filter(m=>m.film!==false).forEach(m=>items.push({m,cap:m.cap||x.name,sub:'Ausflug'+(x.planned?' · '+dl(pd(x.planned)):''),chip:'📍 '+pname(st)})));
    items.forEach(o=>T.push(Object.assign(o,{t:o.m.k==='v'?'vid':'img',c,dur:o.m.k==='v'?Math.max(1,o.m.d||5):F.dur})))})});
@@ -5209,15 +5236,16 @@ function fCaption(g,W,H,cap,sub){const port=H>W;const fs=Math.round((port?W*0.06
  for(let k=lines.length-1;k>=0;k--){g.fillText(lines[k],x,y);y-=fs*1.12}g.shadowBlur=0}
 function fCover(g,src,sw,sh,W,H,p,dir){const sc=Math.max(W/sw,H/sh)*(1+0.08*p);const w=sw*sc,h=sh*sc;const dx=(W-w)/2+(dir?1:-1)*W*0.025*(p-.5),dy=(H-h)/2+(dir?-1:1)*H*0.015*(p-.5);g.drawImage(src,dx,dy,w,h)}
 const fQ=(a,c,b,t)=>{const u=1-t;return [u*u*a[0]+2*u*t*c[0]+t*t*b[0],u*u*a[1]+2*u*t*c[1]+t*t*b[1]]};
+function fCtl(a,b){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);if(L<8)return null;let nx=-dy/L,ny=dx/L;if(ny>0){nx=-nx;ny=-ny}return [(a[0]+b[0])/2+nx*L*.22,(a[1]+b[1])/2+ny*L*.22]}
 function fRoute(g,V,R,upto,frac,cur,rm){// R = [[lat,lon]], bis upto fertig, Abschnitt upto→upto+1 zu frac; rm[k] = Verkehrsmittel in Etappe k
  const W=Math.min(g.canvas.width,g.canvas.height);const lw=Math.max(3,W*0.006);g.lineCap='round';g.lineJoin='round';const P=R.map(r=>V.P(r[0],r[1]));rm=rm||[];
- const ctl=k=>{if(rm[k]!=='flight')return null;const a=P[k-1],b=P[k];const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);if(L<8)return null;let nx=-dy/L,ny=dx/L;if(ny>0){nx=-nx;ny=-ny}return [(a[0]+b[0])/2+nx*L*.22,(a[1]+b[1])/2+ny*L*.22]};
+ const ctl=k=>rm[k]==='flight'?fCtl(P[k-1],P[k]):null;
  const path=(k,t)=>{const a=P[k-1],b=P[k],c=ctl(k);if(!c){g.lineTo(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t);return}const e=fQ(a,c,b,t);g.quadraticCurveTo(a[0]+(c[0]-a[0])*t,a[1]+(c[1]-a[1])*t,e[0],e[1])};
  g.setLineDash([lw*1.6,lw*1.8]);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=lw*0.7;g.beginPath();g.moveTo(P[0][0],P[0][1]);for(let k=1;k<P.length;k++)path(k,1);g.stroke();g.setLineDash([]);
  g.strokeStyle='#8FCFC6';g.lineWidth=lw;g.beginPath();g.moveTo(P[0][0],P[0][1]);for(let k=1;k<=Math.min(upto,P.length-1);k++)path(k,1);if(upto+1<P.length&&frac>0)path(upto+1,frac);g.stroke();
  P.forEach((p,k)=>{const done=k<=upto||(k===upto+1&&frac>=1);g.beginPath();g.arc(p[0],p[1],k===cur?lw*2.4:lw*1.2,0,Math.PI*2);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.55)';g.fill();g.lineWidth=lw*0.6;g.strokeStyle='#10232e';g.stroke()})
  if(upto+1<P.length&&frac>0&&frac<1){const k=upto+1,a=P[k-1],b=P[k],c=ctl(k);const h=c?fQ(a,c,b,frac):[a[0]+(b[0]-a[0])*frac,a[1]+(b[1]-a[1])*frac];fBadge(g,h[0],h[1],W*.032,(MODES[rm[k]]||MODES.car)[0],1)}
- if(cur!=null&&P[cur]&&frac>=1){const p=P[cur];const t=(performance.now()%1400)/1400;g.beginPath();g.arc(p[0],p[1],lw*2.4+lw*4*t,0,Math.PI*2);g.strokeStyle=`rgba(143,207,198,${1-t})`;g.lineWidth=lw*0.8;g.stroke()}}
+ }
 // ---------- Wiedergabe (Vorschau oder Aufnahme) ----------
 UI.film=null;
 async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();const P=filmPlan();if(!P.T.length)return toast('Noch keine Etappen mit Ort.');
@@ -5227,12 +5255,13 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
   const ds=P.ds;const LL=i=>stageLL(i);const port=H>W;const pt=port?0.14:0.12,pb=port?0.26:0.24;const views={};const route=ds.map(d=>d.i);const allPts=ds.map(d=>LL(d.i));
   const rm=route.map((i,k)=>{if(!k)return null;const l=filmLeg(S.stages[i]);return l?l.main:'car'});
   const g3=!!(F.d3&&fglInit(W,H));if(!g3&&P.T.some(x=>x.fx&&x.fx.k==='card'))fglInit(W,H);if(FGL.gl){FGL.gV=null;FGL.gG=null}
-  const C={views,route,P,rm,g3,BM:{},VID:{}};
+  const C={views,route,P,rm,g3,BM:{},VID:{},names:route.map(i=>pname(S.stages[i])),v3t:{},v2t:{}};const TRS=P.T.filter(x=>x.t==='tr');
   await fIconsLoad(['car','bus','plane','boat','train'].concat(Object.values(MODES).map(m=>m[0])));
-  if(g3){C.v3={};let n=0;const jobs=P.cs.map(async c=>{const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));C.v3[c]=await f3View(pts);R.phase=`Karten werden geladen … ${++n} von ${P.cs.length}`;filmProg()});
+  if(g3){C.v3={};let n=0;const jobs=P.cs.map(async c=>{const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>(x.t==='map'||x.t==='tr')&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));C.v3[c]=await f3View(pts);R.phase=`Karten werden geladen … ${++n} von ${P.cs.length+TRS.length}`;filmProg()});
+   TRS.forEach(x=>jobs.push(f3View([LL(x.prev),LL(x.i)]).then(V=>{C.v3t[x.i]=V;R.phase=`Karten werden geladen … ${++n} von ${P.cs.length+TRS.length}`;filmProg()})));
    jobs.push(fGlobeTex(allPts).then(G=>C.G=G));await Promise.all(jobs);if(!UI.film||!UI.film.run)return;
    C.gc=fCentroid(allPts);C.gdR=fGDist(allPts,C.gc,W,H,1.35);C.gd0=port?6.5:4.6;C.cc={};P.cs.forEach(c=>{const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>LL(d.i));const cc=fCentroid(L);C.cc[c]={ll:cc,d:Math.max(1.55,Math.min(C.gdR,fGDist(L,cc,W,H,2.2)))}})}
-  else{for(const c of P.cs){const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>x.t==='map'&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));views[c]=await filmView(pts,W,H,pt,pb);if(!UI.film||!UI.film.run)return}
+  else{for(const x of TRS){C.v2t[x.i]=await filmView([LL(x.prev),LL(x.i)],W,H,pt,pb);if(!UI.film||!UI.film.run)return}for(const c of P.cs){const L=ds.filter(d=>S.stages[d.i].country===c).map(d=>d.i);const first=P.T.find(x=>(x.t==='map'||x.t==='tr')&&x.c===c);const pts=L.map(LL);if(first&&first.prev!=null)pts.unshift(LL(first.prev));views[c]=await filmView(pts,W,H,pt,pb);if(!UI.film||!UI.film.run)return}
    views._end=await filmView(allPts,W,H,0.12,0.3)}
   // Ton
   const ac=new AudioContext();await ac.resume();const dest=ac.createMediaStreamDestination();const out=rec?dest:ac.destination;try{const sil=ac.createConstantSource();sil.offset.value=0;sil.connect(dest);sil.start()}catch(e){}let mus=null,musG=null;
@@ -5240,7 +5269,7 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
   // Bilder und Clips vorladen
   const BM=C.BM,VID=C.VID;const keepV=p=>{p.then(v=>p.__v=v);return p};const loadImg=m=>BM[m.id]||(BM[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);return v&&v.blob?await createImageBitmap(v.blob):null}catch(e){return null}})()));
   const loadVid=m=>VID[m.id]||(VID[m.id]=keepV((async()=>{try{const v=await bkGet('M:'+m.id);if(!v||!v.blob)return null;const el=mdVideoEl(URL.createObjectURL(v.blob));el.muted=false;await mdWait(el,'loadeddata');const sN=ac.createMediaElementSource(el);const gN=ac.createGain();gN.gain.value=m.vol==='mute'?0:m.vol==='orig'?1:0.45;sN.connect(gN);gN.connect(out);if(rec)gN.connect(ac.destination);return {el,gN}}catch(e){return null}})()));
-  const pre=k=>{for(let j=k;j<Math.min(P.T.length,k+4);j++){const x=P.T[j];if(x.t==='img')loadImg(x.m);if(x.t==='vid')loadVid(x.m)}};pre(0);await Promise.all(P.T.slice(0,3).map(x=>x.t==='img'?loadImg(x.m):x.t==='vid'?loadVid(x.m):null));
+  const pre=k=>{for(let j=k;j<Math.min(P.T.length,k+4);j++){const x=P.T[j];if(x.t==='img')loadImg(x.m);if(x.t==='vid')loadVid(x.m);if(x.t==='tr')x.ph.forEach(loadImg)}};pre(0);await Promise.all(P.T.slice(0,3).map(x=>x.t==='img'?loadImg(x.m):x.t==='vid'?loadVid(x.m):x.t==='tr'?Promise.all(x.ph.map(loadImg)):null));
   // Aufnahme
   let mr=null,parts=[],mime='';if(rec){mime=mdMime();const st=new MediaStream([...cv.captureStream(30).getVideoTracks(),...dest.stream.getAudioTracks()]);mr=new MediaRecorder(st,mime?{mimeType:mime,videoBitsPerSecond:W*H>900000?6000000:4500000,audioBitsPerSecond:128000}:{});mr.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data)};mr.start(1000)}
   let wl=null;try{wl=await navigator.wakeLock.request('screen')}catch(e){}
@@ -5268,7 +5297,22 @@ async function filmRun(rec){if(UI.film&&UI.film.run)return;const F=filmCfg();con
  catch(e){UI.film=null;filmUi(true);toast('Film konnte nicht erstellt werden: '+esc(e.message||e),6000)}}
 function fMapTxt(g,W,H,x,C,has){const F=filmCfg();if(has)fAttr(g,W,H);if(!F.cap)return;fChip(g,W,(flag(x.c)?flag(x.c)+' ':'')+country(x.c).name,W*0.05,H*0.05);
  if(x.leg&&x.prev!=null&&!(C.g3&&x.drop))fChipI(g,W,x.leg.icons,fLegTxt(x.leg,pname(S.stages[x.prev]),x.cap),W*0.05,H*0.05+(H>W?W*0.075:H*0.075));fCaption(g,W,H,x.cap,x.sub)}
+function fTrTxt(g,W,H,x,C,has){const F=filmCfg();if(has)fAttr(g,W,H);if(!F.cap)return;fChip(g,W,(flag(x.c)?flag(x.c)+' ':'')+country(x.c).name,W*0.05,H*0.05);
+ fChipI(g,W,x.leg.icons,'Transfer'+(x.ph.length?` · ${x.ph.length} ${x.ph.length===1?'Foto':'Fotos'}`:''),W*0.05,H*0.05+(H>W?W*0.075:H*0.075));fCaption(g,W,H,x.cap,x.sub)}
+function f2Tr(g,W,H,x,p,C){const V=C.v2t&&C.v2t[x.i];if(!V)return false;const R=C.route;const ci=R.indexOf(x.i),pi=R.indexOf(x.prev);if(ci<0||pi<0)return false;const K=filmTrQ(x);const Tm=K[K.length-1][0];const t=p*x.dur-(x.lead||.7);const q=fTrQ(K,Math.min(Math.max(t,0),Tm));
+ const sc=1+.05*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);const RL=R.map(i=>stageLL(i));fRoute(g,V,RL,pi,Math.max(q,.0001),ci,C.rm);
+ const a=V.P(RL[pi][0],RL[pi][1]),b=V.P(RL[ci][0],RL[ci][1]);const c=C.rm[ci]==='flight'?fCtl(a,b):null;g.restore();const T=(X,Y)=>[W/2+(X-W/2)*sc,H/2+(Y-H/2)*sc];
+ fTrPhotos(g,W,H,x,K,t,s=>{const P=c?fQ(a,c,b,s):[a[0]+(b[0]-a[0])*s,a[1]+(b[1]-a[1])*s];const Q=T(P[0],P[1]);return [Q[0],Q[1],1,1]},C);return true}
+function f2Map(g,W,H,x,p,C){const V=C.views[x.c];if(!V)return false;const R=C.route.map(i=>stageLL(i));const ci=C.route.indexOf(x.i);const pi=x.prev!=null?C.route.indexOf(x.prev):-1;const F=filmCfg();
+ const T=x.dur||2.4,t=p*T,lead=x.lead||0,mv=x.mv||0,pin=x.pin||1.7;const moving=mv>0&&pi>=0&&!x.arr;const fr=moving?fEase(f01((t-lead)/mv)):1;const pa=f01((t-lead-(moving?mv:0))/pin);
+ const sc=1+0.04*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);
+ if(moving)fRoute(g,V,R,pi,fr,ci,C.rm);else if(ci>0)fRoute(g,V,R,ci-1,1,ci,C.rm);else fRoute(g,V,R,0,0,ci,C.rm);
+ const m0=Math.min(W,H),box=[];const B=V.P(R[ci][0],R[ci][1]);const rp=m0*.021;const nm=F.lbl?C.names:null;
+ if(nm&&pa>0){box.push(fTagBox(g,nm[ci],B[0],B[1]-rp*3.2,m0*.034));box.push([B[0]-rp,B[1]-rp*3.2,B[0]+rp,B[1]])}
+ if(nm)C.route.forEach((i,k)=>{if(k>=ci||S.stages[i].country!==x.c)return;const P=V.P(R[k][0],R[k][1]);if(P[0]<0||P[0]>W||P[1]<0||P[1]>H)return;fTag(g,nm[k],P[0],P[1]-m0*.012,m0*.024,.92,box)});
+ fArrive(g,B[0],B[1],rp,pa,nm?nm[ci]:null,m0*.034,.45);g.restore();return true}
 function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();const g3=C.g3&&fglOk();
+ if(x.t==='tr'){if(g3&&f3Tr(g,W,H,x,p,C)){fTrTxt(g,W,H,x,C,(C.v3t[x.i]||C.v3[x.c]||{}).has);return}if(f2Tr(g,W,H,x,p,C))fTrTxt(g,W,H,x,C,true);return}
  if(x.t==='intro'){if(g3&&f3Intro(g,W,H,x,p,C))return;const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);fIntroTxt(g,W,H,1,C,H*0.42);return}
  if(x.t==='title'){if(g3&&f3Title(g,W,H,x,p,C))return;const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#0e2a3a');gr.addColorStop(1,'#123b33');g.fillStyle=gr;g.fillRect(0,0,W,H);const s=port?W:H*0.9;
   g.textAlign='center';g.textBaseline='middle';g.font=`${Math.round(s*0.2)}px "Noto Color Emoji","Apple Color Emoji",sans-serif`;g.fillText(flag(x.c)||'',W/2,H*0.4-(1-fEase(Math.min(1,p*2)))*20);
@@ -5277,11 +5321,10 @@ function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();const g3=C.g3&&f
   g.fillStyle='rgba(255,255,255,.65)';g.fillText(`Kapitel ${x.ci+1} von ${x.cn}`,W/2,H*0.4+s*0.34);g.textAlign='left';return}
  if(x.t==='map'&&g3&&f3Map(g,W,H,x,p,C)){fMapTxt(g,W,H,x,C,C.v3[x.c].has);return}
  if(x.t==='end'&&g3&&f3End(g,W,H,x,p,C)){if(fGHas(C))fAttr(g,W,H);const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
- if(x.t==='map'||x.t==='end'){const V=x.t==='end'?C.views._end:C.views[x.c];if(!V)return;const sc=1+0.04*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);
-  const R=C.route.map(i=>stageLL(i));const ci=x.t==='end'?R.length-1:C.route.indexOf(x.i);const pi=x.prev!=null?C.route.indexOf(x.prev):-1;
-  if(x.t==='end')fRoute(g,V,R,R.length-1,1,null,C.rm);else{const fr=pi<0?1:fEase(Math.min(1,p/0.7));fRoute(g,V,R,pi<0?ci:pi,pi<0?1:fr,ci,C.rm)}g.restore();
-  if(x.t==='end'){fAttr(g,W,H);const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
-  fMapTxt(g,W,H,x,C,true);return}
+ if(x.t==='map'){if(f2Map(g,W,H,x,p,C))fMapTxt(g,W,H,x,C,true);return}
+ if(x.t==='end'){const V=C.views._end;if(!V)return;const sc=1+0.04*p;g.save();g.translate(W/2,H/2);g.scale(sc,sc);g.translate(-W/2,-H/2);g.drawImage(V.bg,0,0);
+  const R=C.route.map(i=>stageLL(i));fRoute(g,V,R,R.length-1,1,null,C.rm);g.restore();
+  fAttr(g,W,H);const ds=C.P.ds;const N=Math.round((ds[ds.length-1].to-ds[0].from)/864e5);fCaption(g,W,H,'Asien-Auszeit 2027',`${N} Tage · ${C.P.all.length} Länder · ${ds.length} Etappen`);return}
  if(x.t==='img'){const pr=C.BM[x.m.id];const bm=pr&&pr.__v||null;
   if(bm){fPhoto(g,bm,W,H,p,x.fx,x.m.id)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
   if(F.cap){fChip(g,W,x.chip,W*0.05,H*0.05);fCaption(g,W,H,x.cap,x.sub)}return}
@@ -5289,7 +5332,7 @@ function filmDraw(g,W,H,x,p,C){const port=H>W;const F=filmCfg();const g3=C.g3&&f
   if(o&&o.el.readyState>=2){const v=o.el;const sc=Math.max(W/v.videoWidth,H/v.videoHeight);const w=v.videoWidth*sc,h=v.videoHeight*sc;g.drawImage(v,(W-w)/2,(H-h)/2,w,h)}else{g.fillStyle='#14232b';g.fillRect(0,0,W,H)}
   if(F.cap){fChip(g,W,'▶ '+x.chip.replace(/^📍 /,''),W*0.05,H*0.05);fCaption(g,W,H,x.cap,x.sub)}}}
 // ---------- Seite ----------
-function filmCounts(c){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);let i=0,v=0,o=0;ds.forEach(d=>{mdOf(S.stages[d.i].id).forEach(m=>{if(m.film===false){o++;return}m.k==='v'?v++:i++})});return {ds,i,v,o}}
+function filmCounts(c){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);let i=0,v=0,o=0;ds.forEach(d=>{const st=S.stages[d.i];const tOn=filmTrOn(st);mdOf(st.id).forEach(m=>{if(m.xid===MD_TR&&!tOn)return;if(m.film===false){o++;return}m.k==='v'?v++:i++})});return {ds,i,v,o}}
 function filmDurOf(c,F){const P=filmPlan();return P.T.filter(x=>x.c===c).reduce((a,x)=>a+x.dur,0)}
 function vFilm(){const F=filmCfg();const P=filmPlan();const ds=P.ds;const R=UI.film;const O=UI.filmOut;const [W,H]=FILM_SZ[F.fmt];const port=H>W;
  const N=ds.length?Math.round((ds[ds.length-1].to-ds[0].from)/864e5):0;const tot=P.T.filter(x=>x.t==='img').length,clips=P.T.filter(x=>x.t==='vid').length;
@@ -5306,11 +5349,13 @@ function vFilm(){const F=filmCfg();const P=filmPlan();const ds=P.ds;const R=UI.f
   <div class="small mut" style="display:flex;justify-content:space-between"><span>1,5 s</span><span>6 s</span></div>
   <div class="lab" style="margin:16px 2px 6px">Foto-Bewegung</div>${seg('fmZm',[['off','Aus'],['in','Rein'],['out','Raus'],['mix','Gemischt']],F.zm)}
   ${F.zm!=='off'?`<div class="lab" style="margin:12px 2px 6px">Stärke</div>${seg('fmZs',[['1','Sanft'],['2','Mittel'],['3','Stark']],F.zs)}`:''}
+  <div class="lab" style="margin:16px 2px 6px">Tempo der Transporte</div>${seg('fmTv',[['1','Langsam'],['2','Mittel'],['3','Schnell']],F.tv)}
+  <div class="lab" style="margin:12px 2px 6px">Tempo der Stecknadeln</div>${seg('fmPv',[['1','Langsam'],['2','Mittel'],['3','Schnell']],F.pv)}
   <div class="small mut" style="margin:8px 2px 0;line-height:1.45">${{off:'Fotos stehen still.',in:'Jedes Foto zoomt langsam hinein, mit wechselndem Blickpunkt.',out:'Jedes Foto startet nah und zoomt langsam heraus.',mix:'Wechselt je Foto: hinein, heraus, Schwenk und 3D-Fotokarte. Fotos im anderen Format kommen als gekippte Fotokarte ganz ins Bild.'}[F.zm]||''}</div></div>`;
  h+=`<div class="sec">Kapitel<span class="r">antippen für Fotos je Etappe</span></div><div class="card" style="padding:0">${P.all.map(c=>{const K=filmCounts(c);const on=!F.off[c];return `<div class="fmch${on?'':' off'}"><button class="fmchm" data-a="filmCh" data-k="${c}"><span style="font-size:20px">${flag(c)}</span><span class="sp"><span class="tt" style="display:block">${esc(country(c).name)}</span><span class="ss" style="display:block">${K.ds.length} ${K.ds.length===1?'Etappe':'Etappen'} · ${K.i} ${K.i===1?'Foto':'Fotos'}${K.v?` · ${K.v} ${K.v===1?'Clip':'Clips'}`:''}${K.o?` · ${K.o} abgewählt`:''}</span></span><span class="small num mut">${on?fmtSec(filmDurOf(c,F)):'aus'}</span></button><button class="fmtg${on?' on':''}" data-a="filmTg" data-k="${c}" aria-label="Kapitel ${on?'abwählen':'auswählen'}">${ic(on?'check':'plus',16,2.4)}</button></div>`}).join('')}</div>`;
- h+=`<div class="sec">Extras</div><div class="card" style="padding:0">${[['d3','globe','3D-Kamera: Globus und geneigte Karte'],['map','route','Kartenflug mit Verkehrsmittel'],['cap','cal','Ort und Datum einblenden']].map(([k,i,t])=>`<button class="fmch fmx" data-a="filmOpt" data-k="${k}"><span class="ico0">${ic(i,16,2)}</span><span class="sp">${t}</span><span class="fmtg${F[k]?' on':''}">${ic(F[k]?'check':'plus',16,2.4)}</span></button>`).join('')}
+ h+=`<div class="sec">Extras</div><div class="card" style="padding:0">${[['d3','globe','3D-Kamera: Globus und geneigte Karte'],['map','route','Kartenflug mit Verkehrsmittel'],['lbl','pin','Etappennamen über den Stecknadeln'],['cap','cal','Ort und Datum einblenden']].map(([k,i,t])=>`<button class="fmch fmx" data-a="filmOpt" data-k="${k}"><span class="ico0">${ic(i,16,2)}</span><span class="sp">${t}</span><span class="fmtg${F[k]?' on':''}">${ic(F[k]?'check':'plus',16,2.4)}</span></button>`).join('')}
   <button class="fmch fmx" data-a="filmMusic"><span class="ico0">${ic('spark',16,2)}</span><span class="sp">Eigene Musik<span class="ss" style="display:block" id="fmMus">Datei vom Handy · bleibt auf diesem Gerät</span></span><span class="chev">${ic('chev',14)}</span></button></div>
-  <div class="small mut" style="margin:10px 4px 0;line-height:1.45">Fotos und Clips verknüpft ihr in der Route an Etappe oder Ausflug – sie landen automatisch hier. Abwählen oder hinzufügen geht über das Kapitel.</div>`;
+  <div class="small mut" style="margin:10px 4px 0;line-height:1.45">Fotos und Clips verknüpft ihr in der Route an Etappe, Ausflug oder Transfer – sie landen automatisch hier. Im Kapitel wählt ihr Fotos ab und fügt Transfers als Verfolgungsfahrt hinzu.</div>`;
  return h};
 function filmProgH(){const R=UI.film;if(!R)return '';const p=R.total?Math.min(1,R.t/R.total):0;return `<div class="small" style="margin:10px 2px 6px;display:flex;justify-content:space-between"><b>${R.phase||(R.rec?'Video wird erstellt …':'Vorschau läuft …')}</b><span class="num mut">${R.phase?'':`${fmtSec(R.t)} / ${fmtSec(R.total)}`}</span></div><div class="prog1"><i style="width:${Math.round(p*100)}%;background:${R.rec?'var(--ki)':'var(--acc)'}"></i></div>`}
 function filmProg(){const e=document.getElementById('filmProg');if(e)e.innerHTML=filmProgH()}
@@ -5321,16 +5366,26 @@ async function filmPoster(){const vc=document.getElementById('filmCv');if(!vc||U
 {const r0=render;render=function(){const r=r0.apply(this,arguments);try{const t=UI.stack[UI.stack.length-1];if(t&&t.k==='film'){filmPoster();filmOutLoad();if(UI.filmJump){UI.filmJump=0;const e=$('#fmOut');if(e)setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'start'}),150)}const d=$('#fmDur');if(d){d.oninput=()=>{$('#fmDurL').textContent=String(d.value).replace('.',',')+' s'};d.onchange=()=>{filmCfg().dur=+d.value;save();UI.keepY=true;render()}}}}catch(e){}return r}}
 async function filmOutLoad(){if(UI.filmOut||UI.filmOutChk||UI.film)return;UI.filmOutChk=1;try{const v=await bkGet('X:film');if(v&&v.blob&&!UI.filmOut){const ext=/mp4/.test(v.type||v.blob.type)?'mp4':'webm';UI.filmOut={blob:v.blob,url:URL.createObjectURL(v.blob),ext,size:v.blob.size,fmt:v.fmt||'9:16',dur:v.dur||0,ts:v.ts};const t=UI.stack[UI.stack.length-1];if(t&&t.k==='film'&&!sheetOpen()){UI.keepY=true;render()}}}catch(e){}}
 // Kapitel: Etappen mit Fotos – Abwählen/Hinzufügen über die Fotos der Etappe
-function filmChSheet(c){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);const F=filmCfg();
- sheet(`<div class="sht">${flag(c)} ${esc(country(c).name)}</div><div class="mut" style="margin:4px 0 12px">Kapitel im Reise-Film · ${F.off[c]?'abgewählt':'dabei'}</div><div class="card" style="padding:0">${ds.map(d=>{const st=S.stages[d.i];const L=mdOf(st.id);const on=L.filter(m=>m.film!==false);
-  return `<button class="row" data-a="mdOpen" data-k="${d.i}"><div class="stn" style="width:26px;height:26px;font-size:11.5px">${stageNo()[st.id]}</div><div class="sp"><div class="tt">${esc(pname(st))}</div><div class="ss">${L.length?`${on.length} von ${L.length} im Film`:'noch keine Fotos'} · ${dl(d.from)}</div></div><span class="mdstrip">${on.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span><span class="chev">${ic('chev',14)}</span></button>`}).join('')}</div>
-  ${btns(`<button class="btn ${F.off[c]?'p':''}" style="flex:1" data-a="filmTg" data-k="${c}">${F.off[c]?'Kapitel wieder aufnehmen':'Kapitel abwählen'}</button>`,`<button class="btn" data-a="close">Fertig</button>`)}`)}
+function filmChSheet(c,flash){const ds=stagesDated().filter(d=>!d.gap&&S.stages[d.i].country===c);const F=filmCfg();const TR=filmTrList(c);const trOf=id=>TR.find(o=>o.st.id===id);
+ const strip=L=>L.length?`<span class="mdstrip">${L.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span>`:'';
+ const stRow=d=>{const st=S.stages[d.i];const L=mdOf(st.id).filter(m=>m.xid!==MD_TR);const on=L.filter(m=>m.film!==false);
+  return `<button class="row" data-a="mdOpen" data-k="${d.i}"><div class="stn" style="width:26px;height:26px;font-size:11.5px">${stageNo()[st.id]}</div><div class="sp"><div class="tt">${esc(pname(st))}</div><div class="ss">${L.length?`${on.length} von ${L.length} im Film`:'noch keine Fotos'} · ${dl(d.from)}</div></div>${strip(on)}<span class="chev">${ic('chev',14)}</span></button>`};
+ const trIc=o=>ic(o.leg?(o.leg.main==='flight'?'plane':o.leg.icons[0]):'car',14,2.1);
+ const trRow=o=>{const L=mdOf(o.st.id,MD_TR);const on=L.filter(m=>m.film!==false);
+  return `<div class="fmch fmtr${flash===o.st.id?' fl':''}" data-tr="${o.st.id}"><button class="fmchm" data-a="mdOpen" data-k="${o.d.i}" data-x="${MD_TR}"><span class="fmti">${trIc(o)}</span><span class="sp"><span class="tt" style="display:block">${esc(o.lab)} · ${esc(o.leg?o.leg.lab:'Transfer')}</span><span class="ss" style="display:block">${L.length?`${on.length} von ${L.length} ${L.length===1?'Foto':'Fotos'}`:'Verfolgungsfahrt · Fotos hinzufügen'}</span></span>${strip(on)}</button><button class="fmtg on" data-a="filmTr" data-k="${o.st.id}" data-c="${c}" aria-label="Transfer aus dem Film nehmen">${ic('minus',16,2.4)}</button></div>`};
+ const rows=ds.map(d=>{const o=trOf(S.stages[d.i].id);return (o&&filmTrOn(o.st)?trRow(o):'')+stRow(d)}).join('');const off=TR.filter(o=>!filmTrOn(o.st));
+ sheet(`<div class="sht">${flag(c)} ${esc(country(c).name)}</div><div class="mut" style="margin:4px 0 12px">Kapitel im Reise-Film · ${F.off[c]?'abgewählt':'dabei'}</div><div class="card" style="padding:0">${rows}</div>
+  ${off.length?`<div class="lab" style="margin:18px 2px 6px">Transfers hinzufügen</div><div class="card" style="padding:0">${off.map(o=>`<div class="fmch"><button class="fmchm" data-a="filmTr" data-k="${o.st.id}" data-c="${c}"><span class="fmti off">${trIc(o)}</span><span class="sp"><span class="tt" style="display:block">${esc(o.lab)} · ${esc(pname(o.pv))} → ${esc(pname(o.st))}</span><span class="ss" style="display:block">${esc(o.leg?o.leg.lab:'Transfer')} · ${dl(o.d.from)}</span></span></button><button class="fmtg" data-a="filmTr" data-k="${o.st.id}" data-c="${c}" aria-label="Transfer hinzufügen">${ic('plus',16,2.4)}</button></div>`).join('')}</div>`:''}
+  ${TR.length?`<div class="small mut" style="margin:8px 4px 0;line-height:1.45">Hinzugefügte Transfers rücken an ihre Stelle zwischen den Etappen und laufen im Film als Verfolgungsfahrt; ihre Fotos erscheinen klein auf der Karte. Transfers mit Fotos sind automatisch dabei.</div>`:''}
+  ${btns(`<button class="btn ${F.off[c]?'p':''}" style="flex:1" data-a="filmTg" data-k="${c}">${F.off[c]?'Kapitel wieder aufnehmen':'Kapitel abwählen'}</button>`,`<button class="btn" data-a="close">Fertig</button>`)}`);
+ if(flash)setTimeout(()=>{const e=document.querySelector(`#sheet [data-tr="${flash}"]`);if(e)e.scrollIntoView({block:'center',behavior:'smooth'})},120)}
 Object.assign(window.KIA=window.KIA||{},{
  filmOpen:()=>{closeSheet();go('route',[{k:'film'}])},
  filmPrev:()=>filmRun(false),filmRec:()=>{if(!window.MediaRecorder)return toast('Dieses Gerät kann hier keine Videos aufnehmen.');filmRun(true)},
  filmStop:()=>{if(UI.film)UI.film.run=0},
  filmTg:(el)=>{const F=filmCfg();const c=el.dataset.k;if(F.off[c])delete F.off[c];else F.off[c]=1;save();if(sheetOpen())filmChSheet(c);else{UI.keepY=true;render()}},
  filmCh:(el)=>filmChSheet(el.dataset.k),
+ filmTr:(el)=>{const F=filmCfg();const id=el.dataset.k;const st=S.stages.find(x=>x.id===id);if(!st)return;const on=filmTrOn(st);F.tr[id]=on?0:1;save();if(el.dataset.r==='md')mdTrSheet(S.stages.indexOf(st));else if(el.dataset.c)filmChSheet(el.dataset.c,on?null:id);else{UI.keepY=true;render()}},
  filmOpt:(el)=>{const F=filmCfg();F[el.dataset.k]=!F[el.dataset.k];save();UI.keepY=true;render()},
  filmMusic:async()=>{let has=null;try{has=await bkGet('X:music')}catch(e){}
   sheet(`<div class="sht">Eigene Musik</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Eine Musikdatei vom Handy (MP3, M4A …). Sie läuft im ganzen Film, leiser während Clips mit Ton, und blendet am Ende aus. Die Datei bleibt nur auf diesem Gerät.</div>
@@ -5343,7 +5398,7 @@ Object.assign(window.KIA=window.KIA||{},{
  filmDel:async()=>{const O=UI.filmOut;if(!O)return;try{await bkDel('X:film')}catch(e){}URL.revokeObjectURL(O.url);UI.filmOut=null;UI.keepY=true;render();toast('Video gelöscht.')},
  filmSave:()=>{const O=UI.filmOut;if(!O)return;const a=document.createElement('a');a.href=O.url;a.download=`Asien-Auszeit-2027.${O.ext}`;document.body.appendChild(a);a.click();a.remove();toast('Video wird gespeichert (Downloads).')}});
 // Format umschalten (Segment)
-document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-g="fmFmt"] button,[data-g="fmZm"] button,[data-g="fmZs"] button');if(!b||UI.film)return;const F=filmCfg();const k=b.closest('[data-g]').dataset.g;const f={fmFmt:'fmt',fmZm:'zm',fmZs:'zs'}[k];const v=k==='fmZs'?+b.dataset.k:b.dataset.k;if(F[f]!==v){F[f]=v;save();setTimeout(()=>{UI.keepY=true;render()},0)}});
+document.addEventListener('click',e=>{const b=e.target&&e.target.closest&&e.target.closest('[data-g="fmFmt"] button,[data-g="fmZm"] button,[data-g="fmZs"] button,[data-g="fmTv"] button,[data-g="fmPv"] button');if(!b||UI.film)return;const F=filmCfg();const k=b.closest('[data-g]').dataset.g;const f={fmFmt:'fmt',fmZm:'zm',fmZs:'zs',fmTv:'tv',fmPv:'pv'}[k];const v=/fmZs|fmTv|fmPv/.test(k)?+b.dataset.k:b.dataset.k;if(F[f]!==v){F[f]=v;save();setTimeout(()=>{UI.keepY=true;render()},0)}});
 // ===================== Reise-Film 3D: WebGL-Kamera – Globus, geneigte Karte, Fotokarten =====================
 // Eine WebGL-Canvas in Filmgröße rendert Boden, Globus oder Fotokarte. Die Film-Canvas übernimmt das Bild je Frame
 // und zeichnet Route, Verkehrsmittel und Texte darüber – mit derselben Kamera-Projektion in JS.
@@ -5394,10 +5449,10 @@ function fglClear(){const gl=FGL.gl;gl.viewport(0,0,FGL.W,FGL.H);gl.disable(gl.D
 function fglDraw(buf){const gl=FGL.gl;gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)}
 // Boden (Kapitel-Karte) mit Neigung und Dunst in der Ferne
 function f3Cam(W,H,tg,D,pit,bea){const fy=(H>W?50:36)*F3PI/180;const sp=Math.sin(pit),cp=Math.cos(pit),sb=Math.sin(bea),cb=Math.cos(bea);
- const eye=[tg[0]-D*sp*sb,tg[1]-D*sp*cb,D*cp];const M=M4.mul(M4.per(fy,W/H,D*.04,D*8),M4.look(eye,[tg[0],tg[1],0],[sb,cb,0]));
- return {M,eye,D,W,H,pr(x,y,z){const c=M4.ap(M,x,y,z||0);if(c[3]<D*.05)return null;return [(c[0]/c[3]+1)/2*W,(1-c[1]/c[3])/2*H,c[3]]}}}
+ const tz=tg[2]||0;const eye=[tg[0]-D*sp*sb,tg[1]-D*sp*cb,tz+D*cp];const M=M4.mul(M4.per(fy,W/H,D*.04,D*8),M4.look(eye,[tg[0],tg[1],tz],[sb,cb,0]));
+ return {M,eye,D,W,H,pit,pr(x,y,z){const c=M4.ap(M,x,y,z||0);if(c[3]<D*.05)return null;return [(c[0]/c[3]+1)/2*W,(1-c[1]/c[3])/2*H,c[3]]}}}
 function fglGlobeUp(G){if(FGL.gG!==G){if(G&&G.w)fglUp(FGL.tW,G.w,true);if(G&&G.r)fglUp(FGL.tR,G.r,true);FGL.gG=G}}
-function fglGround(V,cam,G){const gl=FGL.gl,P=FGL.pG;fglGlobeUp(G);if(FGL.gV!==V){if(FGL.gV&&FGL.gV.cv){FGL.gV.cv.width=1;FGL.gV.cv=null}if(V.has&&V.cv)fglUp(FGL.tG,V.cv,true);FGL.gV=V}
+function fglGround(V,cam,G){const gl=FGL.gl,P=FGL.pG;fglGlobeUp(G);if(FGL.gV!==V){if(V.has){const cv=fMosaicBuild(V.T);if(cv){fglUp(FGL.tG,cv,true);cv.width=1}}FGL.gV=V}
  fglClear();gl.disable(gl.BLEND);gl.useProgram(P.p);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,FGL.tG);gl.uniform1i(P.U.uT,0);gl.uniformMatrix4fv(P.U.uM,false,cam.M);gl.uniform1f(P.U.uTS,V.TS);gl.uniform1f(P.U.uHas,V.has?1:0);
  gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,FGL.tR);gl.uniform1i(P.U.uRg,1);gl.uniform1f(P.U.uHR,G&&G.r?1:0);gl.uniform4fv(P.U.uB,G&&G.b||[0,0,1,1]);gl.uniform2fv(P.U.uO,[V.mx0,V.my0]);gl.uniform1f(P.U.uSp,V.TS/V.k);
  gl.uniform3fv(P.U.uE,cam.eye);gl.uniform3fv(P.U.uHz,[.105,.19,.235]);gl.uniform2fv(P.U.uF,[cam.D*1.45,cam.D*3.2]);fglDraw(FGL.bG);gl.activeTexture(gl.TEXTURE0)}
@@ -5419,13 +5474,13 @@ function fglCard(bm,id,cw,ch,ry,rx,s){const gl=FGL.gl,P=FGL.pC,W=FGL.W,H=FGL.H;
  fglClear();gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.useProgram(P.p);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,FGL.tC);gl.uniform1i(P.U.uT,0);gl.uniformMatrix4fv(P.U.uM,false,M);gl.uniform2fv(P.U.uS,[cw,ch]);gl.uniform1f(P.U.uRr,Math.min(cw,ch)*.035);fglDraw(FGL.bC);
  return [[-.5,.5],[.5,.5],[.5,-.5],[-.5,-.5]].map(([u,v])=>{const c=M4.ap(M,u*cw,v*ch,0);return [(c[0]/c[3]+1)/2*W,(1-c[1]/c[3])/2*H]})}
 // ---------- Kacheln für 3D ----------
-async function fMosaic(z,tx0,ty0,nt){const S=nt*256,n=2**z;const cv=document.createElement('canvas');cv.width=cv.height=S;const g=cv.getContext('2d');g.fillStyle='#aad3df';g.fillRect(0,0,S,S);let ok=0;const J=[];
- for(let j=0;j<nt;j++)for(let i=0;i<nt;i++){const ty=ty0+j;if(ty<0||ty>=n)continue;J.push(filmTile(z,(((tx0+i)%n)+n)%n,ty).then(im=>{if(im){g.drawImage(im,i*256,j*256);ok++}}))}
- await Promise.all(J);if(!ok){cv.width=1;return null}return cv}
+async function fTiles(z,tx0,ty0,nt){const n=2**z;const ims=[];const J=[];for(let j=0;j<nt;j++)for(let i=0;i<nt;i++){const ty=ty0+j;if(ty<0||ty>=n)continue;J.push(filmTile(z,(((tx0+i)%n)+n)%n,ty).then(im=>{if(im)ims.push([i,j,im])}))}await Promise.all(J);return {nt,ims}}
+function fMosaicBuild(T){if(!T||!T.ims.length)return null;const S=T.nt*256;const cv=document.createElement('canvas');cv.width=cv.height=S;const g=cv.getContext('2d');g.fillStyle='#aad3df';g.fillRect(0,0,S,S);T.ims.forEach(([i,j,im])=>g.drawImage(im,i*256,j*256));return cv}
+async function fMosaic(z,tx0,ty0,nt){return fMosaicBuild(await fTiles(z,tx0,ty0,nt))}
 async function f3View(pts){const TS=2048,N=TS/256;const xs=pts.map(p=>fmx(p[1])),ys=pts.map(p=>fmy(p[0]));const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
  const sp=Math.max(x1-x0,y1-y0,.004)*2.3;let zt=Math.floor(Math.log2(TS/(256*sp)));zt=Math.max(3,Math.min(13,zt));const n=2**zt,k=256*n;
- const tx0=Math.round((x0+x1)/2*n-N/2),ty0=Math.round((y0+y1)/2*n-N/2);const cv=await fMosaic(zt,tx0,ty0,N);const mx0=tx0/n,my0=ty0/n;
- return {TS,zt,k,mx0,my0,cv,has:!!cv,W:(lat,lon)=>[(fmx(lon)-mx0)*k,-(fmy(lat)-my0)*k]}}
+ const tx0=Math.round((x0+x1)/2*n-N/2),ty0=Math.round((y0+y1)/2*n-N/2);const T=await fTiles(zt,tx0,ty0,N);const mx0=tx0/n,my0=ty0/n;
+ return {TS,zt,k,mx0,my0,T,has:T.ims.length>0,W:(lat,lon)=>[(fmx(lon)-mx0)*k,-(fmy(lat)-my0)*k]}}
 async function fGlobeTex(pts){const w=await fMosaic(2,0,0,4);const xs=pts.map(p=>fmx(p[1])),ys=pts.map(p=>fmy(p[0]));const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
  const sp=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))*1.8+.02;let z=Math.floor(Math.log2(1024/(256*sp)));z=Math.max(3,Math.min(7,z));const n=2**z;
  const tx0=Math.round(cx*n-2),ty0=Math.round(cy*n-2);const r=await fMosaic(z,tx0,ty0,4);return {w,r,b:[tx0/n,ty0/n,(tx0+4)/n,(ty0+4)/n]}}
@@ -5482,27 +5537,72 @@ function f3Title(g,W,H,x,p,C){const to=C.cc&&C.cc[x.c];if(!to)return false;const
  if(fGHas(C))fAttr(g,W,H);return true}
 function f3End(g,W,H,x,p,C){if(!C.gc)return false;const port=H>W;const e=fEase(f01(p));fSpace(g,W,H);const cam=fGCam(W,H,C.gc[0],C.gc[1]+10*(p-.5),C.gdR*(1.02+.18*e),port?.1:.04);fglGlobe(cam,C.G);g.drawImage(FGL.cv,0,0);
  const RL=C.route.map(i=>stageLL(i));fGRoute(g,cam,RL,C.rm,RL.length-1,1,null,false);return true}
+// ---------- Stecknadel und Namensschilder ----------
+const fBounce=t=>{const n=7.5625,d=2.75;if(t<1/d)return n*t*t;if(t<2/d)return n*(t-=1.5/d)*t+.75;if(t<2.5/d)return n*(t-=2.25/d)*t+.9375;return n*(t-=2.625/d)*t+.984375};
+function fPin(g,x,y,r,h,a){g.save();g.globalAlpha=a;g.fillStyle=`rgba(0,0,0,${.38*(1-Math.min(1,h/(r*8)))})`;g.beginPath();g.ellipse(x,y,r*.85,r*.3,0,0,2*F3PI);g.fill();
+ g.translate(x,y-h);g.shadowColor='rgba(0,0,0,.4)';g.shadowBlur=r*.8;g.shadowOffsetY=r*.25;g.beginPath();g.moveTo(0,0);g.bezierCurveTo(-r*.3,-r*.8,-r,-r*1.3,-r,-r*2.05);g.arc(0,-r*2.05,r,F3PI,0);g.bezierCurveTo(r,-r*1.3,r*.3,-r*.8,0,0);g.closePath();
+ g.fillStyle='#8FCFC6';g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.lineWidth=Math.max(1.5,r*.16);g.strokeStyle='#fff';g.stroke();g.beginPath();g.arc(0,-r*2.05,r*.38,0,2*F3PI);g.fillStyle='#0e2a3a';g.fill();g.restore()}
+function fTagBox(g,txt,x,y,fs){g.font=`700 ${Math.round(fs)}px Inter,system-ui,sans-serif`;const w=g.measureText(txt).width+fs*1.1,h=fs*1.75;return [x-w/2,y-h-fs*.35,x+w/2,y-fs*.35]}
+function fTag(g,txt,x,y,fs,a,box){const b=fTagBox(g,txt,x,y,fs);if(box){if(box.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]))return false;box.push(b)}const h=b[3]-b[1];
+ g.save();g.globalAlpha=a;g.fillStyle='rgba(8,18,24,.8)';fRR(g,b[0],b[1],b[2]-b[0],h,h/2);g.fill();g.beginPath();g.moveTo(x-fs*.32,b[3]-1);g.lineTo(x,b[3]+fs*.3);g.lineTo(x+fs*.32,b[3]-1);g.fill();
+ g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,x,b[1]+h/2+1);g.restore();return true}
+// Ankunft: Nadel fällt mit Federn, Ring am Boden, Name erscheint
+function fArrive(g,x,y,r,pa,name,fs,flat){if(pa<=0)return;const dp=f01(pa/.55);const h=(1-fBounce(dp))*r*10;const a=f01(pa/.1);
+ if(dp>=1){const t=((pa-.55)*1.6)%1;g.beginPath();g.ellipse(x,y,r*(1.3+t*3.2),r*(1.3+t*3.2)*(flat||.45),0,0,2*F3PI);g.strokeStyle=`rgba(143,207,198,${(1-t)*.9})`;g.lineWidth=Math.max(1.5,r*.18);g.stroke()}
+ fPin(g,x,y,r,h,a);if(name){const la=f01((pa-.4)/.2);if(la>0)fTag(g,name,x,y-h-r*3.2,fs,la)}}
 // ---------- Etappe: Kamerafahrt über die geneigte Karte ----------
-function f3Map(g,W,H,x,p,C){const V=C.v3&&C.v3[x.c];if(!V)return false;const R=C.route;const ci=R.indexOf(x.i);if(ci<0)return false;const pi0=x.prev!=null?R.indexOf(x.prev):-1;const drop=pi0<0||!!x.drop;
- if(!V.Pw)V.Pw=R.map(i=>{const ll=stageLL(i);return V.W(ll[0],ll[1])});const Pw=V.Pw;const B=Pw[ci],A=drop?B:Pw[pi0];const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy);const fl=C.rm[ci]==='flight';
- const D0=Math.max(V.TS*.42,Math.min(V.TS*1.2,L*1.4));let q,tg,D,pit,bea;
- if(drop){q=1;const d=fEase(f01(p/.8));tg=B;D=D0*(3-2*d);pit=(14+40*d)*F3PI/180;bea=-.45*(1-d)+.12*(p-.5)}
- else{q=fEase(f01((p-.12)/.66));const qc=fEase(f01((p-.05)/.8));tg=[A[0]+dx*qc,A[1]+dy*qc];let dir=L>1?Math.atan2(dx,dy):0;dir=Math.max(-.7,Math.min(.7,dir));bea=dir*.65+.2*(p-.5);pit=(50+6*Math.sin(F3PI*p))*F3PI/180;D=D0*(1+(fl?.38:.16)*Math.sin(F3PI*qc))}
- if(!V.inC){V.inC=new Set();R.forEach((i,k)=>{if(S.stages[i].country===x.c)V.inC.add(k)})}
- const cam=f3Cam(W,H,tg,D,pit,bea);fglGround(V,cam,C.G);g.drawImage(FGL.cv,0,0);f3Route(g,cam,Pw,C.rm,ci,drop?ci:pi0,q,p,drop,V.inC);return true}
-function f3Route(g,cam,Pw,rm,ci,pi,q,p,drop,inC){const W=Math.min(cam.W,cam.H),D=cam.D;const lw=Math.max(3,W*.0062);const fog=w=>1-f01((w-D*1.5)/(D*1.9));const wid=w=>Math.max(.35,Math.min(2.2,D/w));
- const Z=(k,t)=>{const a=Pw[k-1],b=Pw[k];const L=Math.hypot(b[0]-a[0],b[1]-a[1]);const h=rm[k]==='flight'?Math.min(L*.24,D*.9):0;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,h*4*t*(1-t)]};
+function f3Pw(V,C,c){if(!V.Pw)V.Pw=C.route.map(i=>{const ll=stageLL(i);return V.W(ll[0],ll[1])});if(!V.inC){V.inC=new Set();C.route.forEach((i,k)=>{if(S.stages[i].country===c)V.inC.add(k)})}return V.Pw}
+function f3Map(g,W,H,x,p,C){const V=C.v3&&C.v3[x.c];if(!V)return false;const R=C.route;const ci=R.indexOf(x.i);if(ci<0)return false;const pi0=x.prev!=null?R.indexOf(x.prev):-1;
+ const Pw=f3Pw(V,C,x.c);const B=Pw[ci],A=pi0>=0?Pw[pi0]:B;const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy);const fl=C.rm[ci]==='flight';
+ const T=x.dur||3,t=p*T,lead=x.lead||0,mv=x.mv||0,pin=x.pin||1.7;const moving=mv>0&&pi0>=0&&!x.drop&&!x.arr;const pa=f01((t-lead-(moving?mv:0))/pin);
+ const D0=Math.max(V.TS*.42,Math.min(V.TS*1.2,L*1.4));const dir=L>1?Math.atan2(dx,dy):0;const dirC=Math.max(-.7,Math.min(.7,dir));let q=1,tg=B,D=D0,pit=52*F3PI/180,bea=dirC*.65;
+ if(moving){const u=f01((t-lead)/mv);q=fEase(f01((u-.06)/.88));const qc=fEase(u);tg=[A[0]+dx*qc,A[1]+dy*qc];bea=dirC*.65+.2*(u-.5);pit=(50+6*Math.sin(F3PI*u))*F3PI/180;D=D0*(1+(fl?.38:.16)*Math.sin(F3PI*qc))}
+ else if(x.arr&&pi0>=0){const d=fEase(f01(t/(lead+pin*.5)));D=D0*(.82+.18*d);pit=(48+4*d)*F3PI/180;bea=dir}
+ else{const d=fEase(f01(t/(lead+pin*.45)));D=D0*(3-2*d);pit=(14+40*d)*F3PI/180;bea=-.45*(1-d)}
+ bea+=.12*pa;const cam=f3Cam(W,H,tg,D,pit,bea);fglGround(V,cam,C.G);g.drawImage(FGL.cv,0,0);
+ f3Route(g,cam,Pw,C.rm,ci,moving?pi0:ci,q,{inC:V.inC,hc:V.TS*.4,pa,names:filmCfg().lbl?C.names:null});return true}
+function f3Route(g,cam,Pw,rm,ci,pi,q,o){o=o||{};const W=Math.min(cam.W,cam.H),D=cam.D;const lw=Math.max(3,W*.0062);const fog=w=>1-f01((w-D*1.5)/(D*1.9));const wid=w=>Math.max(.35,Math.min(2.2,D/w));const inC=o.inC,hc=o.hc||1e9;
+ const Z=(k,t)=>{const a=Pw[k-1],b=Pw[k];const L=Math.hypot(b[0]-a[0],b[1]-a[1]);const h=rm[k]==='flight'?Math.min(L*.22,hc):0;return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,h*4*t*(1-t)]};
  const seg=(k,t1,col,w0,ground)=>{const n=rm[k]==='flight'?28:6;let pv=null;g.strokeStyle=col;for(let s=0;s<=n;s++){const P=Z(k,t1*s/n);const S=cam.pr(P[0],P[1],ground?0:P[2]);if(S&&pv){const w=(S[2]+pv[2])/2;g.globalAlpha=fog(w);g.lineWidth=w0*wid(w);g.beginPath();g.moveTo(pv[0],pv[1]);g.lineTo(S[0],S[1]);g.stroke()}pv=S}g.globalAlpha=1};
  g.lineCap='round';g.lineJoin='round';for(let k=1;k<Pw.length;k++)if(k>pi&&(!inC||inC.has(k)||inC.has(k-1)))seg(k,1,'rgba(255,255,255,.42)',lw*.55);
  for(let k=1;k<=pi;k++){if(rm[k]==='flight')seg(k,1,'rgba(0,0,0,.28)',lw*.7,true);seg(k,1,'#8FCFC6',lw)}
- let head=null;if(!drop&&ci===pi+1&&q>0){if(rm[ci]==='flight')seg(ci,q,'rgba(0,0,0,.3)',lw*.7,true);seg(ci,q,'#8FCFC6',lw);const P=Z(ci,q);head={P,S:cam.pr(P[0],P[1],P[2]),G:cam.pr(P[0],P[1],0)}}
- Pw.forEach((P,k)=>{if(inC&&!inC.has(k)&&k>pi)return;const S=cam.pr(P[0],P[1],0);if(!S)return;const done=k<=pi||(k===ci&&q>=1);g.globalAlpha=fog(S[2]);g.beginPath();g.arc(S[0],S[1],lw*(k===ci?1.9:1.15)*wid(S[2]),0,2*F3PI);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.7)';g.fill();g.lineWidth=lw*.5*wid(S[2]);g.strokeStyle='#10232e';g.stroke();g.globalAlpha=1});
- // Ankunft: Ring am Boden und Stecknadel
- const arr=drop?f01((p-.45)/.3):f01((p-.78)/.12);if(arr>0){const B=Pw[ci];const t=(p*2.2)%1;const rr=D*.035*(1+t*2.2);const ring=[];for(let s=0;s<=24;s++){const a=s/24*2*F3PI;ring.push(cam.pr(B[0]+Math.cos(a)*rr,B[1]+Math.sin(a)*rr,0))}
-  if(ring.every(Boolean)){g.beginPath();ring.forEach((S,i)=>i?g.lineTo(S[0],S[1]):g.moveTo(S[0],S[1]));g.strokeStyle=`rgba(143,207,198,${(1-t)*arr})`;g.lineWidth=lw*.8;g.stroke()}
-  const b0=cam.pr(B[0],B[1],0),b1=cam.pr(B[0],B[1],D*.1*fEase(arr));if(b0&&b1){g.strokeStyle='#fff';g.lineWidth=lw*.55;g.beginPath();g.moveTo(b0[0],b0[1]);g.lineTo(b1[0],b1[1]);g.stroke();g.beginPath();g.arc(b1[0],b1[1],lw*1.5,0,2*F3PI);g.fillStyle='#8FCFC6';g.fill();g.lineWidth=lw*.5;g.strokeStyle='#fff';g.stroke()}}
- // Verkehrsmittel mit Schatten
- if(head&&head.S){const a=1-f01((p-.8)/.1);const r=W*.034*Math.max(.75,Math.min(1.35,wid(head.S[2])));if(rm[ci]==='flight'&&head.G){g.globalAlpha=.32*a;g.fillStyle='#000';g.beginPath();g.ellipse(head.G[0],head.G[1],r*.8,r*.35,0,0,2*F3PI);g.fill();g.globalAlpha=1}if(a>0)fBadge(g,head.S[0],head.S[1],r,(MODES[rm[ci]]||MODES.car)[0],a)}}
+ let head=null;if(ci===pi+1&&q>0){if(rm[ci]==='flight')seg(ci,q,'rgba(0,0,0,.3)',lw*.7,true);seg(ci,q,'#8FCFC6',lw);const P=Z(ci,q);head={P,S:cam.pr(P[0],P[1],P[2]),G:cam.pr(P[0],P[1],0)}}
+ Pw.forEach((P,k)=>{if(inC&&!inC.has(k)&&k>pi)return;const S=cam.pr(P[0],P[1],0);if(!S)return;const done=k<=pi||(k===ci&&q>=1);g.globalAlpha=fog(S[2]);g.beginPath();g.arc(S[0],S[1],lw*(k===ci?1.6:1.15)*wid(S[2]),0,2*F3PI);g.fillStyle=done?'#8FCFC6':'rgba(255,255,255,.7)';g.fill();g.lineWidth=lw*.5*wid(S[2]);g.strokeStyle='#10232e';g.stroke();g.globalAlpha=1});
+ // Namen der bereits besuchten Etappen (klein), die aktuelle bekommt ihr Schild an der Nadel
+ const box=[];const Sc=cam.pr(Pw[ci][0],Pw[ci][1],0);const rp=Sc?W*.021*Math.max(.8,Math.min(1.5,wid(Sc[2]))):0;
+ if(o.names&&Sc&&o.pa>0){box.push(fTagBox(g,o.names[ci],Sc[0],Sc[1]-rp*3.2,W*.034));box.push([Sc[0]-rp,Sc[1]-rp*3.2,Sc[0]+rp,Sc[1]])}
+ if(o.names)Pw.forEach((P,k)=>{if(k===ci||(inC&&!inC.has(k))||k>pi)return;const S=cam.pr(P[0],P[1],0);if(!S)return;const a=fog(S[2]);if(a<.2)return;fTag(g,o.names[k],S[0],S[1]-lw*1.4*wid(S[2]),W*.024,a*.92,box)});
+ if(Sc&&o.pa>0)fArrive(g,Sc[0],Sc[1],rp,o.pa,o.names?o.names[ci]:null,W*.034,Math.max(.25,Math.cos(cam.pit||.9)));
+ if(head&&head.S&&!o.noBadge){const a=q<1?1:1-f01(o.pa*4);const r=W*.034*Math.max(.75,Math.min(1.35,wid(head.S[2])));if(rm[ci]==='flight'&&head.G){g.globalAlpha=.32*a;g.fillStyle='#000';g.beginPath();g.ellipse(head.G[0],head.G[1],r*.8,r*.35,0,0,2*F3PI);g.fill();g.globalAlpha=1}if(a>0)fBadge(g,head.S[0],head.S[1],r,(MODES[rm[ci]]||MODES.car)[0],a)}
+ return {head,wid,fog}}
+// ---------- Transfer: Verfolgungsfahrt hinter dem Verkehrsmittel, Fotos von unterwegs klein auf der Karte ----------
+// Zeitplan: Fahrt mit sanftem Abbremsen an jedem Foto, dort kurzer Halt (langsames Weiterrollen)
+function filmTrQ(x){if(x.qk)return x.qk;const N=x.ph.length,c=.012,mv=x.mv,hold=x.hold;const K=[[0,0,'l']];let t=0,q=0;const free=1-2*c*N;
+ x.ph.forEach((m,k)=>{const s=.1+.8*(k+.5)/N;t+=mv*Math.max(0,s-c-q)/free;K.push([t,s-c,'e']);t+=hold;K.push([t,s+c,'l']);q=s+c});t+=mv*(1-q)/free;K.push([t,1,'e']);return x.qk=K}
+function fTrQ(K,t){if(t<=0)return 0;for(let k=1;k<K.length;k++){const [t1,q1,ty]=K[k],[t0,q0]=K[k-1];if(t<=t1){const u=(t-t0)/Math.max(1e-6,t1-t0);return q0+(q1-q0)*(ty==='e'?.5-.5*Math.cos(F3PI*u):u)}}return 1}
+function fPhotoCard(g,bm,cx,cy,w,h,rot,a){const b=Math.max(2,w*.045);g.save();g.globalAlpha=a;g.translate(cx,cy);g.rotate(rot);g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=Math.max(6,w*.12);g.shadowOffsetY=w*.04;g.fillStyle='#fff';fRR(g,-w/2-b,-h/2-b,w+2*b,h+2*b,b*1.4);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;
+ const s=Math.max(w/bm.width,h/bm.height);g.beginPath();g.rect(-w/2,-h/2,w,h);g.clip();g.drawImage(bm,-bm.width*s/2,-bm.height*s/2,bm.width*s,bm.height*s);g.restore()}
+// anchor(s) → [x,y,Größe,Deckkraft] des Bodenpunkts bei Anteil s der Strecke
+function fTrPhotos(g,W,H,x,K,t,anchor,C){const N=x.ph.length;if(!N)return;const port=H>W;const m0=Math.min(W,H);let act=null;
+ x.ph.forEach((m,k)=>{const t0=K[2*k+1][0],t1=K[2*k+2][0];if(t<t0-.05)return;const pr=C.BM[m.id];const bm=pr&&pr.__v;if(!bm)return;const A=anchor(.1+.8*(k+.5)/N);if(!A)return;
+  const big=t<t1?f01((t-t0)/.32)*(1-f01((t-(t1-.38))/.38)):0;const ar=bm.width/bm.height;
+  const ss=m0*.11*Math.max(.6,Math.min(1.3,A[2]));let sw=ss,sh=ss;if(ar>1)sh=ss/ar;else sw=ss*ar;const stem=ss*.75;const sx=A[0],sy=A[1]-stem-sh/2;
+  let bw=port?W*.62:H*.62*ar,bh=bw/ar;const mh=port?H*.34:H*.5;if(bh>mh){bh=mh;bw=bh*ar}const bx=W/2,by=port?H*.3:H*.34;
+  const o={m,bm,A,sx,sy,sw,sh,stem,big,bx,by,bw,bh,k};if(big>0&&(!act||big>act.big))act=o;else drawS(o)});
+ function drawS(o){const e=fEase(o.big);const cx=o.sx+(o.bx-o.sx)*e,cy=o.sy+(o.by-o.sy)*e,w=o.sw+(o.bw-o.sw)*e,h=o.sh+(o.bh-o.sh)*e;const a=o.A[3]*(1-e)+e;
+  g.save();g.globalAlpha=Math.min(1,a);g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=Math.max(1.5,m0*.003);g.beginPath();g.moveTo(o.A[0],o.A[1]);g.lineTo(cx,cy+h/2);g.stroke();g.beginPath();g.arc(o.A[0],o.A[1],Math.max(2.5,m0*.006),0,2*F3PI);g.fillStyle='#fff';g.fill();g.restore();
+  fPhotoCard(g,o.bm,cx,cy,w,h,(o.k%2?.035:-.035)*(1-e),Math.min(1,a))}
+ if(act)drawS(act)}
+function f3Tr(g,W,H,x,p,C){const V=(C.v3t&&C.v3t[x.i])||(C.v3&&C.v3[x.c]);if(!V)return false;const R=C.route;const ci=R.indexOf(x.i),pi=R.indexOf(x.prev);if(ci<0||pi<0)return false;
+ const Pw=f3Pw(V,C,x.c);const A=Pw[pi],B=Pw[ci];const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.max(1,Math.hypot(dx,dy));const fl=C.rm[ci]==='flight';const hh=fl?Math.min(L*.22,V.TS*.4):0;
+ const K=filmTrQ(x);const Tm=K[K.length-1][0];const ld=x.lead||.7,tl=x.tail||.7;const t=p*x.dur-ld;const q=fTrQ(K,Math.min(Math.max(t,0),Tm));const z=hh*4*q*(1-q);
+ const dir=Math.atan2(dx,dy),fx=dx/L,fy=dy/L;const Dc=Math.max(V.TS*.16,Math.min(V.TS*.55,L*.35));const look=Dc*.18;
+ // Kamera: Überblick über die ganze Strecke → hinter das Fahrzeug → Verfolgung → wieder hoch zum Überblick mit allen Fotos
+ const Dov=Math.max(V.TS*.42,Math.min(V.TS*1.2,L*1.25)),Mid=[A[0]+dx*.5,A[1]+dy*.5,0];let w=0;if(t<0)w=1-fEase(f01((t+ld*.75)/(ld*.75)));else if(t>Tm)w=fEase(f01((t-Tm)/(tl*.62)));
+ const Cv=[A[0]+dx*q+fx*look,A[1]+dy*q+fy*look,z*.85];const tg=[Cv[0]+(Mid[0]-Cv[0])*w,Cv[1]+(Mid[1]-Cv[1])*w,Cv[2]*(1-w)];const D=Dc+(Dov-Dc)*w,pit=62-14*w,bea=dir;
+ const cam=f3Cam(W,H,tg,D,pit*F3PI/180,bea);fglGround(V,cam,C.G);g.drawImage(FGL.cv,0,0);
+ const r=f3Route(g,cam,Pw,C.rm,ci,pi,Math.max(q,.0001),{inC:V.inC,hc:V.TS*.4,pa:0,names:filmCfg().lbl?C.names:null});
+ fTrPhotos(g,W,H,x,K,t,s=>{const S=cam.pr(A[0]+dx*s,A[1]+dy*s,0);return S?[S[0],S[1],r.wid(S[2]),r.fog(S[2])]:null},C);return true}
 // ---------- Fotos: Zoom rein/raus, Schwenk, 3D-Fotokarte ----------
 const FBLUR={};
 function fBlur(bm,id){if(FBLUR[id])return FBLUR[id];const w=Math.max(24,Math.round(bm.width/12)),h=Math.max(24,Math.round(bm.height/12));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.filter='blur(3px)';x.drawImage(bm,-w*.06,-h*.06,w*1.12,h*1.12);return FBLUR[id]=c}
