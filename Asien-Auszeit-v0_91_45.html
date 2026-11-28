@@ -525,6 +525,8 @@ html.shlock,html.shlock body{overflow:hidden;overscroll-behavior:none}
 .trph{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 12px 9px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2)}.trph .mdstrip{margin-left:auto}
 .ib.ibfilm{color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,transparent)}
 .mdq{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line2)}.mdq:first-child{border-top:0}.mdqb{display:flex;gap:6px;flex:none}.mdqb .btn{padding-left:10px;padding-right:10px}
+.mdqa{width:30px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex:none;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}
+.mdqh{font-size:11.5px;font-weight:600;color:var(--ink3);padding:10px 14px 2px;border-top:1px solid var(--line2);text-transform:none}.mdqh:first-child{border-top:0}
 </style></head><body>
 <main id="main"></main>
 <button class="fab" id="fab" data-a="plus" hidden aria-label="Hinzufügen"></button>
@@ -1401,8 +1403,9 @@ function prCands(c){const out=[];S.stages.forEach((st,i)=>{if(st.gap||st.country
    Etappen-Assistent, KI-Zentrale. Arbeitet mit denselben Reisedaten wie 0.81.
    Vor der ersten Änderung eines Tages wird eine Tagessicherung angelegt.
    ====================================================== */
-const APP_VERSION='0.91_44';
+const APP_VERSION='0.91_45';
 const CHANGELOG=[
+ {v:'0.91_45',d:'28.11.2026',items:['Foto-Schnellwahl (Plus-Knopf → Fotos) mit Auswahlliste: Etappe, Ausflug oder Transfer. Ausflüge erscheinen je Etappe mit ihrem Tag; unter „Heute“ stehen während der Reise die Ausflüge des Tages','In der Etappe unten bei der Notiz: neue Zeile „Fotos und Clips“ mit Anzahl je Etappe, Ausflüge und Transfer und Vorschaubildern']},
  {v:'0.91_44',d:'28.11.2026',items:['Plus-Knopf in der Route: neuer Eintrag „Fotos“ – Schnellwahl je Etappe mit „Transfer“ (Fotos von unterwegs) oder „Etappe“, danach öffnet sich direkt die Fotoauswahl. Während der Reise steht die heutige Etappe oben','Film-Symbol oben in der Route farbig hervorgehoben']},
  {v:'0.91_43',d:'28.11.2026',items:['Reise-Film, Kapitel: Transfers lassen sich unter den Etappen hinzufügen und rücken automatisch an ihre Stelle zwischen den Etappen. Transfers mit Fotos sind automatisch dabei, mit − wieder herausnehmen','Fotos vom Transfer: in der Route am Transfer (Foto-Symbol, Zeile mit Vorschau, Transfer-Menü) oder im Kapitel hinzufügen','Im Film läuft ein Transfer als Verfolgungsfahrt: erst Überblick, dann fährt die Kamera dem Verkehrsmittel hinterher. An jedem Foto kurzer Halt – das Foto springt groß ins Bild und bleibt danach klein auf der Karte stehen. Am Ende fährt die Kamera hoch und zeigt die ganze Strecke mit allen Fotos','Neue Einstellungen: Tempo der Transporte und Tempo der Stecknadeln (Langsam, Mittel, Schnell); Etappennamen über den Stecknadeln ein- und ausschaltbar','Die Stecknadel fällt jetzt sichtbar auf die Karte, federt nach und zieht einen Ring am Boden – deutlich ruhiger als bisher']},
  {v:'0.91_42',d:'28.11.2026',items:['Reise-Film: Das fertige Video bleibt auf dem Gerät gespeichert, auch wenn die App neu lädt oder geschlossen wird – bis ihr ein neues erstellt oder es löscht','Während ein Video entsteht, wartet das automatische Update, statt die Aufnahme durch Neuladen abzubrechen','Nach der Aufnahme springt die Seite zu „Fertiges Video“ mit Teilen (z. B. Google Fotos, WhatsApp) und Speichern (Downloads)']},
@@ -1683,7 +1686,7 @@ function vStage(i){const d=stagesDated()[i];const st=S.stages[i];const p=byId(st
  let open=false;h+='<div class="card">';
  S5.forEach((x,k)=>{if(k===nxI){h+='</div>'+stepRow(x,k,true);open=true;return}if(open){h+='<div class="card">';open=false}h+=stepRow(x,k,false)});
  if(!open)h+='</div>';
- h+=`<div class="card" style="margin-top:16px">${row({icn:'book',t:'Notiz',s:p?.note?esc(p.note):'noch keine',a:`data-a="noteEdit" data-k="${p?.id}"`})}</div>`;
+ h+=`<div class="card" style="margin-top:16px">${row({icn:'book',t:'Notiz',s:p?.note?esc(p.note):'noch keine',a:`data-a="noteEdit" data-k="${p?.id}"`})}${typeof mdStageRow==='function'?mdStageRow(i):''}</div>`;
  return h.replace(/<div class="card"><\/div>/g,'')}
 
 // ---------- Orte ----------
@@ -5180,15 +5183,24 @@ function trPhRow(i){const st=S.stages[i];if(!st)return '';const L=mdOf(st.id,MD_
 {const t0=trMenu;trMenu=function(i){const r=t0.apply(this,arguments);try{const st=S.stages[i];const c=$('#sheet .card');if(c&&st){const L=mdOf(st.id,MD_TR);c.insertAdjacentHTML('afterbegin',row({icn:'img',t:'Fotos vom Transfer',s:L.length?mdCnt(L)+' · für den Reise-Film':'Fotos von unterwegs für den Reise-Film',a:`data-a="mdOpen" data-k="${i}" data-x="${MD_TR}"`}))}}catch(e){}return r}}
 // ---------- Schnellwahl über „+“: Fotos zu Etappe oder Transfer ----------
 function mdQuickSheet(c){const all=stagesDated().filter(d=>!d.gap);if(!all.length)return;const T=iso(today());const cur=all.find(d=>iso(d.from)<=T&&T<iso(d.to))||all.find(d=>iso(d.from)===T);const cs=[...new Set(all.map(d=>S.stages[d.i].country))];
- c=c||UI.mdQc||(cur?S.stages[cur.i].country:(UI.rc&&cs.includes(UI.rc)?UI.rc:cs[0]));if(!cs.includes(c))c=cs[0];UI.mdQc=c;const trs=new Set(filmTrList().map(o=>o.st.id));
- const rowH=d=>{const st=S.stages[d.i];const L=mdOf(st.id).filter(m=>m.xid!==MD_TR),Lt=mdOf(st.id,MD_TR);const l=trs.has(st.id)?filmLeg(st):null;
-  return `<div class="mdq"><div class="stn" style="width:26px;height:26px;font-size:11.5px">${stageNo()[st.id]}</div><div class="sp" style="min-width:0"><div class="tt" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(pname(st))}</div><div class="ss" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dl(d.from)}${L.length?' · '+mdCnt(L):''}</div></div>
-  <div class="mdqb">${l?`<button class="btn sm" data-a="mdQuick" data-k="${d.i}" data-x="${MD_TR}" aria-label="Fotos zum Transfer nach ${esc(pname(st))}">${ic(l.main==='flight'?'plane':l.icons[0],14,2)}Transfer${Lt.length?` <b class="num" style="margin-left:2px">${Lt.length}</b>`:''}</button>`:''}<button class="btn sm p" data-a="mdQuick" data-k="${d.i}" aria-label="Fotos zur Etappe ${esc(pname(st))}">${ic('img',14,2)}Etappe</button></div></div>`};
- sheet(`<div class="sht">Fotos hinzufügen</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Wohin gehören die Fotos? Danach öffnet sich die Fotoauswahl des Handys – auch mit euren Google-Fotos-Alben.</div>
- ${cur?`<div class="lab" style="margin:0 2px 6px">Heute</div><div class="card" style="padding:0;margin-bottom:14px">${rowH(cur)}</div>`:''}
- <div class="chips wrapc" style="margin-bottom:10px">${cs.map(k=>`<button type="button" class="chip ${k===c?'on':''}" data-a="mdQc" data-k="${k}">${flag(k)} ${esc(country(k).name)}</button>`).join('')}</div>
- <div class="card" style="padding:0">${all.filter(d=>S.stages[d.i].country===c).map(rowH).join('')}</div>
- <div class="small mut" style="margin:10px 4px 0;line-height:1.45">„Transfer“ = Fotos von unterwegs dorthin. Fotos zu einem Ausflug fügt ihr im Ausflug oder in den Fotos der Etappe hinzu.</div>`)}
+ c=c||UI.mdQc||(cur?S.stages[cur.i].country:(UI.rc&&cs.includes(UI.rc)?UI.rc:cs[0]));if(!cs.includes(c))c=cs[0];UI.mdQc=c;const ty=UI.mdQt||'st';const TR=filmTrList();const no=stageNo();
+ const plus=`<span class="mdqa">${ic('plus',15,2.4)}</span>`;const cnt=L=>L.length?' · '+mdCnt(L):'';
+ const stR=d=>{const st=S.stages[d.i];const L=mdOf(st.id,null);return row({left:`<div class="stn" style="width:26px;height:26px;font-size:11.5px;margin-right:2px">${no[st.id]}</div>`,t:esc(pname(st)),s:`${dl(d.from)}${d.nights?' – '+dl(d.to):''}${cnt(L)}`,a:`data-a="mdQuick" data-k="${d.i}"`,right:plus,nochev:1})};
+ const exR=(d,x)=>{const L=mdOf(S.stages[d.i].id,x.id);return row({icn:'pin',t:esc(x.name),s:`${x.planned?dl(pd(x.planned)):'noch ohne Tag'}${cnt(L)}`,a:`data-a="mdQuick" data-k="${d.i}" data-x="${x.id}"`,right:plus,nochev:1})};
+ const trR=o=>{const L=mdOf(o.st.id,MD_TR);return row({icn:o.leg?(o.leg.main==='flight'?'plane':o.leg.icons[0]):'car',t:`${esc(o.lab)} · ${esc(pname(o.pv))} → ${esc(pname(o.st))}`,s:`${esc(o.leg?o.leg.lab:'Transfer')} · ${dl(o.d.from)}${cnt(L)}`,a:`data-a="mdQuick" data-k="${o.d.i}" data-x="${MD_TR}"`,right:plus,nochev:1})};
+ const exList=(ds,day)=>{let h='';ds.forEach(d=>{const ex=exOf(d.i).filter(x=>!day||x.planned===day).slice().sort((a,b)=>String(a.planned||'9').localeCompare(String(b.planned||'9')));if(!ex.length)return;h+=`<div class="mdqh">${no[S.stages[d.i].id]} · ${esc(pname(S.stages[d.i]))}</div>`+ex.map(x=>exR(d,x)).join('')});return h};
+ const list=ds=>ty==='ex'?exList(ds):ty==='tr'?TR.filter(o=>ds.some(d=>d.i===o.d.i)).map(trR).join(''):ds.map(stR).join('');
+ const empty={st:'Keine Etappen.',ex:`In ${esc(country(c).name)} sind noch keine Ausflüge eingeplant.`,tr:`In ${esc(country(c).name)} gibt es keine Transfers.`}[ty];
+ const tdy=cur?(ty==='ex'?exList([cur],T):list([cur])):'';const body=list(all.filter(d=>S.stages[d.i].country===c));
+ sheet(`<div class="sht">Fotos hinzufügen</div><div class="mut" style="margin:4px 0 12px;line-height:1.45">Wohin gehören die Fotos? Antippen öffnet die Fotoauswahl des Handys – auch mit euren Google-Fotos-Alben.</div>
+ ${lbl('Fotos gehören zu')}<select class="fld" id="mdQt"><option value="st" ${ty==='st'?'selected':''}>Etappe – Fotos vom Ort</option><option value="ex" ${ty==='ex'?'selected':''}>Ausflug</option><option value="tr" ${ty==='tr'?'selected':''}>Transfer – Fotos von unterwegs</option></select>
+ ${tdy?`<div class="lab" style="margin:14px 2px 6px">Heute</div><div class="card" style="padding:0">${tdy}</div>`:''}
+ <div class="chips wrapc" style="margin:14px 0 10px">${cs.map(k=>`<button type="button" class="chip ${k===c?'on':''}" data-a="mdQc" data-k="${k}">${flag(k)} ${esc(country(k).name)}</button>`).join('')}</div>
+ <div class="card" style="padding:0">${body||`<div class="small mut" style="padding:14px">${empty}</div>`}</div>`)}
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='mdQt'){UI.mdQt=e.target.value;mdQuickSheet()}});
+function mdStageRow(i){const st=S.stages[i];if(!st)return '';const L=mdOf(st.id);const on=L.filter(m=>m.film!==false);const parts=[];const a=mdOf(st.id,null),t=mdOf(st.id,MD_TR),x=L.filter(m=>m.xid&&m.xid!==MD_TR);
+ if(a.length)parts.push('Etappe '+a.length);if(x.length)parts.push('Ausflüge '+x.length);if(t.length)parts.push('Transfer '+t.length);
+ return row({icn:'img',t:'Fotos und Clips',s:L.length?parts.join(' · ')+' · für den Reise-Film':'für den Reise-Film hinzufügen',a:`data-a="mdOpen" data-k="${i}"`,right:on.length?`<span class="mdstrip">${on.slice(0,3).map(m=>`<span class="mdmini" data-mdt="${m.id}"></span>`).join('')}</span>`:''})}
 Object.assign(window.KIA=window.KIA||{},{mdQuickOpen:()=>mdQuickSheet(),mdQc:(el)=>mdQuickSheet(el.dataset.k),mdQuick:(el)=>{const st=S.stages[+el.dataset.k];if(!st)return;UI.mdRet=null;mdPick(st.id,el.dataset.x||null)}});
 // ---------- Zeile in der Route, Eintrag im Etappen-Menü und im Ausflug ----------
 function mdRow(d){const st=S.stages[d.i];const L=mdOf(st.id).filter(m=>m.xid!==MD_TR);const started=iso(today())>=iso(d.from);if(!L.length&&!started)return '';
